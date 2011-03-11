@@ -1,0 +1,9 @@
+; DVRMD_Filter.def : Declares the module parameters.
+
+LIBRARY      "DVRMD_Filter.OCX"
+
+EXPORTS
+	DllCanUnloadNow     PRIVATE
+	DllGetClassObject   PRIVATE
+	DllRegisterServer   PRIVATE
+	DllUnregisterServer PRIVATE
