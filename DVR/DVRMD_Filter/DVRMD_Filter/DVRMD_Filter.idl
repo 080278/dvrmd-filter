@@ -1,0 +1,52 @@
+// DVRMD_Filter.idl : type library source for ActiveX Control project.
+
+// This file will be processed by the MIDL compiler tool to
+// produce the type library (DVRMD_Filter.tlb) that will become a resource in
+// DVRMD_Filter.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(D040A193-ED38-49B2-AFDE-D10E86A9EFCE), version(1.0),
+  helpfile("DVRMD_Filter.hlp"),
+  helpstring("DVRMD_Filter ActiveX Control module"),
+  control ]
+library DVRMD_FilterLib
+{
+	importlib(STDOLE_TLB);
+
+	//  Primary dispatch interface for CDVRMD_FilterCtrl
+
+	[ uuid(EC35B6AB-684F-4FE3-8EAD-4AAABE024EA2),
+	  helpstring("Dispatch interface for DVRMD_Filter Control")]
+	dispinterface _DDVRMD_Filter
+	{
+		properties:
+		methods:
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+	};
+
+	//  Event dispatch interface for CDVRMD_FilterCtrl
+
+	[ uuid(67DC81BA-E0EC-4122-AD13-DEF72A4BEC27),
+	  helpstring("Event interface for DVRMD_Filter Control") ]
+	dispinterface _DDVRMD_FilterEvents
+	{
+		properties:
+			//  Event interface has no properties
+
+		methods:
+	};
+
+	//  Class information for CDVRMD_FilterCtrl
+
+	[ uuid(023D5C5C-2FFE-4054-8CE9-45C492778C52),
+	  helpstring("DVRMD_Filter Control"), control ]
+	coclass DVRMD_Filter
+	{
+		[default] dispinterface _DDVRMD_Filter;
+		[default, source] dispinterface _DDVRMD_FilterEvents;
+	};
+
+};
