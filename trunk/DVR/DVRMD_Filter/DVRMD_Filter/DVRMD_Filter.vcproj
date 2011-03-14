@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -50,7 +50,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -72,6 +72,7 @@
 				RegisterOutput="true"
 				OutputFile="$(OutDir)\$(ProjectName).ocx"
 				LinkIncremental="2"
+				IgnoreDefaultLibraryNames="nafxcwd.lib"
 				ModuleDefinitionFile=".\DVRMD_Filter.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -97,6 +98,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -184,6 +186,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>

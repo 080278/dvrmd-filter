@@ -1,6 +1,7 @@
 
 #include "StdAfx.h"
 #include "CConvertAVI.h"
+#include "Metadata_Types.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,6 +15,8 @@ CConvertAVI::CConvertAVI()
 	m_pIndexes   = NULL;
 	m_dwMaxFrames = 0;
 	ZeroMemory(&m_strAVIPara, sizeof(AVI_CONVERT_PARA));
+
+	HHV::ObjectMeta om;
 }
 
 CConvertAVI::~CConvertAVI()

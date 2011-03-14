@@ -63,6 +63,20 @@
 #define IDD_WATERMARK                   240
 #define IDC_CURSOR1                     241
 #define IDD_SET_KEY                     242
+#define IDS_DVRMD_FILTER               243
+#define IDS_DVRMD_FILTER_PPG           244
+
+#define IDS_DVRMD_FILTER_PPG_CAPTION   245
+
+#define IDD_PROPPAGE_DVRMD_FILTER      246
+
+#define IDD_ABOUTBOX_DVRMD_FILTER      247
+
+#define IDB_DVRMD_FILTER               248
+#define IDI_ABOUTDLL					249
+
+#define IDD_DVRMDFRAME_DIALOG				250
+
 #define IDC_VER                         1025
 #define IDC_REFRESH                     1026
 #define IDC_SEEK                        1026
