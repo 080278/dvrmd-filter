@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRMD_Filter", "DVRMD_Filter\DVRMD_Filter.vcproj", "{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRMDFrame", "DVRMDFrame\DVRMDFrame.vcproj", "{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}.Debug|Win32.Build.0 = Debug|Win32
 		{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}.Release|Win32.ActiveCfg = Release|Win32
 		{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}.Release|Win32.Build.0 = Release|Win32
+		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Debug|Win32.Build.0 = Debug|Win32
+		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Release|Win32.ActiveCfg = Release|Win32
+		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
