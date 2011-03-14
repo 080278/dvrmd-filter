@@ -136,7 +136,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../Include/PlayCtrl"
+				AdditionalIncludeDirectories="../Include/PlayCtrl;../Include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_FOR_HIKPLAYM4_DLL_"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

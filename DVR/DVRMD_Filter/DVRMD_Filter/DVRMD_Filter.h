@@ -7,6 +7,7 @@
 #endif
 
 #include "resource.h"       // main symbols
+//#include "../DVRMDPlayer/Player.h"
 
 
 // CDVRMD_FilterApp : See DVRMD_Filter.cpp for implementation.
@@ -16,6 +17,8 @@ class CDVRMD_FilterApp : public COleControlModule
 public:
 	BOOL InitInstance();
 	int ExitInstance();
+
+	//CPlayerApp	m_playerApp;
 };
 
 extern const GUID CDECL _tlid;
