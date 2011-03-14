@@ -9,6 +9,9 @@
 using std::string;
 using std::vector;
 
+#define INT_SIZE	4
+#define BOOL_SIZE	1
+
 namespace HHV {
 
 	struct RGBColor;
@@ -24,10 +27,17 @@ namespace HHV {
 		template<class TByte, int ByteCount>
 		static byte* ReadBytes(byte* pBase, TByte& value)
 		{
-			byte bs[ByteCount];
-			memcpy(bs, pBase, ByteCount);
-			value = *((TByte*)bs);
+			memset(&value, 0, sizeof(TByte));
+			memcpy(&value, pBase, ByteCount);
+
 			return pBase+ByteCount;
+		}
+
+		static byte* ReadBool(byte* pBase, bool& value)
+		{
+			value = *pBase == 1;
+
+			return pBase+1;
 		}
 
 		static byte* ReadString(byte* pBase, std::string& value)
@@ -46,25 +56,105 @@ namespace HHV {
 			return pNext;
 		}
 
+		static byte* ReadPoints(byte* pBase, Points& pts)
+		{
+			int nLen = 0;
+			byte* pNext = ReadBytes<int, 4>(pBase, nLen);
+			if (nLen > 0)
+			{
+				for (int i = 0; i < nLen; ++i)
+				{
+					CvPoint pt;
+					pNext = ReadBytes<int, 4>(pNext, pt.x);
+					pNext = ReadBytes<int, 4>(pNext, pt.y);
+
+					pts.push_back(pt);
+				}
+			}
+			return pNext;
+		}
+
+		template<class T>
+		static byte* Read(byte* pBase, std::vector<T>& values)
+		{
+			int nLen = 0;
+			byte* pNext = ReadBytes<int, 4>(pBase, nLen);
+			if (nLen > 0)
+			{
+				for (int i = 0; i < nLen; ++i)
+				{
+					T t;
+					pNext = t.FromMemory(pBase);
+					values.push_back(t);
+				}
+			}
+
+			return pNext;
+		}
+		template<class T>
+		static byte* Write(byte* pBase, std::vector<T>& values)
+		{
+			byte* pNext = WriteBytes<int, 4>(pBase, (int)values.size());
+			for (std::vector<T>::iterator it = values.begin(); it != values.end(); ++it)
+			{
+				pNext = it->ToMemory(pNext);
+			}
+
+			return pNext;
+		}
+		static byte* WritePoints(byte* pBase, Points& pts)
+		{
+			byte* pNext = WriteBytes<int, 4>(pBase, (int)pts.size());
+			if (pts.size() > 0)
+			{
+				for (Points::iterator it = pts.begin(); it != pts.end(); ++it)
+				{
+					pNext = WriteBytes<int, 4>(pNext, it->x);
+					pNext = WriteBytes<int, 4>(pNext, it->y);
+				}
+			}
+			return pNext;
+		}
 		template<class TByte, int ByteCount>
 		static byte* WriteBytes(byte* pBase, TByte value)
 		{
-			byte bs[ByteCount];
-			*((TByte*)bs) = value;
-			memcpy(pBase, bs, ByteCount);
+			memcpy(pBase, &value, ByteCount);
 			return pBase+ByteCount;
 		}
 
-		static byte* WriteString(byte* pBase, std::string& value)
+		static byte* WriteString(byte* pBase, std::string value)
 		{
 			byte* pNext = WriteBytes<int, 4>(pBase, value.length());
 			memcpy(pNext, value.c_str(), value.length());
 			return pNext+value.length();
 		}
-		static int MemSize(std::string& str)
+		static byte* WriteBool(byte* pBase, bool value)
 		{
-			return sizeof(int) + str.length();
+			*pBase = value ? 1 : 0;
+
+			return pBase + 1;
 		}
+
+		static int MemSize(std::string str)
+		{
+			return 4 + str.length();
+		}
+		static int MemSize(Points& pts)
+		{
+			return 4 + pts.size() * 8;
+		}
+		template<class T>
+		static int MemSize(std::vector<T>& values)
+		{
+			int nSize = 4;
+			for (std::vector<T>::iterator it = values.begin(); it != values.end(); ++it)
+			{
+				nSize += it->memsize();
+			}
+
+			return nSize;
+		}
+
 	public:
 		//For file
 		static void Read(std::ifstream& is, std::string& value)
@@ -151,8 +241,8 @@ namespace HHV {
 			return MetaDataHelper::MemSize(id) 
 				+ MetaDataHelper::MemSize(label)
 				+ MetaDataHelper::MemSize(type)
-				+ 1 
-				+ sizeof(CvRect)
+				+ BOOL_SIZE 
+				+ INT_SIZE * 4
 				+ sizeof(CvScalar);
 		}
 
@@ -161,13 +251,27 @@ namespace HHV {
 			byte* pNext = MetaDataHelper::ReadString(pBase, id);
 			pNext = MetaDataHelper::ReadString(pNext, label);
 			pNext = MetaDataHelper::ReadString(pNext, type);
-			//MetaDataHelper::ReadBytes<bool, 1>(pNext, bAlerted);
-			bAlerted = *pNext == 1;++pNext;
+			pNext = MetaDataHelper::ReadBool(pNext, bAlerted);
 			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.x);
 			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.y);
 			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.width);
 			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.height);
 			pNext = MetaDataHelper::ReadBytes<CvScalar, sizeof(CvScalar)>(pNext, color);
+			return pNext;
+		}
+
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteString(pBase, id);
+			pNext = MetaDataHelper::WriteString(pNext, label);
+			pNext = MetaDataHelper::WriteString(pNext, type);
+			pNext = MetaDataHelper::WriteBool(pNext, bAlerted);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.x);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.y);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.width);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.height);
+			pNext = MetaDataHelper::WriteBytes<CvScalar, sizeof(CvScalar)>(pNext, color);
+
 			return pNext;
 		}
 
@@ -227,8 +331,29 @@ namespace HHV {
 		std::string text;
 		int memsize()
 		{
-			return sizeof(x) + sizeof(y) + sizeof(RGBColor) + sizeof(size) + MetaDataHelper::MemSize(text);
+			return INT_SIZE + INT_SIZE + sizeof(RGBColor) + INT_SIZE + MetaDataHelper::MemSize(text);
 		}
+
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::ReadBytes<int, 4>(pBase, x);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y);
+			pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pNext, color);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, size);
+			pNext = MetaDataHelper::ReadString(pNext, text);
+			return pNext;
+		}
+
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteBytes<int, 4>(pBase, x);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y);
+			pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pNext, color);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, size);
+			pNext = MetaDataHelper::WriteString(pNext, text);
+			return pNext;
+		}
+
 		void serialize(std::ifstream& is)
 		{
 			is >> x >> y;
@@ -255,8 +380,30 @@ namespace HHV {
 		
 		int memsize()
 		{
-			return sizeof(RGBColor) + sizeof(int) + 1 + sizeof(RGBColor) + sizeof(int) + 1;
+			return sizeof(RGBColor) + INT_SIZE + BOOL_SIZE + sizeof(RGBColor) + INT_SIZE + BOOL_SIZE;
 		}
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, thickness);
+			pNext = MetaDataHelper::ReadBool(pNext, bFill);
+			pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pNext, fill_color);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, alpha);
+			pNext = MetaDataHelper::ReadBool(pNext, bFlash);
+			return pNext;
+		}
+
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, thickness);
+			pNext = MetaDataHelper::WriteBool(pNext, bFill);
+			pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pNext, fill_color);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, alpha);
+			pNext = MetaDataHelper::WriteBool(pNext, bFlash);
+			return pNext;
+		}
+
 		void serialize(std::ifstream& is)
 		{
 			MetaDataHelper::Read(is, color);
@@ -285,7 +432,36 @@ namespace HHV {
 		int arrow_length;
 		int arrow_width;
 		Points lines;
+		int memsize()
+		{
+			return sizeof(RGBColor) + 
+				   INT_SIZE +
+				   INT_SIZE +
+				   INT_SIZE +
+				   INT_SIZE +
+				   MetaDataHelper::MemSize(lines);
+		}
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, thickness);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, end_style);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, arrow_length);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, arrow_width);
+			pNext = MetaDataHelper::ReadPoints(pNext, lines);
+			return pNext;
+		}
 
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, thickness);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, end_style);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, arrow_length);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, arrow_width);
+			pNext = MetaDataHelper::WritePoints(pNext, lines);
+			return pNext;
+		}
 		void serialize(std::ifstream& is)
 		{
 			MetaDataHelper::Read(is, color);
@@ -310,6 +486,24 @@ namespace HHV {
 	struct PolygonM {
 		DrawingStyle style;
 		Points points;
+		int memsize()
+		{
+			return style.memsize() + MetaDataHelper::MemSize(points);
+		}
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = style.FromMemory(pBase);
+			pNext = MetaDataHelper::ReadPoints(pNext, points);
+
+			return pNext;
+		}
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = style.ToMemory(pBase);
+			pNext = MetaDataHelper::WritePoints(pNext, points);
+
+			return pNext;
+		}
 		void serialize(std::ifstream& is)
 		{
 			style.serialize(is);
@@ -328,6 +522,44 @@ namespace HHV {
 		int type; 
 		int x0, y0, x1,y1;
 		int x2,y2, x3, y3;  // for use with ellipse only, 4 points bounds the ellipse
+
+		int memsize()
+		{
+			return style.memsize() + INT_SIZE +
+				INT_SIZE + INT_SIZE + INT_SIZE + INT_SIZE +
+				INT_SIZE + INT_SIZE + INT_SIZE + INT_SIZE;
+		}
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = style.FromMemory(pBase);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, type);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x0);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y0);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x1);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y1);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x2);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y2);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x3);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y3);
+
+			return pNext;
+		}
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = style.ToMemory(pBase);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, type);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x0);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y0);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x1);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y1);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x2);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y2);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x3);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y3);
+
+			return pNext;
+		}
+
 		void serialize(std::ifstream& is)
 		{
 			style.serialize(is);
@@ -353,6 +585,28 @@ namespace HHV {
 		ObjectType obj;  // 
 		PolyLine track;  // track of the objecct
 
+		int memsize()
+		{
+			return MetaDataHelper::MemSize(id) +
+					obj.memsize() +
+					track.memsize();
+		}
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::ReadString(pBase, id);
+			pNext = obj.FromMemory(pNext);
+			pNext = track.FromMemory(pNext);
+
+			return pNext;
+		}
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteString(pBase, id);
+			pNext = obj.ToMemory(pNext);
+			pNext = track.ToMemory(pNext);
+
+			return pNext;
+		}
 		void serialize(std::ifstream& is)
 		{
 			MetaDataHelper::Read(is, id);
@@ -384,6 +638,42 @@ namespace HHV {
 		Polygons polygon_list;
 		GUIObjects gui_object_list;
 
+		int memsize()
+		{
+			
+			return  INT_SIZE +
+					INT_SIZE +
+					MetaDataHelper::MemSize<DisplayObjectMeta>(disp_obj_list) +
+					MetaDataHelper::MemSize<PolyLine>(line_list) +
+					MetaDataHelper::MemSize<TextMeta>(text_list) +
+					MetaDataHelper::MemSize<PolygonM>(polygon_list) +
+					MetaDataHelper::MemSize<ObjectType>(gui_object_list);
+		}
+
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::ReadBytes<int, 4>(pBase, image_width);
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, image_height);
+			pNext = MetaDataHelper::Read<DisplayObjectMeta>(pNext, disp_obj_list);
+			pNext = MetaDataHelper::Read<PolyLine>(pNext, line_list);
+			pNext = MetaDataHelper::Read<TextMeta>(pNext, text_list);
+			pNext = MetaDataHelper::Read<PolygonM>(pNext, polygon_list);
+			pNext = MetaDataHelper::Read<ObjectType>(pNext, gui_object_list);
+
+			return pNext;
+		}
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = MetaDataHelper::WriteBytes<int, 4>(pBase, image_width);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, image_height);
+			pNext = MetaDataHelper::Write<DisplayObjectMeta>(pNext, disp_obj_list);
+			pNext = MetaDataHelper::Write<PolyLine>(pNext, line_list);
+			pNext = MetaDataHelper::Write<TextMeta>(pNext, text_list);
+			pNext = MetaDataHelper::Write<PolygonM>(pNext, polygon_list);
+			pNext = MetaDataHelper::Write<ObjectType>(pNext, gui_object_list);
+
+			return pNext;
+		}
 		void serialize(std::ifstream& is) //byte* pBase)
 		{
 			is >> image_width;
@@ -419,6 +709,50 @@ namespace HHV {
 		FrameDisplayData displayData;    // For display
 		Attributes attributes;       // additional attributes
 
+		int memsize()
+		{
+			int size = displayData.memsize();
+			size += 4;
+
+			for (Attributes::iterator it = attributes.begin(); it != attributes.end(); ++it)
+			{
+				size += MetaDataHelper::MemSize(it->first);
+				size += MetaDataHelper::MemSize(it->second);
+			}
+			
+			return size;
+		}
+
+		byte* FromMemory(byte* pBase)
+		{
+			byte* pNext = displayData.FromMemory(pBase);
+			int nSize = 0;
+			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, nSize);
+			if (nSize > 0)
+			{
+				for (int i = 0; i <nSize; ++i)
+				{
+					std::string key, val;
+					pNext = MetaDataHelper::ReadString(pNext, key);
+					pNext = MetaDataHelper::ReadString(pNext, val);
+
+					attributes[key] = val;
+				}
+			}
+			return pNext;
+		}
+		byte* ToMemory(byte* pBase)
+		{
+			byte* pNext = displayData.ToMemory(pBase);
+			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, (int)attributes.size());
+			for(Attributes::iterator it = attributes.begin(); it != attributes.end(); ++it)
+			{
+				pNext = MetaDataHelper::WriteString(pNext, it->first);
+				pNext = MetaDataHelper::WriteString(pNext, it->second);
+			}
+
+			return pNext;
+		}
 		void serialize(std::ifstream& is)
 		{
 			displayData.serialize(is);
