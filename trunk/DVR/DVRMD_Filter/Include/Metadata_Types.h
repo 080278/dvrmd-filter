@@ -5,12 +5,10 @@
 #include <map>
 #include <cv.h>
 #include <fstream>
+#include <iostream>
 
 using std::string;
 using std::vector;
-
-#define INT_SIZE	4
-#define BOOL_SIZE	1
 
 namespace HHV {
 
@@ -18,11 +16,73 @@ namespace HHV {
 	typedef std::map<std::string, std::string> Attributes;
 	typedef std::vector <CvPoint> Points;  // a list of line segments
 
+#define INT_SIZE		4
+#define BOOL_SIZE		1
+#define RGBCOLOR_SIZE	(sizeof(RGBColor)/sizeof(int)*4)
+
+#define BEGIN_SERIALIZE(x)	\
+	byte* pNext = x;
+
+#define END_SERIALIZE()	\
+	return pNext;
+
+#define ReadBOOL(y)	\
+	pNext = MetaDataHelper::ReadBool(pNext, y)
+
+#define WriteBOOL(y) \
+	pNext = MetaDataHelper::WriteBool(pNext, y)
+
+#define ReadInt32(y)	\
+	pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y)
+
+#define WriteInt32(value) \
+	pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, value)
+
+#define ReadRGBColor(value)	\
+	pNext = ReadInt32(value.r);	\
+	pNext = ReadInt32(value.g);	\
+	pNext = ReadInt32(value.b);
+
+#define WriteRGBColor(value)	\
+	pNext = WriteInt32(value.r);	\
+	pNext = WriteInt32(value.g);	\
+	pNext = WriteInt32(value.b)
+	
+#define ReadCvRect(box)	\
+	pNext = ReadInt32(box.x);	\
+	pNext = ReadInt32(box.y);	\
+	pNext = ReadInt32(box.width);	\
+	pNext = ReadInt32(box.height)
+
+#define WriteCvRect(box)	\
+	pNext = WriteInt32(box.x);	\
+	pNext = WriteInt32(box.y);	\
+	pNext = WriteInt32(box.width);	\
+	pNext = WriteInt32(box.height)
+
+#define ReadCvPoints(x)	\
+	pNext = MetaDataHelper::ReadPoints(pNext, x);
+
+#define WriteCvPoints(x)	\
+	pNext = MetaDataHelper::WritePoints(pNext, x);
+
+#define ReadCvScalar(x)	\
+	for (int i = 0; i < 4; ++i)	\
+		pNext = MetaDataHelper::ReadBytes<double, sizeof(double)>(pNext, x.val[i]);
+
+#define WriteCvScalar(x)	\
+	for (int i = 0; i < 4; ++i)	\
+		pNext = MetaDataHelper::WriteBytes<double, sizeof(double)>(pNext, x.val[i]);
+
+#define ReadString(x)	\
+	pNext = MetaDataHelper::ReadSTDString(pNext, x);
+
+#define WriteString(x)	\
+	pNext = MetaDataHelper::WriteSTDString(pNext, x);
+
 	class MetaDataHelper
 	{
-	public:
-		
-	public:
+	private:
 		//For memory block
 		template<class TByte, int ByteCount>
 		static byte* ReadBytes(byte* pBase, TByte& value)
@@ -32,6 +92,12 @@ namespace HHV {
 
 			return pBase+ByteCount;
 		}
+		template<class TByte, int ByteCount>
+		static byte* WriteBytes(byte* pBase, TByte value)
+		{
+			memcpy(pBase, &value, ByteCount);
+			return pBase+ByteCount;
+		}
 
 		static byte* ReadBool(byte* pBase, bool& value)
 		{
@@ -39,8 +105,14 @@ namespace HHV {
 
 			return pBase+1;
 		}
+		static byte* WriteBool(byte* pBase, bool value)
+		{
+			*pBase = value ? 1 : 0;
 
-		static byte* ReadString(byte* pBase, std::string& value)
+			return pBase + 1;
+		}
+
+		static byte* ReadSTDString(byte* pBase, std::string& value)
 		{
 			int nLen = 0;
 			byte* pNext = ReadBytes<int, 4>(pBase, nLen);
@@ -56,6 +128,12 @@ namespace HHV {
 			return pNext;
 		}
 
+		static byte* WriteSTDString(byte* pBase, std::string value)
+		{
+			byte* pNext = WriteBytes<int, 4>(pBase, (int)value.length());
+			memcpy(pNext, value.c_str(), value.length());
+			return pNext+value.length();
+		}
 		static byte* ReadPoints(byte* pBase, Points& pts)
 		{
 			int nLen = 0;
@@ -74,6 +152,19 @@ namespace HHV {
 			return pNext;
 		}
 
+		static byte* WritePoints(byte* pBase, Points& pts)
+		{
+			byte* pNext = WriteBytes<int, 4>(pBase, (int)pts.size());
+			if (pts.size() > 0)
+			{
+				for (Points::iterator it = pts.begin(); it != pts.end(); ++it)
+				{
+					pNext = WriteBytes<int, 4>(pNext, it->x);
+					pNext = WriteBytes<int, 4>(pNext, it->y);
+				}
+			}
+			return pNext;
+		}
 		template<class T>
 		static byte* Read(byte* pBase, std::vector<T>& values)
 		{
@@ -84,7 +175,7 @@ namespace HHV {
 				for (int i = 0; i < nLen; ++i)
 				{
 					T t;
-					pNext = t.FromMemory(pBase);
+					pNext = t.FromMemory(pNext);
 					values.push_back(t);
 				}
 			}
@@ -102,39 +193,6 @@ namespace HHV {
 
 			return pNext;
 		}
-		static byte* WritePoints(byte* pBase, Points& pts)
-		{
-			byte* pNext = WriteBytes<int, 4>(pBase, (int)pts.size());
-			if (pts.size() > 0)
-			{
-				for (Points::iterator it = pts.begin(); it != pts.end(); ++it)
-				{
-					pNext = WriteBytes<int, 4>(pNext, it->x);
-					pNext = WriteBytes<int, 4>(pNext, it->y);
-				}
-			}
-			return pNext;
-		}
-		template<class TByte, int ByteCount>
-		static byte* WriteBytes(byte* pBase, TByte value)
-		{
-			memcpy(pBase, &value, ByteCount);
-			return pBase+ByteCount;
-		}
-
-		static byte* WriteString(byte* pBase, std::string value)
-		{
-			byte* pNext = WriteBytes<int, 4>(pBase, value.length());
-			memcpy(pNext, value.c_str(), value.length());
-			return pNext+value.length();
-		}
-		static byte* WriteBool(byte* pBase, bool value)
-		{
-			*pBase = value ? 1 : 0;
-
-			return pBase + 1;
-		}
-
 		static int MemSize(std::string str)
 		{
 			return 4 + str.length();
@@ -155,77 +213,16 @@ namespace HHV {
 			return nSize;
 		}
 
-	public:
-		//For file
-		static void Read(std::ifstream& is, std::string& value)
-		{
-			int nLen = 0;
-			is >> nLen;
-			if (nLen > 0)
-			{
-				char* pBuf = new char[nLen];
-				is.read(pBuf, nLen);
-				value = pBuf;
-				delete[] pBuf;
-			}
-		}
-		static void Read(std::ifstream& is, RGBColor& color);
-		static void Read(std::ifstream& is, Points& pts);
-		static void Read(std::ifstream& is, Attributes& attrs)
-		{
-			int nLen = 0;
-			is >> nLen;
-			if (nLen > 0)
-			{
-				for (int i = 0; i < nLen; ++i)
-				{
-					std::string key, val;
-					Read(is, key);
-					Read(is, val);
-					attrs[key] = val;
-				}
-			}
-		}
-		template<class T>
-		static void Read(std::ifstream& is, std::vector<T>& values)
-		{
-			int nLen = 0;
-			is >> nLen;
-			if (nLen > 0)
-			{
-				for (int i = 0; i < nLen; ++i)
-				{
-					T t;
-					t.serialize(is);
-					values.push_back(t);
-				}
-			}
-		}
-
-		static void Write(std::ofstream& os, std::string value)
-		{
-			os << value.length() << value.c_str();
-		}
-		static void Write(std::ofstream& os, RGBColor& color);
-		static void Write(std::ofstream& os, Points& pts);
-		static void Write(std::ofstream& os, Attributes& attrs)
-		{
-			os << (int)attrs.size();
-			for (Attributes::iterator it = attrs.begin(); it != attrs.end(); ++it)
-			{
-				Write(os, it->first);
-				Write(os, it->second);
-			}
-		}
-		template<class T>
-		static void Write(std::ofstream&os, std::vector<T>& values)
-		{
-			os << (int)values.size();
-			for (std::vector<T>::iterator it = values.begin(); it != values.end(); ++it)
-			{
-				it->serialize(os);
-			}
-		}
+	private:
+		friend struct ObjectMeta;
+		friend struct TextMeta;
+		friend struct DrawingStyle;
+		friend struct PolyLine;
+		friend struct PolygonM;
+		friend struct ObjectType;
+		friend struct DisplayObjectMeta;
+		friend struct FrameDisplayData;
+		friend struct FrameMetaData;
 	};
 
 	struct ObjectMeta {
@@ -248,54 +245,35 @@ namespace HHV {
 
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadString(pBase, id);
-			pNext = MetaDataHelper::ReadString(pNext, label);
-			pNext = MetaDataHelper::ReadString(pNext, type);
-			pNext = MetaDataHelper::ReadBool(pNext, bAlerted);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.x);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.y);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.width);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, box.height);
-			pNext = MetaDataHelper::ReadBytes<CvScalar, sizeof(CvScalar)>(pNext, color);
-			return pNext;
+			BEGIN_SERIALIZE(pBase);
+
+			ReadString(id);
+			ReadString(label);
+			ReadString(type);
+			ReadBOOL(bAlerted);
+			ReadInt32(box.x);
+			ReadInt32(box.y);
+			ReadInt32(box.width);
+			ReadInt32(box.height);
+			ReadCvScalar(color);
+
+			END_SERIALIZE();
 		}
 
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteString(pBase, id);
-			pNext = MetaDataHelper::WriteString(pNext, label);
-			pNext = MetaDataHelper::WriteString(pNext, type);
-			pNext = MetaDataHelper::WriteBool(pNext, bAlerted);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.x);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.y);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.width);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, box.height);
-			pNext = MetaDataHelper::WriteBytes<CvScalar, sizeof(CvScalar)>(pNext, color);
+			BEGIN_SERIALIZE(pBase);
 
-			return pNext;
+			WriteString(id);
+			WriteString(label);
+			WriteString(type);
+			WriteBOOL(bAlerted);
+			WriteCvRect(box);
+			WriteCvScalar(color);
+
+			END_SERIALIZE();
 		}
 
-		void serialize(std::ifstream& is)
-		{
-			MetaDataHelper::Read(is, id);
-			MetaDataHelper::Read(is, label);
-			MetaDataHelper::Read(is, type);
-			is >> bAlerted;
-			is >> box.x >> box.y >> box.width >> box.height;
-			for (int i = 0; i < 4; ++i)
-				is >> color.val[i];
-		}
-
-		void serialize(std::ofstream& os)
-		{
-			MetaDataHelper::Write(os, id);
-			MetaDataHelper::Write(os, label);
-			MetaDataHelper::Write(os, type);
-			os << bAlerted;
-			os << box.x << box.y << box.width << box.height;
-			for (int i = 0; i < 4; ++i)
-				os << color.val[i];
-		}
 	};
 
 	struct VideoEvent {
@@ -331,43 +309,35 @@ namespace HHV {
 		std::string text;
 		int memsize()
 		{
-			return INT_SIZE + INT_SIZE + sizeof(RGBColor) + INT_SIZE + MetaDataHelper::MemSize(text);
+			return INT_SIZE + INT_SIZE + RGBCOLOR_SIZE + INT_SIZE + MetaDataHelper::MemSize(text);
 		}
 
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadBytes<int, 4>(pBase, x);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y);
-			pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pNext, color);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, size);
-			pNext = MetaDataHelper::ReadString(pNext, text);
-			return pNext;
+			BEGIN_SERIALIZE(pBase);
+
+			ReadInt32(x);
+			ReadInt32(y);
+			ReadRGBColor(color);
+			ReadInt32(size);
+			ReadString(text);
+			
+			END_SERIALIZE();
 		}
 
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteBytes<int, 4>(pBase, x);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y);
-			pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pNext, color);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, size);
-			pNext = MetaDataHelper::WriteString(pNext, text);
-			return pNext;
+			BEGIN_SERIALIZE(pBase);
+
+			WriteInt32(x);
+			WriteInt32(y);
+			WriteRGBColor(color);
+			WriteInt32(size);
+			WriteString(text);
+
+			END_SERIALIZE();
 		}
 
-		void serialize(std::ifstream& is)
-		{
-			is >> x >> y;
-			MetaDataHelper::Read(is, color);
-			is >> size;
-			MetaDataHelper::Read(is, text);
-		}
-		void serialize(std::ofstream& os)
-		{
-			os << x << y;
-			MetaDataHelper::Write(os, color);
-			os << size;
-			MetaDataHelper::Write(os, text);
-		}
 	};
 
 	struct DrawingStyle {
@@ -380,47 +350,34 @@ namespace HHV {
 		
 		int memsize()
 		{
-			return sizeof(RGBColor) + INT_SIZE + BOOL_SIZE + sizeof(RGBColor) + INT_SIZE + BOOL_SIZE;
+			return RGBCOLOR_SIZE + INT_SIZE + BOOL_SIZE + RGBCOLOR_SIZE + INT_SIZE + BOOL_SIZE;
 		}
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, thickness);
-			pNext = MetaDataHelper::ReadBool(pNext, bFill);
-			pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pNext, fill_color);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, alpha);
-			pNext = MetaDataHelper::ReadBool(pNext, bFlash);
-			return pNext;
+			BEGIN_SERIALIZE(pBase);
+
+			ReadRGBColor(color);
+			ReadInt32(thickness);
+			ReadBOOL(bFill);
+			ReadRGBColor(fill_color);
+			ReadInt32(alpha);
+			ReadBOOL(bFlash);
+			
+			END_SERIALIZE();
 		}
 
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, thickness);
-			pNext = MetaDataHelper::WriteBool(pNext, bFill);
-			pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pNext, fill_color);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, alpha);
-			pNext = MetaDataHelper::WriteBool(pNext, bFlash);
-			return pNext;
-		}
+			BEGIN_SERIALIZE(pBase);
 
-		void serialize(std::ifstream& is)
-		{
-			MetaDataHelper::Read(is, color);
-			is >> thickness;
-			is >> bFill;
-			MetaDataHelper::Read(is, fill_color);
-			is >> alpha;
-			is >> bFlash;
-		}
-		void serialize(std::ofstream& os)
-		{
-			MetaDataHelper::Write(os, color);
-			os << thickness;
-			os << bFill;
-			MetaDataHelper::Write(os, fill_color);
-			os << alpha;
-			os << bFlash;
+			WriteRGBColor(color);
+			WriteInt32(thickness);
+			WriteBOOL(bFill);
+			WriteRGBColor(fill_color);
+			WriteInt32(alpha);
+			WriteBOOL(bFlash);
+
+			END_SERIALIZE();
 		}
 
 	} ;
@@ -434,7 +391,7 @@ namespace HHV {
 		Points lines;
 		int memsize()
 		{
-			return sizeof(RGBColor) + 
+			return RGBCOLOR_SIZE + 
 				   INT_SIZE +
 				   INT_SIZE +
 				   INT_SIZE +
@@ -443,45 +400,32 @@ namespace HHV {
 		}
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, thickness);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, end_style);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, arrow_length);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, arrow_width);
-			pNext = MetaDataHelper::ReadPoints(pNext, lines);
-			return pNext;
+			BEGIN_SERIALIZE(pBase);
+
+			ReadRGBColor(color);
+			ReadInt32(thickness);
+			ReadInt32(end_style);
+			ReadInt32(arrow_length);
+			ReadInt32(arrow_width);
+			ReadCvPoints(lines);
+
+			END_SERIALIZE();
 		}
 
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteBytes<RGBColor, sizeof(RGBColor)>(pBase, color);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, thickness);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, end_style);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, arrow_length);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, arrow_width);
-			pNext = MetaDataHelper::WritePoints(pNext, lines);
-			return pNext;
-		}
-		void serialize(std::ifstream& is)
-		{
-			MetaDataHelper::Read(is, color);
-			is >> thickness;
-			is >> end_style;
-			is >> arrow_length;
-			is >> arrow_width;
-			MetaDataHelper::Read(is, lines);
-		}
-		void serialize(std::ofstream& os)
-		{
-			MetaDataHelper::Write(os, color);
-			os << thickness;
-			os << end_style;
-			os << arrow_length;
-			os << arrow_width;
-			MetaDataHelper::Write(os, lines);
+			BEGIN_SERIALIZE(pBase);
+
+			WriteRGBColor(color);
+			WriteInt32(thickness);
+			WriteInt32(end_style);
+			WriteInt32(arrow_length);
+			WriteInt32(arrow_width);
+			WriteCvPoints(lines);
+
+			END_SERIALIZE();
 		}
 	};
-
 
 	struct PolygonM {
 		DrawingStyle style;
@@ -492,27 +436,21 @@ namespace HHV {
 		}
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = style.FromMemory(pBase);
-			pNext = MetaDataHelper::ReadPoints(pNext, points);
+			BEGIN_SERIALIZE(pBase);
 
-			return pNext;
+			pNext = style.FromMemory(pBase);
+			ReadCvPoints(points);
+
+			END_SERIALIZE();
 		}
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = style.ToMemory(pBase);
-			pNext = MetaDataHelper::WritePoints(pNext, points);
+			BEGIN_SERIALIZE(pBase);
 
-			return pNext;
-		}
-		void serialize(std::ifstream& is)
-		{
-			style.serialize(is);
-			MetaDataHelper::Read(is, points);
-		}
-		void serialize(std::ofstream& os)
-		{
-			style.serialize(os);
-			MetaDataHelper::Write(os, points);
+			pNext = style.ToMemory(pBase);
+			WriteCvPoints(points);
+
+			END_SERIALIZE();
 		}
 	};
 
@@ -531,49 +469,39 @@ namespace HHV {
 		}
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = style.FromMemory(pBase);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, type);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x0);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y0);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x1);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y1);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x2);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y2);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, x3);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, y3);
+			BEGIN_SERIALIZE(pBase);
 
-			return pNext;
+			pNext = style.FromMemory(pNext);
+			ReadInt32(type);
+			ReadInt32(x0);
+			ReadInt32(y0);
+			ReadInt32(x1);
+			ReadInt32(y1);
+			ReadInt32(x2);
+			ReadInt32(y2);
+			ReadInt32(x3);
+			ReadInt32(y3);
+
+			END_SERIALIZE();
 		}
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = style.ToMemory(pBase);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, type);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x0);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y0);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x1);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y1);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x2);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y2);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, x3);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, y3);
+			BEGIN_SERIALIZE(pBase);
 
-			return pNext;
+			pNext = style.ToMemory(pNext);
+			WriteInt32(type);
+			WriteInt32(x0);
+			WriteInt32(y0);
+			WriteInt32(x1);
+			WriteInt32(y1);
+			WriteInt32(x2);
+			WriteInt32(y2);
+			WriteInt32(x3);
+			WriteInt32(y3);
+
+			END_SERIALIZE();
 		}
 
-		void serialize(std::ifstream& is)
-		{
-			style.serialize(is);
-			is >> type;
-			is >> x0 >> y0 >> x1 >> y1;
-			is >> x2 >> y2 >> x3 >> y3;
-		}
-		void serialize(std::ofstream& os)
-		{
-			style.serialize(os);
-			os << type;
-			os << x0 << y0 << x1 << y1;
-			os << x2 << y2 << x3 << y3;
-		}
 	};
 
 	struct ObjectLoc {
@@ -593,31 +521,23 @@ namespace HHV {
 		}
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadString(pBase, id);
+			BEGIN_SERIALIZE(pBase);
+
+			ReadString(id);
 			pNext = obj.FromMemory(pNext);
 			pNext = track.FromMemory(pNext);
 
-			return pNext;
+			END_SERIALIZE();
 		}
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteString(pBase, id);
+			BEGIN_SERIALIZE(pBase);
+
+			WriteString(id);
 			pNext = obj.ToMemory(pNext);
 			pNext = track.ToMemory(pNext);
 
-			return pNext;
-		}
-		void serialize(std::ifstream& is)
-		{
-			MetaDataHelper::Read(is, id);
-			obj.serialize(is);
-			track.serialize(is);
-		}
-		void serialize(std::ofstream& os)
-		{
-			MetaDataHelper::Write(os, id);
-			obj.serialize(os);
-			track.serialize(os);
+			END_SERIALIZE();
 		}
 	};
 
@@ -652,47 +572,31 @@ namespace HHV {
 
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::ReadBytes<int, 4>(pBase, image_width);
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, image_height);
+			BEGIN_SERIALIZE(pBase);
+
+			ReadInt32(image_width);
+			ReadInt32(image_height);
 			pNext = MetaDataHelper::Read<DisplayObjectMeta>(pNext, disp_obj_list);
 			pNext = MetaDataHelper::Read<PolyLine>(pNext, line_list);
 			pNext = MetaDataHelper::Read<TextMeta>(pNext, text_list);
 			pNext = MetaDataHelper::Read<PolygonM>(pNext, polygon_list);
 			pNext = MetaDataHelper::Read<ObjectType>(pNext, gui_object_list);
 
-			return pNext;
+			END_SERIALIZE();
 		}
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = MetaDataHelper::WriteBytes<int, 4>(pBase, image_width);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, image_height);
+			BEGIN_SERIALIZE(pBase);
+
+			WriteInt32(image_width);
+			WriteInt32(image_height);
 			pNext = MetaDataHelper::Write<DisplayObjectMeta>(pNext, disp_obj_list);
 			pNext = MetaDataHelper::Write<PolyLine>(pNext, line_list);
 			pNext = MetaDataHelper::Write<TextMeta>(pNext, text_list);
 			pNext = MetaDataHelper::Write<PolygonM>(pNext, polygon_list);
 			pNext = MetaDataHelper::Write<ObjectType>(pNext, gui_object_list);
 
-			return pNext;
-		}
-		void serialize(std::ifstream& is) //byte* pBase)
-		{
-			is >> image_width;
-			is >> image_height;
-			MetaDataHelper::Read<DisplayObjectMeta>(is, disp_obj_list);
-			MetaDataHelper::Read<PolyLine>(is, line_list);
-			MetaDataHelper::Read<TextMeta>(is, text_list);
-			MetaDataHelper::Read<PolygonM>(is, polygon_list);
-			MetaDataHelper::Read<ObjectType>(is, gui_object_list);
-		}
-		void serialize(std::ofstream& os)
-		{
-			os << image_width;
-			os << image_height;
-			MetaDataHelper::Write<DisplayObjectMeta>(os, disp_obj_list);
-			MetaDataHelper::Write<PolyLine>(os, line_list);
-			MetaDataHelper::Write<TextMeta>(os, text_list);
-			MetaDataHelper::Write<PolygonM>(os, polygon_list);
-			MetaDataHelper::Write<ObjectType>(os, gui_object_list);
+			END_SERIALIZE();
 		}
 
 		void clear()
@@ -725,43 +629,38 @@ namespace HHV {
 
 		byte* FromMemory(byte* pBase)
 		{
-			byte* pNext = displayData.FromMemory(pBase);
+			BEGIN_SERIALIZE(pBase);
+
+			pNext = displayData.FromMemory(pBase);
 			int nSize = 0;
-			pNext = MetaDataHelper::ReadBytes<int, 4>(pNext, nSize);
+			ReadInt32(nSize);
 			if (nSize > 0)
 			{
 				for (int i = 0; i <nSize; ++i)
 				{
 					std::string key, val;
-					pNext = MetaDataHelper::ReadString(pNext, key);
-					pNext = MetaDataHelper::ReadString(pNext, val);
+					ReadString(key);
+					ReadString(val);
 
 					attributes[key] = val;
 				}
 			}
-			return pNext;
+
+			END_SERIALIZE();
 		}
 		byte* ToMemory(byte* pBase)
 		{
-			byte* pNext = displayData.ToMemory(pBase);
-			pNext = MetaDataHelper::WriteBytes<int, 4>(pNext, (int)attributes.size());
+			BEGIN_SERIALIZE(pBase);
+
+			pNext = displayData.ToMemory(pBase);
+			WriteInt32((int)attributes.size());
 			for(Attributes::iterator it = attributes.begin(); it != attributes.end(); ++it)
 			{
-				pNext = MetaDataHelper::WriteString(pNext, it->first);
-				pNext = MetaDataHelper::WriteString(pNext, it->second);
+				WriteString(it->first);
+				WriteString(it->second);
 			}
 
-			return pNext;
-		}
-		void serialize(std::ifstream& is)
-		{
-			displayData.serialize(is);
-			MetaDataHelper::Read(is, attributes);
-		}
-		void serialize(std::ofstream& os)
-		{
-			displayData.serialize(os);
-			MetaDataHelper::Write(os, attributes);
+			END_SERIALIZE();
 		}
 
 		void clear()
@@ -772,40 +671,6 @@ namespace HHV {
 	};
 
 	typedef std::vector <FrameMetaData > FrameMetaDataList;   
-
-	void MetaDataHelper::Read(std::ifstream& is, RGBColor& color)
-	{
-		is >> color.r >> color.g >> color.b;
-	}
-	void MetaDataHelper::Write(std::ofstream& os, RGBColor& color)
-	{
-		os << color.r << color.g << color.b;
-	}
-	void MetaDataHelper::Read(std::ifstream& is, Points& pts)
-	{
-		int nLen = 0;
-		is >> nLen;
-		if (nLen > 0)
-		{
-			for (int i = 0; i < nLen; ++i)
-			{
-				CvPoint pt;
-				is >> pt.x >> pt.y;
-				pts.push_back(pt);
-			}
-		}
-	}
-	void MetaDataHelper::Write(std::ofstream& os, Points& pts)
-	{
-		os << (int)pts.size();
-		if (pts.size() > 0)
-		{
-			for (Points::iterator it = pts.begin(); it != pts.end(); ++it)
-			{
-				os << it->x << it->y;
-			}
-		}
-	}
 
 };
 
