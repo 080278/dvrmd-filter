@@ -613,20 +613,8 @@ namespace HHV {
 		FrameDisplayData displayData;    // For display
 		Attributes attributes;       // additional attributes
 
-		int memsize()
-		{
-			int size = displayData.memsize();
-			size += 4;
-
-			for (Attributes::iterator it = attributes.begin(); it != attributes.end(); ++it)
-			{
-				size += MetaDataHelper::MemSize(it->first);
-				size += MetaDataHelper::MemSize(it->second);
-			}
-			
-			return size;
-		}
-
+		// FromMemory
+		//	Read data from memory.
 		byte* FromMemory(byte* pBase)
 		{
 			BEGIN_SERIALIZE(pBase);
@@ -648,6 +636,31 @@ namespace HHV {
 
 			END_SERIALIZE();
 		}
+
+		// memsize
+		//	calculate the FrameMetaData struct size (byte unit).
+		//	Alloc the memory according to this method.
+		//	e.g.
+		//		FrameMetaData fmd;
+		//		fmd...	do some work.
+		//		byte* pFMDBlock = new byte[fmd.memsize()];
+		//		fmd.ToMemory(pFMDBlock);
+		int memsize()
+		{
+			int size = displayData.memsize();
+			size += 4;
+
+			for (Attributes::iterator it = attributes.begin(); it != attributes.end(); ++it)
+			{
+				size += MetaDataHelper::MemSize(it->first);
+				size += MetaDataHelper::MemSize(it->second);
+			}
+			
+			return size;
+		}
+
+		// ToMemory
+		//	Write the data to memory.
 		byte* ToMemory(byte* pBase)
 		{
 			BEGIN_SERIALIZE(pBase);
