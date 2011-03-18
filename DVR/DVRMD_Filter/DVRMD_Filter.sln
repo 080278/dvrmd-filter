@@ -2,25 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRMD_Filter", "DVRMD_Filter\DVRMD_Filter.vcproj", "{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A} = {2EBEAB9B-3480-4811-B450-E8CA50E8983A}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRMDFrame", "DVRMDFrame\DVRMDFrame.vcproj", "{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D} = {075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRMDPlayer", "DVRMDPlayer\DVRMDPlayer.vcproj", "{2EBEAB9B-3480-4811-B450-E8CA50E8983A}"
-EndProject
 Global
-	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 1
-		SccProjectUniqueName0 = DVRMDPlayer\\DVRMDPlayer.vcproj
-		SccProjectName0 = \u0022$/Hikplayer\u0022,\u0020XDAAAAAA
-		SccLocalPath0 = DVRMDPlayer
-		SccProvider0 = MSSCCI:Perforce\u0020SCM
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		HikPlayM4 Debug|Win32 = HikPlayM4 Debug|Win32
@@ -54,18 +42,6 @@ Global
 		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.PlayM4 Release|Win32.Build.0 = Release|Win32
 		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Release|Win32.ActiveCfg = Release|Win32
 		{1F413D73-45B4-441D-87ED-1E8F76E1DDE5}.Release|Win32.Build.0 = Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.Debug|Win32.ActiveCfg = HikPlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.Debug|Win32.Build.0 = HikPlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.HikPlayM4 Debug|Win32.ActiveCfg = HikPlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.HikPlayM4 Debug|Win32.Build.0 = HikPlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.HikPlayM4 Release|Win32.ActiveCfg = HikPlayM4 Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.HikPlayM4 Release|Win32.Build.0 = HikPlayM4 Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.PlayM4 Debug|Win32.ActiveCfg = PlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.PlayM4 Debug|Win32.Build.0 = PlayM4 Debug|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.PlayM4 Release|Win32.ActiveCfg = PlayM4 Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.PlayM4 Release|Win32.Build.0 = PlayM4 Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.Release|Win32.ActiveCfg = PlayM4 Release|Win32
-		{2EBEAB9B-3480-4811-B450-E8CA50E8983A}.Release|Win32.Build.0 = PlayM4 Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
