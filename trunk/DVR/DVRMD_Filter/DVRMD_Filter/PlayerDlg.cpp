@@ -93,7 +93,7 @@ BOOL CAboutDlg::OnInitDialog()
 	DWORD dwVersion = dwVer & 0x0000ffff;
 	DWORD dwBuild   = (dwVer >> 16) & 0x0000ffff;
 #ifdef _FOR_HIKPLAYM4_DLL_
-	strVer.Format("HikPlayer ver is %.1f\n\rHikPlayM4.dll ver is %04x build is %04x", APP_VERSION, dwVersion, dwBuild);
+	strVer.Format(_T("HikPlayer ver is %.1f\n\rHikPlayM4.dll ver is %04x build is %04x", APP_VERSION, dwVersion, dwBuild);
 #else
 	strVer.Format(_T("Player ver is %.1f\n\rPlayM4.dll ver is %04x build is %04x"), APP_VERSION, dwVersion, dwBuild);
 #endif
@@ -232,8 +232,8 @@ BOOL CPlayerDlg::OnInitDialog()
 #if (WINVER > 0x0400)
 	// If do not support multi monitor,may not call!
 	HMONITOR hMonitor;
-	TCHAR chDriverDesp[50];
-	TCHAR chDriverName[50];
+	char chDriverDesp[50];
+	char chDriverName[50];
 
 	NAME(PlayM4_InitDDrawDevice)();
 	DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
@@ -348,7 +348,7 @@ BOOL CPlayerDlg::OnInitDialog()
 	SetWindowText("Hikvision Player");
 #else
 	m_HikvisionBmp.LoadBitmap(IDB_BLACK);
-	SetWindowText("Player");
+	SetWindowText(_T("Player"));
 #endif
 
 	// init sub dlg
@@ -370,7 +370,7 @@ BOOL CPlayerDlg::OnInitDialog()
 
 	
 	// used for command line
-	if(m_strPlayFileName.Compare(""))
+	if(m_strPlayFileName.Compare(_T("")))
 	{
 		Open();
 		SetState();
@@ -444,7 +444,7 @@ void CPlayerDlg::OnDropFiles(HDROP hDropInfo)
 	// TODO: Add your message handler code here and/or call default
 	
 	DWORD nFileNameSize = DragQueryFile(hDropInfo, 0, NULL, 0);
-	char * sFileName	= new char[nFileNameSize + 1];
+	TCHAR * sFileName	= new TCHAR[nFileNameSize + 1];
 	DragQueryFile(hDropInfo, 0, sFileName, nFileNameSize + 1);
 	m_strPlayFileName   = sFileName;
 	
@@ -976,7 +976,7 @@ LRESULT CPlayerDlg::PlayMessage(WPARAM /*wParam*/, LPARAM lParam)
 // when enc changed got this message
 LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
-	OutputDebugString("Get Message/n!");
+	OutputDebugString(_T("Get Message/n!"));
 	MSG msgVal;
 	while(PeekMessage(&msgVal,m_hWnd,WM_ENC_CHANGE,WM_ENC_CHANGE,PM_REMOVE));
 
@@ -1253,10 +1253,10 @@ void CALLBACK VerifyFun(long nPort, FRAME_POS * pFilePos, DWORD bIsVideo,  DWORD
 	CString str;
 	if (pFilePos->pErrorTime )
 	{
-		abstime.Format("%02d-%02d-%02d %02d:%02d:%02d",pFilePos->pErrorTime->wYear, pFilePos->pErrorTime->wMonth,
+		abstime.Format(_T("%02d-%02d-%02d %02d:%02d:%02d",pFilePos->pErrorTime->wYear, pFilePos->pErrorTime->wMonth,
 			pFilePos->pErrorTime->wDay, pFilePos->pErrorTime->wHour, pFilePos->pErrorTime->wMinute, pFilePos->pErrorTime->wSecond);
 	}
-	str.Format("file error at pos=0x%X, time(s) =%d,frameNum=%d,isVideo=%d, \
+	str.Format(_T("file error at pos=0x%X, time(s) =%d,frameNum=%d,isVideo=%d, \
 		errorframe at%d,lostframe=%d,lostdata=%d,time=%s\n",	\
 		pFilePos->nFilePos, pFilePos->nFrameTime/1000, pFilePos->nFrameNum, bIsVideo,	\
 		pFilePos->nErrorFrameNum, pFilePos->nErrorLostFrameNum, pFilePos->nErrorFrameSize, abstime);
@@ -1375,16 +1375,16 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 {
 #ifdef _FOR_HIKPLAYM4_DLL_
 		CFileDialog dlg(TRUE, 
-						"mpg",
+						_T("mpg"),
 						NULL, 
 						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-						"Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||", this);
+						_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #else
 		CFileDialog dlg(TRUE, 
-						"mpg",
+						_T("mpg"),
 						NULL, 
 						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-						"File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||", this);
+						_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #endif
 
 	if(dlg.DoModal() == IDCANCEL)
@@ -1408,10 +1408,13 @@ void CPlayerDlg::OpenFile()
 	NAME(PlayM4_SetDecCallBackEx)(m_lPort, DecCBFun, NULL, 0);	
 	
 //	BOOL bRelt = PlayM4_SetDecodeFrameType(m_lPort, 0);
-	if(!NAME(PlayM4_OpenFile)(m_lPort, m_strPlayFileName.GetBuffer(m_strPlayFileName.GetLength())))
+	char szFilename[MAX_PATH];
+	strcpy(szFilename, CW2A(m_strPlayFileName));
+
+	if(!NAME(PlayM4_OpenFile)(m_lPort, szFilename))
 	{
 		m_strPlayFileName = _T("");
-		strError.Format("Open file failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
+		strError.Format(_T("Open file failed(%s)"), MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
 		MessageBox(strError);
 		throw 0;
 	}
@@ -1435,7 +1438,7 @@ void CPlayerDlg::OpenFile()
 	m_dwMaxFileTime = NAME(PlayM4_GetFileTime)(m_lPort);
 	if(!m_dwMaxFileTime)
 	{
-// 		strError.Format("File seconds is zero");
+// 		strError.Format(_T("File seconds is zero");
 // 		MessageBox(strError);
 // 		throw 0;
 		m_dwMaxFileTime = 1;
@@ -1459,7 +1462,7 @@ void CPlayerDlg::OpenFile()
 		BOOL bInitAVI = g_classAVI.InitResource(&strParam, m_strSaveAVIPath);
 		if(!bInitAVI)
 		{
-			strError.Format("Init AVI Resource failed!");
+			strError.Format(_T("Init AVI Resource failed!"));
 			MessageBox(strError);
 			g_classAVI.ReleaseResource();
 			m_bConvertAVI = FALSE;
@@ -1519,7 +1522,7 @@ void CPlayerDlg::OpenStream()
 							   NULL);
 	if(m_hStreamFile == INVALID_HANDLE_VALUE)
 	{
-		MessageBox("Open file failed");
+		MessageBox(_T("Open file failed"));
 		throw 0;
 	}
 	m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
@@ -1532,7 +1535,7 @@ void CPlayerDlg::OpenStream()
 	pBuf = new BYTE[m_dwHeadSize];
 	if(!pBuf)
 	{
-		MessageBox("Alloc memory failed");
+		MessageBox(_T("Alloc memory failed"));
 		throw 0;
 	}
 	DWORD nRealRead;
@@ -1540,7 +1543,7 @@ void CPlayerDlg::OpenStream()
 	ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
 	if(nRealRead != m_dwHeadSize)
 	{
-		MessageBox("File is too small");
+		MessageBox(_T("File is too small"));
 		delete []pBuf;
 		pBuf = NULL;
 		throw 0;
@@ -1564,7 +1567,7 @@ void CPlayerDlg::OpenStream()
 	if(!NAME(PlayM4_OpenStream)(m_lPort, pBuf, sizeof(stInfo),  6*1000*1024))
 	{
 		sprintf(csError, "Open stream failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
-		MessageBox(csError);
+		MessageBox(CA2T(csError));
 		delete []pBuf;
 		pBuf = NULL;
 		throw 0;
@@ -1585,7 +1588,7 @@ void CPlayerDlg::OpenStream()
 	m_hEventKill  =	CreateEvent(NULL,FALSE,FALSE,NULL);
 	if( !(m_hThread&&m_hEventInput&&m_hEventKill) )
 	{
-		MessageBox("Create thread failed");
+		MessageBox(_T("Create thread failed"));
 		throw 0;
 	}
 
@@ -1689,20 +1692,20 @@ void CPlayerDlg::DrawStatus()
 	TRACE("nCurrentFrame %d----------nCurrentTime %d--------------\n", nCurrentFrame, nCurrentTime);
 	if(m_nSpeed > 0)
 	{
-		m_strPlayStateText.Format("speed X %d            %d/%d  %02d:%02d:%02d/%02d:%02d:%02d", GetSpeedModulus(), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
+		m_strPlayStateText.Format(_T("speed X %d            %d/%d  %02d:%02d:%02d/%02d:%02d:%02d"), GetSpeedModulus(), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
 	}
 	else if(m_nSpeed == 0)
 	{
-		m_strPlayStateText.Format("speed normal          %d/%d  %02d:%02d:%02d/%02d:%02d:%02d", nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
+		m_strPlayStateText.Format(_T("speed normal          %d/%d  %02d:%02d:%02d/%02d:%02d:%02d"), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
 	}
 	else
 	{
-		m_strPlayStateText.Format("speed / %d            %d/%d  %02d:%02d:%02d/%02d:%02d:%02d", GetSpeedModulus(), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
+		m_strPlayStateText.Format(_T("speed / %d            %d/%d  %02d:%02d:%02d/%02d:%02d:%02d"), GetSpeedModulus(), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
 	}
 
 	if(m_bConvertAVI)
 	{
-		m_strPlayStateText.Format("Converting……        %d/%d  %02d:%02d:%02d/%02d:%02d:%02d", nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour, m_dwDisplayMinute, m_dwDisplaySecond);     
+		m_strPlayStateText.Format(_T("Converting……        %d/%d  %02d:%02d:%02d/%02d:%02d:%02d"), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour, m_dwDisplayMinute, m_dwDisplaySecond);     
 	}
 
 	m_ctrlPlayText.ShowText(m_strPlayStateText);
@@ -2446,7 +2449,7 @@ CRect CPlayerDlg::GetOnPicRect(CRect rcWnd, CRect rcOnWnd, LONG nPicWidth, LONG 
 // Funtion: test the capability of your system.
 void CPlayerDlg::TestCapability(DWORD nDeviceNum)
 {
-	CString csCap="";
+	CString csCap=_T("");
 #if (WINVER > 0x0400)
 	int nFlag=NAME(PlayM4_GetCapsEx)(nDeviceNum);
 #else
@@ -2455,48 +2458,48 @@ void CPlayerDlg::TestCapability(DWORD nDeviceNum)
 
 	if(!(nFlag&SUPPORT_SSE))
 	{
-		csCap+="Don't support SSE instruction set;\r\n";
+		csCap+=_T("Don't support SSE instruction set;\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_DDRAW))
 	{
-		csCap+="Create DirectDraw faild;\r\n";
+		csCap+=_T("Create DirectDraw faild;\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLT))
 	{
-		csCap+="Error when blitting overlay or offscreen;Error when blitting overlay or offscreen;\r\n";
+		csCap+=_T("Error when blitting overlay or offscreen;Error when blitting overlay or offscreen;\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLTFOURCC))
 	{
-		csCap+="Don't support color-space conversions;\r\n";
+		csCap+=_T("Don't support color-space conversions;\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLTSHRINKX))
 	{
-		csCap+="Don't support arbitrary shrinking of a surface along the x-axis\r\n";
+		csCap+=_T("Don't support arbitrary shrinking of a surface along the x-axis\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLTSHRINKY))
 	{
-		csCap+="Don't supports arbitrary shrinking of a surface along the y-axis (vertically);\r\n";
+		csCap+=_T("Don't supports arbitrary shrinking of a surface along the y-axis (vertically);\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLTSTRETCHX))
 	{
-		csCap+="Don't supports arbitrary stretching of a surface along the x-axis;\r\n";
+		csCap+=_T("Don't supports arbitrary stretching of a surface along the x-axis;\r\n");
 	}
 
 	if(!(nFlag&SUPPORT_BLTSTRETCHY))
 	{
-		csCap+="Don't supports arbitrary stretching of a surface along the y-axis;\r\n";
+		csCap+=_T("Don't supports arbitrary stretching of a surface along the y-axis;\r\n");
 	}
 	
 	if(csCap.GetLength()>0)
 	{
-		csCap+="If your video adapter chip is made by nVidia,please update the new driver!\r\n";
-		MessageBox(csCap,"Warning",MB_OK);
+		csCap+=_T("If your video adapter chip is made by nVidia,please update the new driver!\r\n");
+		MessageBox(csCap,_T("Warning"),MB_OK);
 	}
 }
 
@@ -2791,7 +2794,7 @@ void CPlayerDlg::StepBackward()
 	}
 	else
 	{
-		MessageBox("File reference hasn't been created.", NULL, MB_OK);
+		MessageBox(_T("File reference hasn't been created."), NULL, MB_OK);
 	}
 }
 
@@ -2827,13 +2830,13 @@ void CPlayerDlg::GetPic(PBYTE pImage, DWORD nBufSize)
 			return;
 		}
 
-		if(m_strCapPicPath.Compare(""))
+		if(m_strCapPicPath.Compare(_T("")))
 		{
-			sFilePath.Format("%s\\capture%02d.jpeg", m_strCapPicPath, m_npic_jpeg);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), m_strCapPicPath, m_npic_jpeg);
 		}
 		else
 		{
-			sFilePath.Format("C:\\capture%02d.jpeg", m_npic_jpeg);
+			sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
 		}
 	}
 	else
@@ -2843,13 +2846,13 @@ void CPlayerDlg::GetPic(PBYTE pImage, DWORD nBufSize)
 			return;
 		}
 
-		if(m_strCapPicPath.Compare(""))
+		if(m_strCapPicPath.Compare(_T("")))
 		{
-			sFilePath.Format("%s\\capture%02d.bmp", m_strCapPicPath, m_npic_bmp);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), m_strCapPicPath, m_npic_bmp);
 		}
 		else
 		{
-			sFilePath.Format("C:\\capture%02d.bmp", m_npic_bmp);
+			sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
 		}
 	}
 	
@@ -3056,7 +3059,7 @@ void CPlayerDlg::Close()
 //		m_HikvisionBmp.LoadBitmap(IDB_HIKVISION);
 // 		m_ctrlVideoPic.SetBitmap(m_HikvisionBmp);
 // 		m_ctrlVideoPic.ShowWindow(SW_SHOW);
-		SetWindowText("Player");
+		SetWindowText(_T("Player"));
 		m_ctrlVideoPic.Invalidate();
 	}
 }
@@ -3482,14 +3485,14 @@ void CPlayerDlg::CapPicType(UINT nID)
 
 void CPlayerDlg::CappicPath() 
 {
-	char	     szDir[MAX_PATH];
+	TCHAR	     szDir[MAX_PATH];
 	BROWSEINFO   bi;
 	ITEMIDLIST  *pidl;
 
 	bi.hwndOwner	  = this->m_hWnd;
 	bi.pidlRoot		  = NULL;
 	bi.pszDisplayName = szDir;
-	bi.lpszTitle	  = "请选择目录";
+	bi.lpszTitle	  = _T("请选择目录");
 	bi.ulFlags		  = BIF_RETURNONLYFSDIRS;
 	bi.lpfn			  = NULL;
 	bi.lParam		  = 0;
@@ -3506,7 +3509,7 @@ void CPlayerDlg::CappicPath()
 		return;
 	}
 
-	m_strCapPicPath.Format("%s",szDir);
+	m_strCapPicPath.Format(_T("%s"),szDir);
 }
 
 void CPlayerDlg::ConvertToAVI() 
@@ -3515,13 +3518,13 @@ void CPlayerDlg::ConvertToAVI()
 	int ReturnValue;
 	CString str, m_csInfo;
 
-	str.Format("Convert  to AVI File will be Failed to Play the MPEG4 File\n\n");
+	str.Format(_T("Convert  to AVI File will be Failed to Play the MPEG4 File\n\n"));
 	m_csInfo += str;
-	str.Format("The Converted AVI File can't be Larger than 2G!\n\n");
+	str.Format(_T("The Converted AVI File can't be Larger than 2G!\n\n"));
 	m_csInfo += str;
-	str.Format("Playing the Converted AVI File must Install the Divx!\n\n");
+	str.Format(_T("Playing the Converted AVI File must Install the Divx!\n\n"));
 	m_csInfo += str;
-	str.Format("if Continued,Click OK Button!\n");
+	str.Format(_T("if Continued,Click OK Button!\n"));
     m_csInfo += str;
 	ReturnValue = MessageBox((LPCTSTR)m_csInfo, NULL, MB_YESNO); 
 	
@@ -3531,9 +3534,9 @@ void CPlayerDlg::ConvertToAVI()
 		Close();
 
 		m_bConvertAVI = TRUE;
-		str.Format("AVI Movie Files (*.avi)|*.avi||");
+		str.Format(_T("AVI Movie Files (*.avi)|*.avi||"));
 	   
-		CFileDialog Filedlg(FALSE, "*.avi", "*.avi", OFN_LONGNAMES|OFN_CREATEPROMPT|OFN_OVERWRITEPROMPT, str, this);
+		CFileDialog Filedlg(FALSE, _T("*.avi"), _T("*.avi"), OFN_LONGNAMES|OFN_CREATEPROMPT|OFN_OVERWRITEPROMPT, str, this);
 	   
 		if(Filedlg.DoModal() == IDOK)
 		{
@@ -3975,4 +3978,18 @@ BOOL CPlayerDlg::SetDiplayMode(int nID)
 void CPlayerDlg::OnBnClickedOpenfile()
 {
 	OnMenuItem(IDM_FILE_OPEN);
+}
+
+HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
+{
+	HANDLE hFile = ::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		::CloseHandle(hFile);
+		m_strPlayFileName = szFile;
+		Open();
+		SetState();
+		return S_OK;
+	}
+	return E_FAIL;
 }

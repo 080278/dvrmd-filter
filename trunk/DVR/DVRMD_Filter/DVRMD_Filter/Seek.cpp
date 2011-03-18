@@ -55,7 +55,7 @@ void CSeek::OnSeek()
 	{
 		if(m_nValue >= m_dwMaxFrameNum)
 		{
-			MessageBox("Input frame number is over!");
+			MessageBox(_T("Input frame number is over!"));
 			return;
 		}
 		NAME(PlayM4_SetCurrentFrameNum)(m_lPort, m_nValue);
@@ -64,7 +64,7 @@ void CSeek::OnSeek()
 	{
 		if(m_nValue > m_dwMaxTime)
 		{
-			MessageBox("Input time is over!");
+			MessageBox(_T("Input time is over!"));
 			return;
 		}
 		NAME(PlayM4_SetPlayedTimeEx)(m_lPort, m_nValue*1000);
@@ -80,7 +80,7 @@ BOOL CSeek::OnInitDialog()
 	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_lPort);
 	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_lPort);
 	CString csRange;
-	csRange.Format("Frame number range:%d~%d\r\nTime range(Seconds)£º%d~%d\r\n", 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
+	csRange.Format(_T("Frame number range:%d~%d\r\nTime range(Seconds)£º%d~%d\r\n"), 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
 	GetDlgItem(IDC_RANGE)->SetWindowText(csRange);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE

@@ -25,6 +25,7 @@ library DVRMD_FilterLib
 		methods:
 
 			[id(DISPID_ABOUTBOX)] void AboutBox();
+			[id(1), helpstring("Open MeidaFile")] LONG OpenFile(BSTR bstrFile);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

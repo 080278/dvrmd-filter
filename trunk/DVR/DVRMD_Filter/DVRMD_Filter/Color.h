@@ -4,7 +4,7 @@ Projekt: Farbverwaltung
 Inhalt : CColor Deklaration
 Datum  : 10.01.1999
 Autor  : Christian Rodemeyer
-Hinweis: © 1999 by Christian Rodemeyer
+Hinweis: ?1999 by Christian Rodemeyer
 \****************************************************************************/
 #pragma once
 
@@ -48,14 +48,14 @@ public:
   // String Konvertierung
   // ---------------------
   CString GetString() const;          // Liefert String im Format RRGGBB
-  bool    SetString(LPCSTR pcColor); // Erwartet String im Format RRGGBB
+  bool    SetString(LPCTSTR pcColor); // Erwartet String im Format RRGGBB
 
   // Benannte Web Farben
   // -------------------
   CString GetName() const; // Liefert String mit benannter Farbe oder #RRGGBB falls kein Name bekannt
 
-  static CColor FromString(LPCSTR pcColor); 
-  static LPCSTR GetNameFromIndex(int i);
+  static CColor FromString(LPCTSTR pcColor); 
+  static LPCTSTR GetNameFromIndex(int i);
   static CColor GetColorFromIndex(int i);
   static int    GetNumNames() {return numNamedColors;}
 

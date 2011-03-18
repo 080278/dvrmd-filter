@@ -22,10 +22,11 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="1"
-			CharacterSet="0"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -100,7 +101,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration

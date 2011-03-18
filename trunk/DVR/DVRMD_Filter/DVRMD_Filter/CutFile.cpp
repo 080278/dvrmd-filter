@@ -59,7 +59,7 @@ void CCutFile::OnView()
 	UpdateData(TRUE);
 	if(!CheckValue())
 	{
-		MessageBox("Input value over");
+		MessageBox(_T("Input value over"));
 		return ;
 	}
 	
@@ -101,14 +101,14 @@ void CCutFile::OnView()
 	}
 	else
 	{
-		MessageBox("Type is unknown");
+		MessageBox(_T("Type is unknown"));
 		return ;
 	}
 
 	CString strReal;
-	strReal.Format("%d", dwBegin);
+	strReal.Format(_T("%d"), dwBegin);
 	GetDlgItem(IDC_REAL_BEGIN)->SetWindowText(strReal);
-	strReal.Format("%d", dwEnd);
+	strReal.Format(_T("%d"), dwEnd);
 	GetDlgItem(IDC_REAL_END)->SetWindowText(strReal);
 	return ;
 }
@@ -124,7 +124,7 @@ void CCutFile::OnSave()
 	int iNewFileLen = int(m_stRealEnd.nFilePos - m_stRealBegin.nFilePos);
 	if(iNewFileLen <= 0)
 	{
-		MessageBox("Stop position less than start position");
+		MessageBox(_T("Stop position less than start position"));
 		return;
 	}
 	//UpdateData(TRUE);
@@ -143,7 +143,7 @@ void CCutFile::OnSave()
 	{
 		if(PathFileExists(m_strSaveFileName))
 		{
-			int nVal = MessageBox("The file already exists, are u sure of covering it now?", "Warning", MB_YESNO | MB_ICONQUESTION);
+			int nVal = MessageBox(_T("The file already exists, are u sure of covering it now?"), _T("Warning"), MB_YESNO | MB_ICONQUESTION);
 			if(nVal == IDNO)
 			{
 				throw 0;
@@ -160,7 +160,7 @@ void CCutFile::OnSave()
 							 NULL );
 		if(hNewFile == INVALID_HANDLE_VALUE)
 		{
-			MessageBox("Create saving file faild");
+			MessageBox(_T("Create saving file faild"));
 			throw 0;
 		}
 		
@@ -168,7 +168,7 @@ void CCutFile::OnSave()
 		pBuf = new BYTE [dwSize];
 		if(NULL == pBuf)
 		{
-			MessageBox("Alloc memory failed!");
+			MessageBox(_T("Alloc memory failed!"));
 			throw 0;
 		}
 
@@ -176,14 +176,14 @@ void CCutFile::OnSave()
 		SetFilePointer(m_hPlayFile, 0, 0, FILE_BEGIN);
 		if(!ReadFile(m_hPlayFile, pBuf, dwFileHeadLen, &dwRet, NULL))
 		{
-			MessageBox("Read file faild!");
+			MessageBox(_T("Read file faild!"));
 			throw 0;
 		}
 		else
 		{
 			if(!WriteFile(hNewFile, pBuf, dwFileHeadLen, &dwRet, NULL))
 			{
-				MessageBox("Write file faild!");
+				MessageBox(_T("Write file faild!"));
 				throw 0;
 			}
 		}
@@ -194,25 +194,25 @@ void CCutFile::OnSave()
 		{
 			if(!ReadFile(m_hPlayFile, pBuf, dwSize, &dwRet, NULL))
 			{
-				MessageBox("Read file faild");
+				MessageBox(_T("Read file faild"));
 				break;
 			}
 			if(!WriteFile(hNewFile, pBuf, dwSize, &dwRet, NULL))
 			{
-				MessageBox("Write file faild");
+				MessageBox(_T("Write file faild"));
 				break;
 			}
 		}
 
 		if(!ReadFile(m_hPlayFile, pBuf, dwRemain, &dwRet, NULL))
 		{
-			MessageBox("Read file faild");
+			MessageBox(_T("Read file faild"));
 		}
 
 		else
 		{
 			if(!WriteFile(hNewFile, pBuf, dwRemain, &dwRet, NULL))
-					MessageBox("Write file faild");
+					MessageBox(_T("Write file faild"));
 		}
 
 	}
@@ -249,7 +249,7 @@ BOOL CCutFile::OnInitDialog()
 	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_lPort);
 	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_lPort);
 	CString strRange;
-	strRange.Format("Frame number range:%d~%d\r\nTime range(seconds):%d~%d\r\n", 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
+	strRange.Format(_T("Frame number range:%d~%d\r\nTime range(seconds):%d~%d\r\n"), 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
 	GetDlgItem(IDC_RANGE)->SetWindowText(strRange);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -290,7 +290,7 @@ BOOL CCutFile::SetFileName(CString strName)
 							 NULL);
 	if(m_hPlayFile == INVALID_HANDLE_VALUE)
 	{
-		MessageBox("Open file faild");
+		MessageBox(_T("Open file faild"));
 		return FALSE;
 	}
 	return TRUE;

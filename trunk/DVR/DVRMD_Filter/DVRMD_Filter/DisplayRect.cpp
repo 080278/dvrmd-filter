@@ -7,13 +7,13 @@
 #include "DisplayRect.h"
 #include <stdio.h>
 
-void RunInfo111(char *szFormat, ...)
+void RunInfo111(TCHAR *szFormat, ...)
 {	
-	char szInfo[512];
+	TCHAR szInfo[512];
 	va_list	ArgumentList;
 	
 	va_start(ArgumentList, szFormat); 
-	vsprintf(szInfo, szFormat, ArgumentList);
+	_vstprintf(szInfo, szFormat, ArgumentList);
 	va_end(ArgumentList);
 	OutputDebugString(szInfo);
 }
@@ -109,14 +109,14 @@ void CDisplayRect::Enable(BOOL bEnable)
     if (bEnable) 
 	{
 		GetDlgItem(IDC_SLIDER1)->EnableWindow(TRUE);
-		GetDlgItem(IDOK)->SetWindowText("Play");
+		GetDlgItem(IDOK)->SetWindowText(_T("Play"));
 		GetDlgItem(IDC_DISPLAY)->EnableWindow(TRUE);
 		m_state = State_Set;
     }
 	else
 	{
 		GetDlgItem(IDC_SLIDER1)->EnableWindow(FALSE);
-		GetDlgItem(IDOK)->SetWindowText("Set");
+		GetDlgItem(IDOK)->SetWindowText(_T("Set"));
 		GetDlgItem(IDC_DISPLAY)->EnableWindow(FALSE);
 		m_state = State_Play;
 	}

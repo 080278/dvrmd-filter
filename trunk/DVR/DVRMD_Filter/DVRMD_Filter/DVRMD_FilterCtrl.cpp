@@ -30,6 +30,7 @@ END_MESSAGE_MAP()
 
 BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "AboutBox", DISPID_ABOUTBOX, AboutBox, VT_EMPTY, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "OpenFile", dispidOpenFile, OpenFile, VT_I4, VTS_BSTR)
 END_DISPATCH_MAP()
 
 
@@ -203,4 +204,13 @@ void CDVRMD_FilterCtrl::OnDestroy()
 	{
 		m_MainDialog.DestroyWindow();
 	}
+}
+
+LONG CDVRMD_FilterCtrl::OpenFile(LPCTSTR bstrFile)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	
+	m_MainDialog.OpenFile(bstrFile);
+	return 0;
 }

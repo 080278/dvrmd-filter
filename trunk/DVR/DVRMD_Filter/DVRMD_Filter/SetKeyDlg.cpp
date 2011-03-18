@@ -66,37 +66,37 @@ BOOL CSetKeyDlg::OnInitDialog()
 void CSetKeyDlg::OnOK() 
 {
 	// TODO: Add extra validation here
-	char cKey[256] = {0};
+	TCHAR cKey[256] = {0};
 	GetDlgItem(IDC_EDT_KEY)->GetWindowText(cKey, 256);
 
 	int iRet = CheckKey(cKey);
 	if (0 == iRet)
 	{
-		MessageBox("The length of key is not correct!", "Error", MB_ICONWARNING);
+		MessageBox(_T("The length of key is not correct!"), _T("Error"), MB_ICONWARNING);
 		return;
 	}
 	else if (-1 == iRet)
 	{
-		MessageBox("The word input is in wrong format!", "Error", MB_ICONWARNING);
+		MessageBox(_T("The word input is in wrong format!"), _T("Error"), MB_ICONWARNING);
 		return;
 	}
 
-	if (NAME(PlayM4_SetSecretKey(m_lPort, 1, cKey, 128)))
+	if (NAME(PlayM4_SetSecretKey(m_lPort, 1, CT2A(cKey), 128)))
 	{
-		MessageBox("Secret key set succeed!", "Success", MB_ICONINFORMATION);
+		MessageBox(_T("Secret key set succeed!"), _T("Success"), MB_ICONINFORMATION);
 	}
 	else
 	{
-		MessageBox("Secret key set failed!", "Failed", MB_ICONINFORMATION);
+		MessageBox(_T("Secret key set failed!"), _T("Failed"), MB_ICONINFORMATION);
 		return;
 	}
 	
 	CDialog::OnOK();
 }
 
-int CSetKeyDlg::CheckKey(PSTR szKey)
+int CSetKeyDlg::CheckKey(PTSTR szKey)
 {
-	int iLength = strlen(szKey);
+	int iLength = _tcslen(szKey);
 	BOOL bASCII = TRUE;
 
 	CButton *pRad = (CButton*)GetDlgItem(IDC_RAD_ASCII);
@@ -122,7 +122,7 @@ int CSetKeyDlg::CheckKey(PSTR szKey)
 	//如果由16进制输入则需要判断输入是否合法
 	if (!bASCII)
 	{
-		CopyMemory(szKey, strupr(szKey), iLength);
+		CopyMemory(szKey, _tcsupr(szKey), iLength);
 		int i = 0;
 		for (; i < iLength; i++)
 		{
@@ -145,7 +145,7 @@ int CSetKeyDlg::CheckKey(PSTR szKey)
 	return 1;
 }
 
-void CSetKeyDlg::HexToASCII(PSTR szKey)
+void CSetKeyDlg::HexToASCII(PTSTR szKey)
 {
 	for (int i = 0; i < 32; i += 2)
 	{

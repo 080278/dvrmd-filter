@@ -42,8 +42,8 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
-	int CheckKey(PSTR szKey);
-	void HexToASCII(PSTR szKey);
+	int CheckKey(PTSTR szKey);
+	void HexToASCII(PTSTR szKey);
 
 private:
 	LONG m_lPort;

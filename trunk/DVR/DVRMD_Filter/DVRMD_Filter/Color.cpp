@@ -4,7 +4,7 @@ Projekt: Farbverwaltung
 Inhalt : CColor Implementierung
 Datum  : 10.01.1999
 Autor  : Christian Rodemeyer
-Hinweis: © 1999 by Christian Rodemeyer
+Hinweis: ?1999 by Christian Rodemeyer
          Info über HLS Konvertierungsfunktion
          - Foley and Van Dam: "Fundamentals of Interactive Computer Graphics"  
          - MSDN: 'HLS Color Spaces'
@@ -172,7 +172,7 @@ const CColor::DNamedColor CColor::m_namedColor[CColor::numNamedColors] =
   {yellowgreen          , _T("yellowgreen")}
 };
 
-LPCSTR CColor::GetNameFromIndex(int i)
+LPCTSTR CColor::GetNameFromIndex(int i)
 {
   ASSERT(0 <= i && i < numNamedColors);
   return m_namedColor[i].name;
@@ -184,7 +184,7 @@ CColor CColor::GetColorFromIndex(int i)
   return m_namedColor[i].color;
 }
 
-CColor CColor::FromString(LPCSTR pcColor)
+CColor CColor::FromString(LPCTSTR pcColor)
 {
   CColor t;
   t.SetString(pcColor);
@@ -402,7 +402,7 @@ unsigned char CColor::ToRGB1(float rm1, float rm2, float rh)
 CString CColor::GetString() const 
 {
   CString color;
-  color.Format("%02X%02X%02X", GetRed(), GetGreen(), GetBlue());
+  color.Format(_T("%02X%02X%02X"), GetRed(), GetGreen(), GetBlue());
   return color;
 }
 
@@ -410,7 +410,7 @@ bool CColor::SetString(LPCTSTR pcColor)
 {
   ASSERT(pcColor);
   int r, g, b;
-  if (sscanf(pcColor, "%2x%2x%2x", &r, &g, &b) != 3) 
+  if (_stscanf(pcColor, _T("%2x%2x%2x"), &r, &g, &b) != 3) 
   {
     m_color[c_red] = m_color[c_green] = m_color[c_blue] = 0;
     return false;
@@ -433,7 +433,7 @@ CString CColor::GetName() const
   while (i-- && m_colorref != m_namedColor[i].color);
   if (i < 0) 
   {
-    return "#" + GetString();
+    return _T("#") + GetString();
   }
   else return m_namedColor[i].name;
 }
