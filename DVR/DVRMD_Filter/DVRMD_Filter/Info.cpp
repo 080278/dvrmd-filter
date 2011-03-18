@@ -55,17 +55,17 @@ void CInfo::OnRefresh()
 	BOOL bOverlay=NAME(PlayM4_GetOverlayMode)(m_lPort);
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Is OVERLAY Surface");
+		m_strTemp.Format(_T("Is OVERLAY Surface"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 
 	if(bOverlay)
 	{
-		m_strTemp.Format("yes   The color key:0x%X",NAME(PlayM4_GetColorKey)(m_lPort));
+		m_strTemp.Format(_T("yes   The color key:0x%X"),NAME(PlayM4_GetColorKey)(m_lPort));
 	}
 	else
 	{
-		m_strTemp.Format("No");
+		m_strTemp.Format(_T("No"));
 	}
 
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
@@ -73,26 +73,26 @@ void CInfo::OnRefresh()
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Max display buffers(frame)");
+		m_strTemp.Format(_T("Max display buffers(frame)"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 
-	m_strTemp.Format("%d",NAME(PlayM4_GetDisplayBuf)(m_lPort));
+	m_strTemp.Format(_T("%d"),NAME(PlayM4_GetDisplayBuf)(m_lPort));
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Volume");
+		m_strTemp.Format(_T("Volume"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format("%x",NAME(PlayM4_GetVolume)(m_lPort));
+	m_strTemp.Format(_T("%x"),NAME(PlayM4_GetVolume)(m_lPort));
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Image qulity");
+		m_strTemp.Format(_T("Image qulity"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 
@@ -100,29 +100,29 @@ void CInfo::OnRefresh()
 	NAME(PlayM4_GetPictureQuality)(m_lPort,&bHiQuality);
 	if(bHiQuality)
 	{
-		m_strTemp="High";
+		m_strTemp=_T("High");
 	}
 	else
 	{
-		m_strTemp="Low";
+		m_strTemp=_T("Low");
 	}
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("TIMER");
+		m_strTemp.Format(_T("TIMER"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 	DWORD nTimer;
 	NAME(PlayM4_GetTimerType)(m_lPort,&nTimer,NULL);
 	if(nTimer==TIMER_1)
 	{
-		m_strTemp="TIMER_1";
+		m_strTemp=_T("TIMER_1");
 	}
 	else
 	{
-		m_strTemp="TIMER_2";
+		m_strTemp=_T("TIMER_2");
 	}
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
@@ -134,37 +134,37 @@ void CInfo::OnRefresh()
 	
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Video render frames");
+		m_strTemp.Format(_T("Video render frames"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format("%d",nVideoRender);
+	m_strTemp.Format(_T("%d"),nVideoRender);
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Audio render frames");
+		m_strTemp.Format(_T("Audio render frames"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format("%d",nAudioRender);
+	m_strTemp.Format(_T("%d"),nAudioRender);
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Video Source size");
+		m_strTemp.Format(_T("Video Source size"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format("%d",nVideoSource);
+	m_strTemp.Format(_T("%d"),nVideoSource);
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
 	if(!m_bInit)
 	{
-		m_strTemp.Format("Audio Source size");
+		m_strTemp.Format(_T("Audio Source size"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format("%d",nAudioSource);
+	m_strTemp.Format(_T("%d"),nAudioSource);
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 }
@@ -175,8 +175,8 @@ BOOL CInfo::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 	//m_ListCtrl
-	m_ctrlListInfo.InsertColumn(0, "Description", LVCFMT_LEFT, 200);
-	m_ctrlListInfo.InsertColumn(1, "value", LVCFMT_LEFT, 150);			
+	m_ctrlListInfo.InsertColumn(0, _T("Description"), LVCFMT_LEFT, 200);
+	m_ctrlListInfo.InsertColumn(1, _T("value"), LVCFMT_LEFT, 150);			
 	m_ctrlListInfo.SetExtendedStyle(LVS_EX_FULLROWSELECT);
 
 
@@ -185,9 +185,9 @@ BOOL CInfo::OnInitDialog()
 	DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
 	if(nVal>=1)
 	{
-		m_strTemp.Format("Video adaper numbers");
+		m_strTemp.Format(_T("Video adaper numbers"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-		m_strTemp.Format("%d", nVal);
+		m_strTemp.Format(_T("%d"), nVal);
 		m_ctrlListInfo.SetItemText(m_dwRows,1,m_strTemp);
 		m_dwRows ++;
 
@@ -200,22 +200,22 @@ BOOL CInfo::OnInitDialog()
 			ZeroMemory(pDriverName, nNameLen);
 			HMONITOR hMonitor;
 			NAME(PlayM4_GetDDrawDeviceInfo)(nCount,pDriverDesp,nNameLen,pDriverName,nNameLen,&hMonitor);
-			m_strTemp.Format("----Adatper<%d>", nCount-1);
+			m_strTemp.Format(_T("----Adatper<%d>"), nCount-1);
 			m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-			m_ctrlListInfo.SetItemText(m_dwRows,1,pDriverDesp);
+			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2W(pDriverDesp));
 			m_dwRows ++;
 
-			m_strTemp.Format("----Driver<%d>", nCount-1);
+			m_strTemp.Format(_T("----Driver<%d>"), nCount-1);
 			m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-			m_ctrlListInfo.SetItemText(m_dwRows,1,pDriverName);
+			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2W(pDriverName));
 			m_dwRows ++;
 		}
 	}
 	else
 	{
-		m_strTemp.Format("Only one video adapter");
+		m_strTemp.Format(_T("Only one video adapter"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-		m_ctrlListInfo.SetItemText(m_dwRows,1,"none");
+		m_ctrlListInfo.SetItemText(m_dwRows,1,_T("none"));
 		m_dwRows ++;
 	}
 #endif

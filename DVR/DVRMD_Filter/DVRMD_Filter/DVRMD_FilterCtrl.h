@@ -42,6 +42,7 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidOpenFile = 1L,
 		IDD = IDD_PLAYER_DIALOG
 	};
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -51,5 +52,7 @@ private:
 public:
 	
 	afx_msg void OnDestroy();
+protected:
+	LONG OpenFile(LPCTSTR bstrFile);
 };
 

@@ -36,7 +36,7 @@ riffFile *riffCreate( LPCTSTR filename )
 		return NULL;
 	}
 
-	if ( (result->f = fopen( filename, "wb" )) == NULL )
+	if ( (result->f = _tfopen( filename, _T("wb") )) == NULL )
 	{
 		//fprintf( stderr, "Error - riffCreate() - can't create <%s>\n", filename );
 		free( result );

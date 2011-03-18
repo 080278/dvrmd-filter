@@ -98,7 +98,7 @@ void CWatermarkDlg::OnTimer(UINT nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	if(nIDEvent == WATERMARK_TIMER)
 	{
-		char cstr[256];
+		TCHAR cstr[256];
 		int nOsdYear, nOsdMonth, nOsdDay, nOsdHour, nOsdMin, nOsdSec;		
 	
 		if(m_strWaterMark.global_time > 0)
@@ -109,20 +109,20 @@ void CWatermarkDlg::OnTimer(UINT nIDEvent)
 			nOsdHour	= GET_FILE_HOUR(m_strWaterMark.global_time);
 			nOsdMin		= GET_FILE_MINUTE(m_strWaterMark.global_time);
 			nOsdSec		= GET_FILE_SECOND(m_strWaterMark.global_time);
-			sprintf(cstr, "%04d-%02d-%-02d %02d:%02d:%02d", nOsdYear, nOsdMonth, nOsdDay, nOsdHour, nOsdMin, nOsdSec);
+			_stprintf(cstr, _T("%04d-%02d-%-02d %02d:%02d:%02d"), nOsdYear, nOsdMonth, nOsdDay, nOsdHour, nOsdMin, nOsdSec);
 			GetDlgItem(IDC_GLOBALTIME)->SetWindowText(cstr);
-			sprintf(cstr,"%02x:%02x:%02x:%02x:%02x:%02x", 
+			_stprintf(cstr,_T("%02x:%02x:%02x:%02x:%02x:%02x"), 
 					m_strWaterMark.mac_addr[0], m_strWaterMark.mac_addr[1], 
 					m_strWaterMark.mac_addr[2], m_strWaterMark.mac_addr[3],
 					m_strWaterMark.mac_addr[4], m_strWaterMark.mac_addr[5]);
 			GetDlgItem(IDC_MAC)->SetWindowText(cstr);
-			sprintf(cstr,"%d", m_strWaterMark.device_sn);
+			_stprintf(cstr,_T("%d"), m_strWaterMark.device_sn);
 			GetDlgItem(IDC_DEVICESN)->SetWindowText(cstr);
-			sprintf(cstr,"%d", m_strWaterMark.device_info);
+			_stprintf(cstr,_T("%d"), m_strWaterMark.device_info);
 			GetDlgItem(IDC_DEVICEINFO)->SetWindowText(cstr);
-			sprintf(cstr,"%d", m_strWaterMark.channel_num);
+			_stprintf(cstr,_T("%d"), m_strWaterMark.channel_num);
 			GetDlgItem(IDC_CHAN)->SetWindowText(cstr);
-			sprintf(cstr,"%d", m_strWaterMark.device_type);
+			_stprintf(cstr,_T("%d"), m_strWaterMark.device_type);
 			GetDlgItem(IDC_DEVICETYPE)->SetWindowText(cstr);
 		}
 	}
@@ -132,12 +132,12 @@ void CWatermarkDlg::OnTimer(UINT nIDEvent)
 
 void CWatermarkDlg::Clear()
 {
-	GetDlgItem(IDC_GLOBALTIME)->SetWindowText(" ");
-	GetDlgItem(IDC_MAC)->SetWindowText(" ");
-	GetDlgItem(IDC_DEVICESN)->SetWindowText(" ");
-	GetDlgItem(IDC_DEVICEINFO)->SetWindowText(" ");
-	GetDlgItem(IDC_CHAN)->SetWindowText(" ");
-	GetDlgItem(IDC_DEVICETYPE)->SetWindowText(" ");
+	GetDlgItem(IDC_GLOBALTIME)->SetWindowText(_T(" "));
+	GetDlgItem(IDC_MAC)->SetWindowText(_T(" "));
+	GetDlgItem(IDC_DEVICESN)->SetWindowText(_T(" "));
+	GetDlgItem(IDC_DEVICEINFO)->SetWindowText(_T(" "));
+	GetDlgItem(IDC_CHAN)->SetWindowText(_T(" "));
+	GetDlgItem(IDC_DEVICETYPE)->SetWindowText(_T(" "));
 }
 
 void CWatermarkDlg::OnClose() 

@@ -220,13 +220,10 @@ public:
 	/* button operation over
 	/*************************************************************************/
 	
-
 	
-	/*************************************************************************/
-	/* menu operation begin
-	/*************************************************************************/
 	// file operation:
 	void  Open();
+	HRESULT  OpenFile(LPCTSTR szFile);
 	void  Close();
 	void  CutFile();
 	void  SetSecretKey();
