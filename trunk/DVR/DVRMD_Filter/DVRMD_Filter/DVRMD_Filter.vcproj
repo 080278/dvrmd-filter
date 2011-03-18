@@ -22,7 +22,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="1"
-			CharacterSet="1"
+			CharacterSet="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -47,6 +47,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="../Include/PlayCtrl;../Include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_USRDLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -70,9 +71,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="true"
+				AdditionalDependencies="..\include\PlayCtrl\PlayCtrl.lib"
 				OutputFile="$(OutDir)\$(ProjectName).ocx"
 				LinkIncremental="2"
-				IgnoreDefaultLibraryNames="nafxcwd.lib"
+				IgnoreDefaultLibraryNames=""
 				ModuleDefinitionFile=".\DVRMD_Filter.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -106,12 +108,13 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			UseOfMFC="2"
-			CharacterSet="1"
+			UseOfMFC="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -134,9 +137,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="../Include/PlayCtrl;../Include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_USRDLL"
 				MinimalRebuild="false"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -157,6 +161,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				RegisterOutput="true"
+				AdditionalDependencies="..\include\PlayCtrl\PlayCtrl.lib"
 				OutputFile="$(OutDir)\$(ProjectName).ocx"
 				LinkIncremental="1"
 				ModuleDefinitionFile=".\DVRMD_Filter.def"
@@ -186,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\include\playctrl\*.dll ..\$(ConfigurationName)"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
@@ -198,6 +203,30 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\BCMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BtnST.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CConvertAVI.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Color.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CutFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DisplayRect.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DVRMD_Filter.cpp"
 				>
@@ -216,6 +245,34 @@
 			</File>
 			<File
 				RelativePath=".\DVRMD_FilterPropPage.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FontSize.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HelpDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Info.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Player.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Seek.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SetKeyDlg.cpp"
 				>
 			</File>
 			<File
@@ -238,12 +295,64 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\VideoCtrlDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\VolumeCtrl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WatermarkDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WRIFF.CPP"
+				>
+			</File>
+			<File
+				RelativePath=".\XColorStatic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\XScrollBar.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\AVIFMT.H"
+				>
+			</File>
+			<File
+				RelativePath=".\BCMenu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BtnST.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CConvertAVI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Color.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CutFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DisplayRect.h"
+				>
+			</File>
 			<File
 				RelativePath=".\DVRMD_Filter.h"
 				>
@@ -257,7 +366,39 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FontSize.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HelpDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\memdc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PlayerDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Seek.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SetKeyDlg.h"
 				>
 			</File>
 			<File
@@ -268,12 +409,76 @@
 				RelativePath=".\targetver.h"
 				>
 			</File>
+			<File
+				RelativePath=".\VideoCtrlDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\vkey.h"
+				>
+			</File>
+			<File
+				RelativePath=".\VolumeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WatermarkDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\watermarkinfo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WRIFF.H"
+				>
+			</File>
+			<File
+				RelativePath=".\XColorStatic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XScrollBar.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\res\+.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\-.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\BLACK.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\brightness.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\CAPPIC_AT.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\CAPPIC_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\CAPPIC_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\contrast.ico"
+				>
+			</File>
 			<File
 				RelativePath=".\DVRMD_Filter.ico"
 				>
@@ -286,12 +491,177 @@
 				RelativePath=".\DVRMD_FilterCtrl.bmp"
 				>
 			</File>
+			<File
+				RelativePath=".\res\FASTBACKWARD_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\FASTBACKWARD_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\FASTFORWARD_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\FASTFORWARD_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\GOTOEND_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\GOTOEND_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\GOTOSTART_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\GOTOSTART_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\HIKVISION.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\HorizontalScrollBarChannel.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\HorizontalScrollBarLeftArrow.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\HorizontalScrollBarRightArrow.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\HorizontalScrollBarThumb.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\HorizontalScrollBarThumbNoColor.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\hue.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\movies.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\overlay.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PAUSE_CHECK.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PAUSE_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PAUSE_ENABLE.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PLAY_CHECK.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PLAY_DISABLE.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\PLAY_ENABLE.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\saturation.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\SOUND_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\SOUND_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STEPBACKWARD_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STEPBACKWARD_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STEPFORWARD_DISABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STEPFORWARD_ENABLE.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STOP_CHECK.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STOP_DISABLE.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\STOP_ENABLE.ICO"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\VerticalScrollBarChannel.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\VerticalScrollBarDownArrow.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\VerticalScrollBarThumb.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\VerticalScrollBarThumbNoColor.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\scroll\VerticalScrollBarUpArrow.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\VideoCtrl.ico"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>
+		<File
+			RelativePath=".\TestDVRMDFilter.htm"
+			DeploymentContent="true"
+			>
+		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="DVRMD_Filter.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
