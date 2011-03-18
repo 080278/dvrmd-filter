@@ -34,4 +34,6 @@
 #endif // _AFX_NO_DAO_SUPPORT
 
 #endif // _WIN64
+#include <afxdlgs.h>
+#include <afxwin.h>
 

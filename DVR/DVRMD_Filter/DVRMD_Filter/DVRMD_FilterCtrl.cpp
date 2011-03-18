@@ -19,6 +19,9 @@ IMPLEMENT_DYNCREATE(CDVRMD_FilterCtrl, COleControl)
 
 BEGIN_MESSAGE_MAP(CDVRMD_FilterCtrl, COleControl)
 	ON_OLEVERB(AFX_IDS_VERB_PROPERTIES, OnProperties)
+	ON_WM_CREATE()
+	
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -129,22 +132,6 @@ CDVRMD_FilterCtrl::~CDVRMD_FilterCtrl()
 }
 
 
-
-// CDVRMD_FilterCtrl::OnDraw - Drawing function
-
-void CDVRMD_FilterCtrl::OnDraw(
-			CDC* pdc, const CRect& rcBounds, const CRect& rcInvalid)
-{
-	if (!pdc)
-		return;
-
-	// TODO: Replace the following code with your own drawing code.
-	pdc->FillRect(rcBounds, CBrush::FromHandle((HBRUSH)GetStockObject(WHITE_BRUSH)));
-	pdc->Ellipse(rcBounds);
-}
-
-
-
 // CDVRMD_FilterCtrl::DoPropExchange - Persistence support
 
 void CDVRMD_FilterCtrl::DoPropExchange(CPropExchange* pPX)
@@ -179,3 +166,41 @@ void CDVRMD_FilterCtrl::AboutBox()
 
 
 // CDVRMD_FilterCtrl message handlers
+
+int CDVRMD_FilterCtrl::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (COleControl::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	m_MainDialog.Create(IDD_PLAYER_DIALOG, this);
+	m_MainDialog.ShowWindow(SW_SHOW);
+
+	return 0;
+}
+
+
+// CDVRMD_FilterCtrl::OnDraw - Drawing function
+
+void CDVRMD_FilterCtrl::OnDraw(
+			CDC* pdc, const CRect& rcBounds, const CRect& rcInvalid)
+{
+	/*if (!pdc)
+		return;*/
+
+	// TODO: Replace the following code with your own drawing code.
+	//pdc->FillRect(rcBounds, CBrush::FromHandle((HBRUSH)GetStockObject(WHITE_BRUSH)));
+	//pdc->Ellipse(rcBounds);
+	if (::IsWindow(m_MainDialog.m_hWnd))
+		m_MainDialog.MoveWindow(rcBounds, TRUE);
+}
+
+
+void CDVRMD_FilterCtrl::OnDestroy()
+{
+	COleControl::OnDestroy();
+
+	if (::IsWindow(m_MainDialog.m_hWnd))
+	{
+		m_MainDialog.DestroyWindow();
+	}
+}
