@@ -2,7 +2,6 @@
 //File:PlayerDlg.cpp 
 /////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "Player.h"
 #include "PlayerDlg.h"
 #include "vkey.h"
 #include "info.h"
@@ -29,6 +28,7 @@ void RunInfo(TCHAR *szFormat, ...)
 	va_end(ArgumentList);
 	OutputDebugString(szInfo);
 }
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -93,7 +93,7 @@ BOOL CAboutDlg::OnInitDialog()
 	DWORD dwVersion = dwVer & 0x0000ffff;
 	DWORD dwBuild   = (dwVer >> 16) & 0x0000ffff;
 #ifdef _FOR_HIKPLAYM4_DLL_
-	strVer.Format(_T("HikPlayer ver is %.1f\n\rHikPlayM4.dll ver is %04x build is %04x", APP_VERSION, dwVersion, dwBuild);
+	strVer.Format(_T("HikPlayer ver is %.1f\n\rHikPlayM4.dll ver is %04x build is %04x"), APP_VERSION, dwVersion, dwBuild);
 #else
 	strVer.Format(_T("Player ver is %.1f\n\rPlayM4.dll ver is %04x build is %04x"), APP_VERSION, dwVersion, dwBuild);
 #endif
@@ -892,50 +892,6 @@ void CPlayerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 //////////////////////////////////////////////////////////////////////
 void CPlayerDlg::OnClose() 
 {
-	// TODO: Add your message handler code here and/or call default
-	NAME(PlayM4_Stop)(m_lPort);
-	NAME(PlayM4_CloseFile)(m_lPort);
-	NAME(PlayM4_RealeseDDraw)();
-
-#if (WINVER > 0x0400)
-	NAME(PlayM4_ReleaseDDrawDevice)();
-#endif
-	
-	if(m_pSeek != NULL)
-	{
-		m_pSeek->DestroyWindow();
-		delete m_pSeek;
-		m_pSeek = NULL;
-	}
-
-	if(m_pDisplayRegion != NULL)
-	{
-		m_pDisplayRegion->DestroyWindow();
-		delete m_pDisplayRegion;
-		m_pDisplayRegion = NULL;
-	}
-
-	if(m_pVideoControl != NULL)
-	{
-		m_pVideoControl->DestroyWindow();
-		delete m_pVideoControl;
-		m_pVideoControl = NULL;
-	}
-
-	if(m_bConvertAVI)
-	{
-		g_classAVI.ReleaseResource();
-		m_bConvertAVI = FALSE;
-	}
-
-	if(m_pWatermarkDlg != NULL)
-	{
-		m_pWatermarkDlg->DestroyWindow();
-		delete m_pWatermarkDlg;
-		m_pWatermarkDlg = NULL;
-	}
-	
-	NAME(PlayM4_FreePort)(m_lPort);
 	CDialog::OnClose();
 }
 
@@ -3942,8 +3898,53 @@ void CPlayerDlg::OnButtonItem(UINT nID)
 void CPlayerDlg::OnDestroy() 
 {
 	CDialog::OnDestroy();
+
+	NAME(PlayM4_Stop)(m_lPort);
+	NAME(PlayM4_CloseFile)(m_lPort);
+	NAME(PlayM4_RealeseDDraw)();
+
+#if (WINVER > 0x0400)
+	NAME(PlayM4_ReleaseDDrawDevice)();
+#endif
+	
+	if(m_pSeek != NULL)
+	{
+		m_pSeek->DestroyWindow();
+		delete m_pSeek;
+		m_pSeek = NULL;
+	}
+
+	if(m_pDisplayRegion != NULL)
+	{
+		m_pDisplayRegion->DestroyWindow();
+		delete m_pDisplayRegion;
+		m_pDisplayRegion = NULL;
+	}
+
+	if(m_pVideoControl != NULL)
+	{
+		m_pVideoControl->DestroyWindow();
+		delete m_pVideoControl;
+		m_pVideoControl = NULL;
+	}
+
+	if(m_bConvertAVI)
+	{
+		g_classAVI.ReleaseResource();
+		m_bConvertAVI = FALSE;
+	}
+
+	if(m_pWatermarkDlg != NULL)
+	{
+		m_pWatermarkDlg->DestroyWindow();
+		delete m_pWatermarkDlg;
+		m_pWatermarkDlg = NULL;
+	}
+	
+	NAME(PlayM4_FreePort)(m_lPort);
+
 	PlayM4_ReleaseDDrawDevice();
-	// TODO: Add your message handler code here
+
 	if(m_pQcifTempBuf)
 	{
 		delete []m_pQcifTempBuf;

@@ -7,7 +7,7 @@
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
 #endif
-
+#define _CRT_SECURE_NO_WARNINGS
 #include "targetver.h"
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
@@ -37,3 +37,4 @@
 #include <afxdlgs.h>
 #include <afxwin.h>
 
+#include "Resource.h"

@@ -56,6 +56,7 @@ CDVRMDFrameDlg::CDVRMDFrameDlg(CWnd* pParent /*=NULL*/)
 void CDVRMDFrameDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_DVRMD_FILTERCTRL1, m_DVRPlayer);
 }
 
 BEGIN_MESSAGE_MAP(CDVRMDFrameDlg, CDialog)
@@ -63,6 +64,7 @@ BEGIN_MESSAGE_MAP(CDVRMDFrameDlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -151,3 +153,10 @@ HCURSOR CDVRMDFrameDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CDVRMDFrameDlg::OnDestroy()
+{
+	CDialog::OnDestroy();
+
+	m_DVRPlayer.DestroyWindow();
+}
