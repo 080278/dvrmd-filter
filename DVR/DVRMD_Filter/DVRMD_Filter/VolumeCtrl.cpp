@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "Player.h"
+//include "Player.h"
 #include "VolumeCtrl.h"
 
 #ifdef _DEBUG

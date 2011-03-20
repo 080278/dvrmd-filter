@@ -188,6 +188,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\dvrmd_filterctrl1.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DVRMDFrame.cpp"
 				>
 			</File>
@@ -221,6 +225,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\dvrmd_filterctrl1.h"
+				>
+			</File>
 			<File
 				RelativePath=".\DVRMDFrame.h"
 				>
@@ -266,5 +274,13 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="DVRMDFrame.rc"
+		/>
+		<Global
+			Name="{023D5C5C-2FFE-4054-8CE9-45C492778C52}"
+			Value="CDvrmd_filterctrl1"
+		/>
 	</Globals>
 </VisualStudioProject>

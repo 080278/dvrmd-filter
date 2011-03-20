@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "dvrmd_filterctrl1.h"
 
 
 // CDVRMDFrameDlg dialog
@@ -29,4 +30,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CDvrmd_filterctrl1 m_DVRPlayer;
+	afx_msg void OnDestroy();
 };
