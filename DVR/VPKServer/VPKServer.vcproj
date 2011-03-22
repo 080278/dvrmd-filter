@@ -394,12 +394,30 @@
 					Outputs="$(IntDir)\$(InputName).obj"
 				/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="nasm -f win32 -DPREFIX -I $(InputDir)\ -o $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+					Outputs="$(IntDir)\$(InputName).obj"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="yv12_to_rgb32_mmx.asm"
 			>
 			<FileConfiguration
 				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="nasm -f win32 -DPREFIX -o $(IntDir)\$(InputName).obj $(InputPath)&#x0D;&#x0A;"
+					Outputs="$(IntDir)\$(InputName).obj"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCustomBuildTool"
