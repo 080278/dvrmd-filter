@@ -66,6 +66,7 @@
 #define IDS_DVRMD_FILTER                243
 #define IDD_DIALOG1                     243
 #define IDS_DVRMD_FILTER_PPG            244
+#define IDD_DVR_PLAY_SETTINGS           244
 #define IDS_DVRMD_FILTER_PPG_CAPTION    245
 #define IDD_PROPPAGE_DVRMD_FILTER       246
 #define IDD_ABOUTBOX_DVRMD_FILTER       247
@@ -119,6 +120,12 @@
 #define IDC_EDT_KEY                     1085
 #define IDC_BUTTON1                     1086
 #define IDC_OPENFILE                    1086
+#define IDC_MEDIASERVER_IP              1087
+#define IDC_MEDIASERVER_PORT            1088
+#define IDC_CHANNEL1                    1089
+#define IDC_START_TIME                  1090
+#define IDC_START_TIME2                 1091
+#define IDC_END_TIME                    1091
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -198,9 +205,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        244
+#define _APS_NEXT_RESOURCE_VALUE        245
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1087
+#define _APS_NEXT_CONTROL_VALUE         1092
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
