@@ -249,6 +249,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DVRMetaDataHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FontSize.cpp"
 				>
 			</File>
@@ -360,6 +364,10 @@
 			</File>
 			<File
 				RelativePath=".\DVRMD_FilterPropPage.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DVRMetaDataHandler.h"
 				>
 			</File>
 			<File

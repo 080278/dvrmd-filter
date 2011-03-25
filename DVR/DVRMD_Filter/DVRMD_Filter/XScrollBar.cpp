@@ -244,7 +244,7 @@ void CXScrollBar::DrawHorizontal()
 	TRACE(_T("in CXScrollBar::DrawHorizontal\n"));
 
 	CClientDC dc(this);
-	CMemDC memDC(&dc, &m_rectClient);
+	CDVRMemDC memDC(&dc, &m_rectClient);
 
 	CBrush brushFrame(FRAME_COLOR);
 
@@ -482,7 +482,7 @@ void CXScrollBar::DrawVertical()
 	TRACE(_T("in CXScrollBar::DrawVertical\n"));
 
 	CClientDC dc(this);
-	CMemDC memDC(&dc, &m_rectClient);
+	CDVRMemDC memDC(&dc, &m_rectClient);
 
 	CBrush brushFrame(FRAME_COLOR);
 
