@@ -202,12 +202,12 @@ BOOL CInfo::OnInitDialog()
 			NAME(PlayM4_GetDDrawDeviceInfo)(nCount,pDriverDesp,nNameLen,pDriverName,nNameLen,&hMonitor);
 			m_strTemp.Format(_T("----Adatper<%d>"), nCount-1);
 			m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2W(pDriverDesp));
+			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2T(pDriverDesp));
 			m_dwRows ++;
 
 			m_strTemp.Format(_T("----Driver<%d>"), nCount-1);
 			m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, m_dwRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
-			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2W(pDriverName));
+			m_ctrlListInfo.SetItemText(m_dwRows,1,CA2T(pDriverName));
 			m_dwRows ++;
 		}
 	}

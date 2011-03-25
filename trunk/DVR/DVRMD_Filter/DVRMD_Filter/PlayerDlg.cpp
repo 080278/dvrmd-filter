@@ -1365,7 +1365,7 @@ void CPlayerDlg::OpenFile()
 	
 //	BOOL bRelt = PlayM4_SetDecodeFrameType(m_lPort, 0);
 	char szFilename[MAX_PATH];
-	strcpy(szFilename, CW2A(m_strPlayFileName));
+	strcpy(szFilename, CT2A((LPCTSTR)m_strPlayFileName));
 
 	if(!NAME(PlayM4_OpenFile)(m_lPort, szFilename))
 	{

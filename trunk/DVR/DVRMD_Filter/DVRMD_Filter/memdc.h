@@ -13,7 +13,7 @@
 //
 // This class implements a memory Device Context
 
-class CMemDC : public CDC 
+class CDVRMemDC : public CDC 
 {
 private:
 	CBitmap*	m_bitmap;
@@ -21,7 +21,7 @@ private:
 	CDC*		m_pDC;
 	CRect		m_rcBounds;
 public:
-	CMemDC(CDC* pDC, const CRect& rcBounds) : CDC()
+	CDVRMemDC(CDC* pDC, const CRect& rcBounds) : CDC()
 	{
 		CreateCompatibleDC(pDC);
 		m_bitmap = new CBitmap;
@@ -30,7 +30,7 @@ public:
 		m_pDC = pDC;
 		m_rcBounds = rcBounds;
 	}
-	~CMemDC() 
+	~CDVRMemDC()
 	{
 		m_pDC->BitBlt(m_rcBounds.left, m_rcBounds.top, m_rcBounds.Width(), m_rcBounds.Height(), 
 					this, m_rcBounds.left, m_rcBounds.top, SRCCOPY);
@@ -38,7 +38,7 @@ public:
 		if (m_bitmap != NULL) 
 			delete m_bitmap;
 	}
-	CMemDC* operator->() 
+	CDVRMemDC* operator->() 
 	{
 		return this;
 	}
