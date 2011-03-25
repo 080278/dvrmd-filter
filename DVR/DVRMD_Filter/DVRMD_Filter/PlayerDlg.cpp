@@ -379,6 +379,7 @@ BOOL CPlayerDlg::OnInitDialog()
 	UpdateData(FALSE);
 	SortControl();
 	NAME(PlayM4_SetVolume)(m_lPort,WORD(m_SoundSlider.GetPos()));
+	m_ctrlPlayText.ShowWindow(SW_HIDE);
 	m_bInited = TRUE;
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
