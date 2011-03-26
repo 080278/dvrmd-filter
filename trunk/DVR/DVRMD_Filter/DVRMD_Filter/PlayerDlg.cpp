@@ -177,6 +177,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_MESSAGE(WM_VIDEOCTRL_OK, VideoCtrlOK)
 	ON_MESSAGE(WM_WATERMARK_OK, WatermarkOk)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
+	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
 
 END_MESSAGE_MAP()
 
@@ -1386,10 +1387,12 @@ void CPlayerDlg::SetState()
 
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_DISABLE);
 		m_ctrlBtnPlay.EnableWindow(FALSE);
+		m_ctrlBtnPlay.ShowWindow(SW_SHOW);
 		m_ctrlBtnPlay.SetCheck(0);
 
 		m_ctrlBtnPause.SetIcon(IDI_PAUSE_DISABLE);
 		m_ctrlBtnPause.EnableWindow(FALSE);
+		m_ctrlBtnPause.ShowWindow(SW_HIDE);
 		m_ctrlBtnPause.SetCheck(0);
 
 		m_ctrlBtnStop.SetIcon(IDI_STOP_DISABLE);
@@ -1420,42 +1423,16 @@ void CPlayerDlg::SetState()
 		m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
 		m_ctrlBtnSound.EnableWindow(FALSE);
 
-		// menu state
-		////m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_GRAYED | MF_DISABLED);
-		//		//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_SET_KEY, MF_ENABLED);
-
 		for(i = 0; i < 3; i++)
 		{
 			////m_pMainMenu->CheckMenuItem(IDM_VIEW_ZOOM_50 + i, MF_UNCHECKED);
 		}
-		////m_pMainMenu->CheckMenuItem(IDM_VIEW_ZOOM_100, MF_CHECKED);
-		////m_pMainMenu->GetSubMenu(1)->EnableMenuItem(1, MF_DISABLED|MF_GRAYED|MF_BYPOSITION);
-		////m_pMainMenu->EnableMenuItem(IDM_VIEW_FULLSCREEN, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_INFO, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_GRAYED | MF_DISABLED);
 
-		////m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_PLAY_PAUSE, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STOP, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_GOTOSTART, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STEPBACKWARD, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STEPFORWARD, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED | MF_DISABLED);
 
-		////m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_ENABLED);
-
-		////m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_ENABLED);
 		for(i=0; i<2; i++)
 		{
 			////m_pMainMenu->CheckMenuItem(IDM_TIMER1 + i, MF_UNCHECKED);
 		}
-		////m_pMainMenu->CheckMenuItem(IDM_TIMER1, MF_CHECKED);
-		////m_pMainMenu->CheckMenuItem(IDM_BYRATE, MF_CHECKED);
-		////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_ENABLED|MF_BYPOSITION);
-
 
 		// scroll state	
 		m_PlaySlider.SetScrollPos(0);
@@ -1480,10 +1457,12 @@ void CPlayerDlg::SetState()
 	case State_Play:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_CHECK);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
+		m_ctrlBtnPlay.ShowWindow(SW_HIDE);
 		m_ctrlBtnPlay.SetCheck(1);
 
 		m_ctrlBtnPause.SetIcon(IDI_PAUSE_ENABLE);
 		m_ctrlBtnPause.EnableWindow(TRUE);
+		m_ctrlBtnPause.ShowWindow(SW_SHOW);
 		m_ctrlBtnPause.SetCheck(0);
 
 		m_ctrlBtnStop.SetIcon(IDI_STOP_ENABLE);
@@ -1536,38 +1515,6 @@ void CPlayerDlg::SetState()
 			m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
 		}
 
-		// menu state
-		////m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_SET_KEY, MF_GRAYED | MF_DISABLED);
-
-		////m_pMainMenu->GetSubMenu(1)->EnableMenuItem(1, MF_ENABLED | MF_BYPOSITION);
-		////m_pMainMenu->EnableMenuItem(IDM_VIEW_FULLSCREEN, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_INFO, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
-		//
-		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_PLAY_PAUSE, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STOP, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STEPFORWARD, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_ENABLED);
-
-		////m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_DISABLED|MF_GRAYED|MF_BYPOSITION);
-
-		//if(m_bStreamType)
-		//{
-		//	//m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_GRAYED | MF_DISABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_GOTOSTART, MF_GRAYED | MF_DISABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_STEPBACKWARD, MF_GRAYED | MF_DISABLED);
-		//}
-		//else
-		//{
-		//	//m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_ENABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_GOTOSTART, MF_ENABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_STEPBACKWARD, MF_ENABLED);
-		//}
-
 		// scroll state			
 		if(m_bStreamType)
 		{
@@ -1590,10 +1537,12 @@ void CPlayerDlg::SetState()
 	case State_Step:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_ENABLE);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
+		m_ctrlBtnPlay.ShowWindow(SW_SHOW);
 		m_ctrlBtnPlay.SetCheck(0);
 
 		m_ctrlBtnPause.SetIcon(IDI_PAUSE_CHECK);
 		m_ctrlBtnPause.EnableWindow(TRUE);
+		m_ctrlBtnPause.ShowWindow(SW_HIDE);
 		m_ctrlBtnPause.SetCheck(1);
 
 		m_ctrlBtnStop.SetIcon(IDI_STOP_ENABLE);
@@ -1640,10 +1589,12 @@ void CPlayerDlg::SetState()
 	case State_Stop:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_ENABLE);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
+		m_ctrlBtnPlay.ShowWindow(SW_SHOW);
 		m_ctrlBtnPlay.SetCheck(0);
 
 		m_ctrlBtnPause.SetIcon(IDI_PAUSE_ENABLE);
 		m_ctrlBtnPause.EnableWindow(TRUE);
+		m_ctrlBtnPause.ShowWindow(SW_HIDE);
 		m_ctrlBtnPause.SetCheck(0);
 
 		m_ctrlBtnStop.SetIcon(IDI_STOP_CHECK);
@@ -2886,6 +2837,10 @@ void CPlayerDlg::OnBnClickedOpenfile()
 	OnMenuItem(IDM_FILE_OPEN);
 }
 
+void CPlayerDlg::OnBnClickedShowHideSettings()
+{
+
+}
 void CPlayerDlg::Play()
 {
 	if (GetPlayer()->GetPlayState() != State_Play)

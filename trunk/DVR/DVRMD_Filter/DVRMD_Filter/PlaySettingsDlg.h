@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "DVRSettings.h"
 // CDVRPlaySettings dialog
 
 class CPlaySettingsDlg : public CPropertyPage
@@ -18,4 +18,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CDVRSettings	m_DVRSettings;
 };
