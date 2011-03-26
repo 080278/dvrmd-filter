@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{075D2412-0DC3-4067-BC2B-6CA9E09BBB6D}</ProjectGuid>
+    <RootNamespace>DVRMD_Filter</RootNamespace>
+    <Keyword>MFCActiveXProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>Static</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)</Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TypeLibraryName>$(IntDir)DVRMD_Filter.tlb</TypeLibraryName>
+      <HeaderFileName>$(ProjectName)idl.h</HeaderFileName>
+      <ValidateAllParameters>true</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../Include/PlayCtrl;../Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <RegisterOutput>true</RegisterOutput>
+      <AdditionalDependencies>..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)</Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <TypeLibraryName>$(IntDir)DVRMD_Filter.tlb</TypeLibraryName>
+      <HeaderFileName>$(ProjectName)idl.h</HeaderFileName>
+      <ValidateAllParameters>true</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>../Include/PlayCtrl;../Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <RegisterOutput>true</RegisterOutput>
+      <AdditionalDependencies>..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
+      <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="BCMenu.cpp" />
+    <ClCompile Include="BtnST.cpp" />
+    <ClCompile Include="CConvertAVI.cpp" />
+    <ClCompile Include="Color.cpp" />
+    <ClCompile Include="CutFile.cpp" />
+    <ClCompile Include="DisplayRect.cpp" />
+    <ClCompile Include="DVRMD_Filter.cpp" />
+    <ClCompile Include="DVRMD_FilterCtrl.cpp" />
+    <ClCompile Include="DVRMD_FilterPropPage.cpp" />
+    <ClCompile Include="DVRMetaDataHandler.cpp" />
+    <ClCompile Include="DVRPlayer.cpp" />
+    <ClCompile Include="PlaySettingsDlg.cpp" />
+    <ClCompile Include="FontSize.cpp" />
+    <ClCompile Include="HelpDlg.cpp" />
+    <ClCompile Include="Info.cpp" />
+    <ClCompile Include="PlayerDlg.cpp" />
+    <ClCompile Include="Seek.cpp" />
+    <ClCompile Include="SetKeyDlg.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VideoCtrlDlg.cpp" />
+    <ClCompile Include="VolumeCtrl.cpp" />
+    <ClCompile Include="WatermarkDlg.cpp" />
+    <ClCompile Include="WRIFF.CPP" />
+    <ClCompile Include="XColorStatic.cpp" />
+    <ClCompile Include="XScrollBar.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DVRMD_Filter.def" />
+    <None Include="res\+.bmp" />
+    <None Include="res\-.bmp" />
+    <None Include="res\BLACK.bmp" />
+    <None Include="res\brightness.ico" />
+    <None Include="res\CAPPIC_AT.ico" />
+    <None Include="res\CAPPIC_DISABLE.ico" />
+    <None Include="res\CAPPIC_ENABLE.ico" />
+    <None Include="res\contrast.ico" />
+    <None Include="DVRMD_Filter.ico" />
+    <None Include="DVRMD_FilterCtrl.bmp" />
+    <None Include="res\FASTBACKWARD_DISABLE.ico" />
+    <None Include="res\FASTBACKWARD_ENABLE.ico" />
+    <None Include="res\FASTFORWARD_DISABLE.ico" />
+    <None Include="res\FASTFORWARD_ENABLE.ico" />
+    <None Include="res\GOTOEND_DISABLE.ico" />
+    <None Include="res\GOTOEND_ENABLE.ico" />
+    <None Include="res\GOTOSTART_DISABLE.ico" />
+    <None Include="res\GOTOSTART_ENABLE.ico" />
+    <None Include="res\HIKVISION.bmp" />
+    <None Include="res\scroll\HorizontalScrollBarChannel.bmp" />
+    <None Include="res\scroll\HorizontalScrollBarLeftArrow.bmp" />
+    <None Include="res\scroll\HorizontalScrollBarRightArrow.bmp" />
+    <None Include="res\scroll\HorizontalScrollBarThumb.bmp" />
+    <None Include="res\scroll\HorizontalScrollBarThumbNoColor.bmp" />
+    <None Include="res\hue.ico" />
+    <None Include="res\movies.ico" />
+    <None Include="res\overlay.bmp" />
+    <None Include="res\PAUSE_CHECK.ico" />
+    <None Include="res\PAUSE_DISABLE.ico" />
+    <None Include="res\PAUSE_ENABLE.ICO" />
+    <None Include="res\PLAY_CHECK.ICO" />
+    <None Include="res\PLAY_DISABLE.ICO" />
+    <None Include="res\PLAY_ENABLE.ICO" />
+    <None Include="res\saturation.ico" />
+    <None Include="res\SOUND_DISABLE.ico" />
+    <None Include="res\SOUND_ENABLE.ico" />
+    <None Include="res\STEPBACKWARD_DISABLE.ico" />
+    <None Include="res\STEPBACKWARD_ENABLE.ico" />
+    <None Include="res\STEPFORWARD_DISABLE.ico" />
+    <None Include="res\STEPFORWARD_ENABLE.ico" />
+    <None Include="res\STOP_CHECK.ico" />
+    <None Include="res\STOP_DISABLE.ICO" />
+    <None Include="res\STOP_ENABLE.ICO" />
+    <None Include="res\scroll\VerticalScrollBarChannel.bmp" />
+    <None Include="res\scroll\VerticalScrollBarDownArrow.bmp" />
+    <None Include="res\scroll\VerticalScrollBarThumb.bmp" />
+    <None Include="res\scroll\VerticalScrollBarThumbNoColor.bmp" />
+    <None Include="res\scroll\VerticalScrollBarUpArrow.bmp" />
+    <None Include="res\VideoCtrl.ico" />
+    <None Include="ReadMe.txt" />
+    <None Include="TestDVRMDFilter.htm">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="DVRMD_Filter.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AVIFMT.H" />
+    <ClInclude Include="BCMenu.h" />
+    <ClInclude Include="BtnST.h" />
+    <ClInclude Include="CConvertAVI.h" />
+    <ClInclude Include="Color.h" />
+    <ClInclude Include="CutFile.h" />
+    <ClInclude Include="DisplayRect.h" />
+    <ClInclude Include="DVRMD_Filter.h" />
+    <ClInclude Include="DVRMD_FilterCtrl.h" />
+    <ClInclude Include="DVRMD_FilterPropPage.h" />
+    <ClInclude Include="DVRMetaDataHandler.h" />
+    <ClInclude Include="DVRPlayer.h" />
+    <ClInclude Include="PlaySettingsDlg.h" />
+    <ClInclude Include="FontSize.h" />
+    <ClInclude Include="HelpDlg.h" />
+    <ClInclude Include="Info.h" />
+    <ClInclude Include="memdc.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerDlg.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Seek.h" />
+    <ClInclude Include="SetKeyDlg.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="VideoCtrlDlg.h" />
+    <ClInclude Include="vkey.h" />
+    <ClInclude Include="VolumeCtrl.h" />
+    <ClInclude Include="WatermarkDlg.h" />
+    <ClInclude Include="watermarkinfo.h" />
+    <ClInclude Include="WRIFF.H" />
+    <ClInclude Include="XColorStatic.h" />
+    <ClInclude Include="XScrollBar.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DVRMD_Filter.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="DVRMD_Filter.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
