@@ -22,7 +22,7 @@ void RunInfo(TCHAR *szFormat, ...)
 {	
 	TCHAR szInfo[512];
 	va_list	ArgumentList;
-	
+
 	va_start(ArgumentList, szFormat); 
 	_vstprintf(szInfo, szFormat, ArgumentList);
 	va_end(ArgumentList);
@@ -40,13 +40,10 @@ static char THIS_FILE[] = __FILE__;
 CConvertAVI g_classAVI;
 
 /************************************************************************/				
-UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the file is end.
-UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
+
 UINT	PLAY_TIMER			= 1;			 // TIMER ID;
 //UINT	m_lPort				= 0;			 // uesed port;can be from 0 to 15;
 /************************************************************************/
-LONG	m_lPort = -1;
-WATERMARK_VER1_INFO m_strWaterMark;
 
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
@@ -56,18 +53,18 @@ class CAboutDlg : public CDialog
 public:
 	CAboutDlg();
 
-// Dialog Data
+	// Dialog Data
 	//{{AFX_DATA(CAboutDlg)
 	enum { IDD = IDD_ABOUTBOX };
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CAboutDlg)
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	//}}AFX_VIRTUAL
 
-// Implementation
+	// Implementation
 protected:
 	//{{AFX_MSG(CAboutDlg)
 	virtual BOOL OnInitDialog();
@@ -84,7 +81,7 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
 BOOL CAboutDlg::OnInitDialog() 
 {
 	CDialog::OnInitDialog();
-	
+
 	// TODO: Add extra initialization here
 	// display the version information
 	CString strVer;
@@ -100,7 +97,7 @@ BOOL CAboutDlg::OnInitDialog()
 	GetDlgItem(IDC_VER)->SetWindowText(strVer);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
-	              // EXCEPTION: OCX Property Pages should return FALSE
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
@@ -180,7 +177,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_MESSAGE(WM_VIDEOCTRL_OK, VideoCtrlOK)
 	ON_MESSAGE(WM_WATERMARK_OK, WatermarkOk)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
-	
+
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -195,31 +192,11 @@ BOOL CPlayerDlg::OnInitDialog()
 	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
-	
-	//CMenu* pSysMenu = GetSystemMenu(FALSE);
-	//if (pSysMenu != NULL)
-	//{
-	//	CString strAboutMenu;
-	//	strAboutMenu.LoadString(IDS_ABOUTBOX);
-	//	if (!strAboutMenu.IsEmpty())
-	//	{
-	//		pSysMenu->AppendMenu(MF_SEPARATOR);
-	//		pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-	//	}
-	//}
 
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-	
-	// TODO: Add extra initialization here
-	////m_pMainMenu = GetMenu();
-	//if(//m_pMainMenu == NULL)
-	//{
-	//	TRACE("GetMenu is Error!");
-	//	return FALSE;
-	//}
 
 	m_dwScreenWidth  = GetSystemMetrics(SM_CXSCREEN);
 	m_dwScreenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -229,50 +206,17 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_rcScreen.top   = 0;
 	m_rcScreen.bottom= m_dwScreenHeight;
 
-#if (WINVER > 0x0400)
-	// If do not support multi monitor,may not call!
-	HMONITOR hMonitor;
-	char chDriverDesp[50];
-	char chDriverName[50];
 
-	NAME(PlayM4_InitDDrawDevice)();
-	DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
-	if(nVal > 1)
-	{
-		nVal = min(nVal, MAX_DISPLAY_DEVICE);
-		for(DWORD nCount = 0; nCount < nVal; nCount++) 
-		{
-			ZeroMemory(chDriverDesp, 50);
-			NAME(PlayM4_GetDDrawDeviceInfo)(nCount, chDriverDesp, 50, chDriverName, 50, &hMonitor);
-			////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0 + nCount + 1, chDriverDesp);
-		}
-	}
-	else
-	{
-		ZeroMemory(chDriverDesp, 50);
-		NAME(PlayM4_GetDDrawDeviceInfo)(0, chDriverDesp, 50, chDriverName, 50, &hMonitor);
-		////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0, chDriverDesp);
-	}
-
-	////m_pMainMenu->GetSubMenu(1)->RemoveMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND);
-	////m_pMainMenu->CheckMenuItem(IDM_DEVICE0, MF_CHECKED);
-	
-	TestCapability(0);
-#endif
-
-	
 	// Init Play Slider
 	VERIFY(m_PlaySlider.CreateFromStatic(
-		   SBS_HORZ|WS_CHILD|SS_LEFT|SS_NOTIFY|WS_VISIBLE,
-		   this, IDC_PLAY_RECT_SLIDER, IDC_PLAY_SLIDER));
+		SBS_HORZ|WS_CHILD|SS_LEFT|SS_NOTIFY|WS_VISIBLE,
+		this, IDC_PLAY_RECT_SLIDER, IDC_PLAY_SLIDER));
 
 	m_PlaySlider.SetScrollRange(0, PLAYER_SLIDER_MAX);
 	m_PlaySlider.EnableThumbColor(FALSE);
 	m_PlaySlider.EnableThumbGripper(TRUE);
 	m_PlaySlider.EnableChannelColor(FALSE);
 
-	NAME(PlayM4_GetPort)(&m_lPort);
-	
 	// Init Sound Slider
 #ifdef _WAVE_ADJ
 	m_SoundSlider.SetRangeMin(MIN_WAVE_COEF);
@@ -285,17 +229,16 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_SoundSlider.SetLineSize(1);
 	m_SoundSlider.SetPageSize(5);
 
-// 	
+	// 	
 
 	// Init the parameters
 	m_StartPoint.x		 =	0;
 	m_StartPoint.y		 =	0;
 	m_dwTotalFrames		 =	0;
-	m_dwMaxFileTime		 =	0;
 	m_dwDisplayHour		 =	0;
 	m_dwDisplayMinute	 =	0;
 	m_dwDisplaySecond	 =	0;
-	m_dwImageSharpenLevel=  0;
+//	m_dwImageSharpenLevel=  0;
 	m_nPrePlayPos		 =  0;
 	m_dwOldDeviceNum     =  0;
 
@@ -313,18 +256,16 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_bConvertAVI		 =  FALSE;
 	m_bPicQuality	     =  TRUE;
 	m_bDeflash			 =  TRUE;
-#ifdef _HIGH_FRUID
-	m_bHighFluid		 =  TRUE;
-#else
-	m_bHighFluid		 =  FALSE;
-#endif
-
-	m_bFileRefCreated	 =  FALSE;
+//#ifdef _HIGH_FRUID
+//	m_bHighFluid		 =  TRUE;
+//#else
+//	m_bHighFluid		 =  FALSE;
+//#endif
 
 	m_strPlayStateText	 =	_T("Ready");
 	m_ctrlPlayText.ShowText(m_strPlayStateText);
 	m_strSaveAVIPath	 =  _T("");
-	
+
 	m_pQcifTempBuf		 =  NULL;
 
 	// Init state text control
@@ -335,10 +276,15 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_nWidth	= 352;
 	m_nHeight   = 288;
 
+	RECT rcPos;
+	m_ctrlVideoPic.GetWindowRect(&rcPos);
+	rcPos.right = rcPos.left + m_nWidth;
+	rcPos.bottom = rcPos.top + m_nHeight;
+	GetPlayer()->Init(m_ctrlVideoPic.GetSafeHwnd(), &rcPos, m_hWnd); 
 	// init the sub dialogs
-	m_pSeek				 =	new CSeek(this);
-	m_pDisplayRegion	 =	new CDisplayRect(this);
-	m_pVideoControl		 =  new CVideoCtrlDlg(this);
+	m_pSeek				 =	new CSeek(GetPlayer(), this);
+	m_pDisplayRegion	 =	new CDisplayRect(GetPlayer(), this);
+	m_pVideoControl		 =  new CVideoCtrlDlg(GetPlayer(), this);
 
 	// bitmap
 	m_BlackBmp.LoadBitmap(IDB_BLACK);
@@ -353,32 +299,24 @@ BOOL CPlayerDlg::OnInitDialog()
 
 	// init sub dlg
 	m_pWatermarkDlg	     =  new CWatermarkDlg(this);
-	
+
 	// init state
-	m_enumState = State_Close;
+	//m_enumState = State_Close;
 	SetState();
 
-	// set the capture picture call back function;
-//	NAME(PlayM4_SetDisplayCallBack)(m_lPort, DisplayCBFun);
-	// set the wave audio call back funtion;
-//	NAME(PlayM4_SetAudioCallBack)(m_lPort, WaveCBFun, (long)this);
 
 
 
-	NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
-	// Test adapter Capability;
-
-	
-	// used for command line
-	if(m_strPlayFileName.Compare(_T("")))
-	{
-		Open();
-		SetState();
-	}
+	//// used for command line
+	//if(m_strPlayFileName.Compare(_T("")))
+	//{
+	//	Open();
+	//	SetState();
+	//}
 
 	UpdateData(FALSE);
 	SortControl();
-	NAME(PlayM4_SetVolume)(m_lPort,WORD(m_SoundSlider.GetPos()));
+
 	m_ctrlPlayText.ShowWindow(SW_HIDE);
 	m_bInited = TRUE;
 	return TRUE;  // return TRUE  unless you set the focus to a control
@@ -408,7 +346,7 @@ void CPlayerDlg::OnPaint()
 	{
 		CPaintDC dc(this); // device context for painting
 
-	//	SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
+		//	SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
 
 		// Center icon in client rectangle
 		int cxIcon = GetSystemMetrics(SM_CXICON);
@@ -426,8 +364,7 @@ void CPlayerDlg::OnPaint()
 		CDialog::OnPaint();
 	}
 	this->UpdateWindow();
-	NAME(PlayM4_RefreshPlay)(m_lPort);
-	NAME(PlayM4_RefreshPlayEx)(m_lPort, 0);
+	GetPlayer()->RefreshPlay();
 }
 
 // The system calls this to obtain the cursor to display while the user drags
@@ -443,12 +380,11 @@ HCURSOR CPlayerDlg::OnQueryDragIcon()
 void CPlayerDlg::OnDropFiles(HDROP hDropInfo) 
 {
 	// TODO: Add your message handler code here and/or call default
-	
+
 	DWORD nFileNameSize = DragQueryFile(hDropInfo, 0, NULL, 0);
 	TCHAR * sFileName	= new TCHAR[nFileNameSize + 1];
 	DragQueryFile(hDropInfo, 0, sFileName, nFileNameSize + 1);
-	m_strPlayFileName   = sFileName;
-	
+
 	Open();
 	SetState();
 
@@ -462,13 +398,13 @@ void CPlayerDlg::OnDropFiles(HDROP hDropInfo)
 //////////////////////////////////////////////////////////////////////////////
 BOOL CPlayerDlg::PreTranslateMessage(MSG* lpmsg)
 {
-	
+
 	switch (lpmsg->message)
 	{
 	case WM_KEYDOWN:
 		OnKeyDown(lpmsg->wParam, LOWORD(lpmsg ->lParam), HIWORD(lpmsg->lParam));
 		return TRUE;
-		
+
 	default:
 		break;
 	} 
@@ -511,15 +447,16 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				//nMenuState = //m_pMainMenu->GetMenuState(IDM_FILE_OPEN, MF_BYCOMMAND);
 				//if(nMenuState != MF_GRAYED)		
 				{
-					if(BrowseFile(&m_strPlayFileName))
+					CString csFile;
+					if(BrowseFile(&csFile))
 					{
-						Open();
+						Open(csFile);
 						SetState();
 					}
 				}
 			}
 			break;
-		
+
 		case VK_K:
 			//if (MF_GRAYED != //m_pMainMenu->GetMenuState(IDM_SET_KEY, MF_BYCOMMAND))
 			{
@@ -527,42 +464,42 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			break;
 
-/*		case VK_T:
+			/*		case VK_T:
 			nMenuState = //m_pMainMenu->GetMenuState(IDM_CUT_FILE, MF_BYCOMMAND);
 			if(nMenuState != MF_GRAYED)
 			{
-				CutFile();
+			CutFile();
 			}
 			break;
-*/
+			*/
 		case VK_L:
 			Locate();
 			break;
 
 		case VK_LEFT:
-			GotoStart();
+			m_DVRPlayer.GotoStart();
 			break;
 
 		case VK_RIGHT:
-			GotoEnd();
+			m_DVRPlayer.GotoEnd();
 			break;
-		
+
 		case VK_ONE:
-			if(m_enumState != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != State_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_50);
 			}
 			break;
 
 		case VK_TWO:
-			if(m_enumState != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != State_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_100);
 			}
 			break;
 
 		case VK_THREE:
-			if(m_enumState != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != State_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_200);
 			}
@@ -585,20 +522,20 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_SPACE:
-			if(m_enumState == State_Play)
+			if(m_DVRPlayer.GetPlayState() == State_Play)
 			{
 				Pause();
 				SetState();
 			}
-			else if(m_enumState == State_Pause || m_enumState == State_Stop)
+			else if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Stop)
 			{
 				Play();
 				SetState();
 			}
 			break;
-		
+
 		case VK_LEFT:
-			if(m_enumState != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != State_Stop)
 			{
 				StepBackward();
 				SetState();
@@ -606,7 +543,7 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_RIGHT:
-			if(m_enumState != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != State_Stop)
 			{
 				StepForward();
 				SetState();
@@ -614,21 +551,21 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_UP:
-			AdjustSound(TRUE);
+			//m_DVRPlayer.AdjustSound(TRUE);
 			break;
 
 		case VK_DOWN:
-			AdjustSound(FALSE);
+			//m_DVRPlayer.AdjustSound(FALSE);
 			break;
-		
+
 		case VK_DOT:
-			if(m_enumState != State_Close)
+			if(m_DVRPlayer.GetPlayState() != State_Close)
 			{
 				if(m_bFullScreen)
 				{
 					ViewFullScreen();
 				}
-				
+
 				Stop();
 				SetState();
 			}
@@ -652,8 +589,8 @@ void CPlayerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	int   nPlayPos;
 	switch(GetWindowLong(pScrollBar->m_hWnd, GWL_ID))
 	{
-	/////////////////////////////////////////////////////////////////
-	//progress slider
+		/////////////////////////////////////////////////////////////////
+		//progress slider
 	case IDC_PLAY_SLIDER:
 		if(m_bStreamType)
 		{
@@ -666,28 +603,31 @@ void CPlayerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		}
 
 #ifdef _FILE_POS
-		NAME(PlayM4_SetPlayPos)(m_lPort, (float)nPlayPos/(float)PLAYER_SLIDER_MAX);
+		GetPlayer()->SetPosition((float)nPlayPos/(float)PLAYER_SLIDER_MAX);
+		//NAME(PlayM4_SetPlayPos)(m_lPort, );
 #else
- 		nTime = nPlayPos * 1000 / PLAYER_SLIDER_MAX * m_dwMaxFileTime;
- 		NAME(PlayM4_SetPlayedTimeEx)(m_lPort,nTime);
+		nTime = nPlayPos * 1000 / PLAYER_SLIDER_MAX * GetPlayer()->GetDuration();
+		//NAME(PlayM4_SetPlayedTimeEx)(m_lPort,nTime);
+		GetPlayer()->SetPosition(nTime);
 #endif
-//		DrawStatus();
+		//		DrawStatus();
 		break;
 
-	///////////////////////////////////////////////////////////////
-	//sound slider;
+		///////////////////////////////////////////////////////////////
+		//sound slider;
 	case IDC_SOUND_SLIDER:
-#ifdef _WAVE_ADJ
-		NAME(PlayM4_AdjustWaveAudio)(m_lPort, m_SoundSlider.GetPos());
-#else
-		NAME(PlayM4_SetVolume)(m_lPort, WORD(m_SoundSlider.GetPos()));
-#endif
+//#ifdef _WAVE_ADJ
+//		NAME(PlayM4_AdjustWaveAudio)(m_lPort, m_SoundSlider.GetPos());
+//#else
+		GetPlayer()->SetVolume( WORD(m_SoundSlider.GetPos()));
+		////NAME(PlayM4_SetVolume)(m_lPort, WORD(m_SoundSlider.GetPos()));
+//#endif
 		break;
 
 	default:
 		break;
 	}
-	
+
 	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
@@ -702,11 +642,11 @@ void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	GetCursorPos(&dpoint);	
 
 	m_ctrlVideoPic.GetWindowRect(&vwrect);
-	if( ( m_enumState == State_Play || m_enumState == State_Pause) && vwrect.PtInRect(dpoint))
+	if( ( m_DVRPlayer.GetPlayState() == State_Play || m_DVRPlayer.GetPlayState() == State_Pause) && vwrect.PtInRect(dpoint))
 	{
 		ViewFullScreen();
 	}
-		
+
 	CDialog::OnLButtonDblClk(nFlags, point);
 }
 
@@ -761,13 +701,14 @@ void CPlayerDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 void CPlayerDlg::OnMove(int x, int y) 
 {
 	CDialog::OnMove(x, y);
-	
+
 	if (!m_bInited)
 	{
 		return;
 	}
 	// TODO: Add your message handler code here
-	NAME(PlayM4_RefreshPlay)(m_lPort);
+	//NAME(PlayM4_RefreshPlay)(m_lPort);
+	GetPlayer()->RefreshPlay();
 
 	GetWindowRect(&m_rcWindow);
 	DWORD dwNewDeviceNum;
@@ -776,7 +717,7 @@ void CPlayerDlg::OnMove(int x, int y)
 	{
 		return;
 	}
-	
+
 	if( (DWORD)m_rcWindow.right + (DWORD)m_rcWindow.left > 2 * m_dwScreenWidth )
 	{
 		if( (DWORD)m_rcWindow.top + (DWORD)m_rcWindow.bottom > 2 * m_dwScreenHeight)
@@ -815,14 +756,14 @@ void CPlayerDlg::OnMove(int x, int y)
 			m_rcScreen.bottom= m_dwScreenHeight;
 		}
 	}
-	
-	if(dwNewDeviceNum != m_dwOldDeviceNum)
-	{
-		if(SetDevice(IDM_DEVICE0 + dwNewDeviceNum))
-		{
-			m_dwOldDeviceNum = dwNewDeviceNum;
-		}
-	}
+
+	//if(dwNewDeviceNum != m_dwOldDeviceNum)
+	//{
+	//	//if(SetDevice(IDM_DEVICE0 + dwNewDeviceNum))
+	//	{
+	//		m_dwOldDeviceNum = dwNewDeviceNum;
+	//	}
+	//}
 }
 
 
@@ -833,17 +774,17 @@ void CPlayerDlg::OnMove(int x, int y)
 void CPlayerDlg::OnLButtonDown(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-//	CRect rcShow;
-//	m_ctrlVideoPic.GetWindowRect(rcShow);
-//	ScreenToClient(rcShow);
-//
-//	if(rcShow.PtInRect(point))
-//	{
-//		m_StartPoint = point;
-//		m_bStartDraw = TRUE;
-//		InvalidateRect(m_rcDraw, TRUE);
-//		ZeroMemory(&m_rcDraw, sizeof(m_rcDraw));
-//	}
+	//	CRect rcShow;
+	//	m_ctrlVideoPic.GetWindowRect(rcShow);
+	//	ScreenToClient(rcShow);
+	//
+	//	if(rcShow.PtInRect(point))
+	//	{
+	//		m_StartPoint = point;
+	//		m_bStartDraw = TRUE;
+	//		InvalidateRect(m_rcDraw, TRUE);
+	//		ZeroMemory(&m_rcDraw, sizeof(m_rcDraw));
+	//	}
 
 	CDialog::OnLButtonDown(nFlags, point);
 }
@@ -851,39 +792,39 @@ void CPlayerDlg::OnLButtonDown(UINT nFlags, CPoint point)
 void CPlayerDlg::OnLButtonUp(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-//	if(m_bStartDraw)
-//	{
-//		if(m_StartPoint != point)
-//		{
-//
-//			CRect rcShow;
-//			m_ctrlVideoPic.GetWindowRect(rcShow);
-//			ScreenToClient(rcShow);
-//			
-//			if( rcShow.PtInRect(point) && (point.x >= m_StartPoint.x) && (point.y >= m_StartPoint.y))
-//			{
-//				m_rcDraw.left   = m_StartPoint.x;
-//				m_rcDraw.top    = m_StartPoint.y;
-//				m_rcDraw.right  = point.x;
-//				m_rcDraw.bottom = point.y;
-//				
-//				CDC* pDC = GetDC();
-//				pDC->DrawFocusRect(m_rcDraw);
-//				ReleaseDC(pDC);
-//			
-//				LONG nPicWidth  = 352;
-//				LONG nPicHeight = 288;
-//				NAME(PlayM4_GetPictureSize)(m_lPort, &nPicWidth, &nPicHeight);
-//				m_rcDisplay = GetOnPicRect(rcShow, m_rcDraw, nPicWidth, nPicHeight);
-//
-//				if(m_pDisplayRegion->m_hWnd)
-//					m_pDisplayRegion->PostMessage(WM_DISPLAY_RECT, 0, (long)(&m_rcDisplay));
-//			}
-//
-//		}
-//		m_bStartDraw = FALSE;
-//	}
-	
+	//	if(m_bStartDraw)
+	//	{
+	//		if(m_StartPoint != point)
+	//		{
+	//
+	//			CRect rcShow;
+	//			m_ctrlVideoPic.GetWindowRect(rcShow);
+	//			ScreenToClient(rcShow);
+	//			
+	//			if( rcShow.PtInRect(point) && (point.x >= m_StartPoint.x) && (point.y >= m_StartPoint.y))
+	//			{
+	//				m_rcDraw.left   = m_StartPoint.x;
+	//				m_rcDraw.top    = m_StartPoint.y;
+	//				m_rcDraw.right  = point.x;
+	//				m_rcDraw.bottom = point.y;
+	//				
+	//				CDC* pDC = GetDC();
+	//				pDC->DrawFocusRect(m_rcDraw);
+	//				ReleaseDC(pDC);
+	//			
+	//				LONG nPicWidth  = 352;
+	//				LONG nPicHeight = 288;
+	//				NAME(PlayM4_GetPictureSize)(m_lPort, &nPicWidth, &nPicHeight);
+	//				m_rcDisplay = GetOnPicRect(rcShow, m_rcDraw, nPicWidth, nPicHeight);
+	//
+	//				if(m_pDisplayRegion->m_hWnd)
+	//					m_pDisplayRegion->PostMessage(WM_DISPLAY_RECT, 0, (long)(&m_rcDisplay));
+	//			}
+	//
+	//		}
+	//		m_bStartDraw = FALSE;
+	//	}
+
 	CDialog::OnLButtonUp(nFlags, point);
 }
 
@@ -909,19 +850,19 @@ void CPlayerDlg::OnClose()
 // Para: wParam channel No. lParam reserved；
 LRESULT CPlayerDlg::PlayMessage(WPARAM /*wParam*/, LPARAM lParam)
 {
-//	if(m_bFullScreen)
-//		ViewFullScreen();
-	
+	//	if(m_bFullScreen)
+	//		ViewFullScreen();
+
 	//remove the same message.
 	MSG msgVal;
 	while(PeekMessage(&msgVal, m_hWnd, WM_FILE_END, WM_FILE_END, PM_REMOVE));
-	
+
 	if(m_bRepeatPlay)
 	{
 		TRACE("wptest:Process message %d\n", lParam);
-		GotoStart();
+		m_DVRPlayer.GotoStart();
 	}
-	
+
 	if(m_bConvertAVI)
 	{  
 		Stop();
@@ -943,17 +884,18 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 	}
 
 	SetWindowSize();
-	
+
 	if(m_pDisplayRegion)
 	{
 		if(m_pDisplayRegion->m_bValid)
 		{
 			m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 			m_pDisplayRegion->InitShow();
-			
-			if(m_enumState == State_Pause)
+
+			if(GetPlayer()->GetPlayState() == State_Pause)
 			{
-				NAME(PlayM4_OneByOne)(m_lPort);
+				StepForward();
+				//NAME(PlayM4_OneByOne)(m_lPort);
 			}
 		}
 	}
@@ -965,7 +907,7 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
 	m_pVideoControl->DestroyWindow();
-	if(m_enumState == State_Pause || m_enumState == State_Play)
+	if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Play)
 	{
 		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
 	}
@@ -976,7 +918,7 @@ LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 LRESULT CPlayerDlg::SeekOk(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
 	m_pSeek->DestroyWindow();
-	if(m_enumState == State_Pause || m_enumState == State_Play)
+	if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Play)
 	{
 		////m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_ENABLED);
 	}
@@ -999,7 +941,7 @@ LRESULT CPlayerDlg::DisplayOk(WPARAM wParam, LPARAM /*lParam*/)
 		m_ctrlBtnPause.EnableWindow(TRUE);	
 		m_ctrlStepBackward.EnableWindow(TRUE);
 		m_ctrlStepForward.EnableWindow(TRUE);
- 		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
 		Play();
 		SetState();
 	}
@@ -1023,45 +965,45 @@ void CALLBACK DecryptWatermark(LONG nPort, BYTE* pData, DWORD dwDataLen, DWORD d
 	UNREFERENCED_PARAMETER(nPort);
 
 	char* pBuf = (char*)pData;
-	m_strWaterMark.global_time = *(DWORD*)pBuf;
+	CDVRPlayer::m_strWaterMark.global_time = *(DWORD*)pBuf;
 	pBuf += sizeof(DWORD);
-	m_strWaterMark.device_sn = *(DWORD*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_sn = *(DWORD*)pBuf;
 	pBuf += sizeof(DWORD);
 	for(int i = 0; i < 6; i ++)
 	{
-		m_strWaterMark.mac_addr[i] = *(unsigned char*)pBuf;
+		CDVRPlayer::m_strWaterMark.mac_addr[i] = *(unsigned char*)pBuf;
 		pBuf += sizeof(unsigned char);
 	}
 
-	m_strWaterMark.device_type = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_type = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
-	m_strWaterMark.device_info = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_info = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
-	m_strWaterMark.channel_num = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.channel_num = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
 }
 
 // Functon:Watermark call back function.
 void CALLBACK funCheckWatermark(long /*nPort*/, WATERMARK_INFO *pFrameType, DWORD /*nUser*/)
 {
-//	CPlayerDlg* pOwner = (CPlayerDlg*)nUser;
+	//	CPlayerDlg* pOwner = (CPlayerDlg*)nUser;
 
 	char* pBuf = (char*)pFrameType->pDataBuf;
-	m_strWaterMark.global_time = *(DWORD*)pBuf;
+	CDVRPlayer::m_strWaterMark.global_time = *(DWORD*)pBuf;
 	pBuf += sizeof(DWORD);
-	m_strWaterMark.device_sn = *(DWORD*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_sn = *(DWORD*)pBuf;
 	pBuf += sizeof(DWORD);
 	for(int i = 0; i < 6; i ++)
 	{
-		m_strWaterMark.mac_addr[i] = *(unsigned char*)pBuf;
+		CDVRPlayer::m_strWaterMark.mac_addr[i] = *(unsigned char*)pBuf;
 		pBuf += sizeof(unsigned char);
 	}
 
-	m_strWaterMark.device_type = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_type = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
-	m_strWaterMark.device_info = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.device_info = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
-	m_strWaterMark.channel_num = *(unsigned char*)pBuf;
+	CDVRPlayer::m_strWaterMark.channel_num = *(unsigned char*)pBuf;
 	pBuf += sizeof(unsigned char);
 }
 
@@ -1075,87 +1017,87 @@ void CALLBACK funCheckWatermark(long /*nPort*/, WATERMARK_INFO *pFrameType, DWOR
 
 // Function:The call back funtion for capture image!
 void CALLBACK DisplayCBFun(long /*nPort*/,\
-						   char * pBuf,long /*nSize*/,\
-						   long /*nWidth*/,long /*nHeight*/,\
-						   long /*nStamp*/,long /*nType*/,long /*nReceaved*/)
+	char * pBuf,long /*nSize*/,\
+	long /*nWidth*/,long /*nHeight*/,\
+	long /*nStamp*/,long /*nType*/,long /*nReceaved*/)
 {
 	UNREFERENCED_PARAMETER(pBuf);
 }
 
 // Function: The dec call back funtion.
 void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
-					   FRAME_INFO * pFrameInfo, 
-					   long nReserved1,long /*nReserved2*/)
+	FRAME_INFO * pFrameInfo, 
+	long nReserved1,long /*nReserved2*/)
 {
-//	OutputDebugString("解码回调");
-//	DWORD dwTime = PlayM4_GetSpecialData(nPort);
-////	TRACE("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
-//	TRACE("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
-//			GET_MONTH(dwTime), GET_DAY(dwTime), GET_HOUR(dwTime), GET_MINUTE(dwTime), GET_SECOND(dwTime));
-/*	
+	//	OutputDebugString("解码回调");
+	//	DWORD dwTime = PlayM4_GetSpecialData(nPort);
+	////	TRACE("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
+	//	TRACE("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
+	//			GET_MONTH(dwTime), GET_DAY(dwTime), GET_HOUR(dwTime), GET_MINUTE(dwTime), GET_SECOND(dwTime));
+	/*	
 	CPlayerDlg* pDlg = (CPlayerDlg *)nReserved1;
 
 	if ( pFrameInfo->nType == T_YV12 ) 
 	{   
-		if(g_classAVI.IsWriteAVIHdr())
-		{
-			g_classAVI.SetFPS(pFrameInfo->nFrameRate);
-			g_classAVI.WriteHeaders();
-		}
-
-		// ntsc qcif
-		if(pFrameInfo->nHeight == 128)
-		{
-			if(pDlg->m_pQcifTempBuf == NULL)
-			{
-				pDlg->m_pQcifTempBuf = new BYTE[nSize];
-			}
-		
-			int nPos = 0;		
-			// Y 分量
-			for(int i = 0; i < 4; i++)
-			{
-				CopyMemory(pDlg->m_pQcifTempBuf + i * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth);
-			}
-
-			CopyMemory(pDlg->m_pQcifTempBuf + 4 * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth * 120);
-			for(i = 0; i < 4; i++)
-			{
-				CopyMemory(pDlg->m_pQcifTempBuf + (124 + i) * pFrameInfo->nWidth, pBuf + pFrameInfo->nWidth * 119, pFrameInfo->nWidth);
-			}
-
-			nPos += nSize*2/3;
-			
-			int w = pFrameInfo->nWidth/2; 
-			// U/V分量
-			for(int j = 0; j < 2; j++)
-			{
-				for(i = 0; i < 2; i++)
-				{
-					CopyMemory(pDlg->m_pQcifTempBuf + i * w + nPos,  pBuf + nPos, w);
-				}
-				CopyMemory(pDlg->m_pQcifTempBuf + w * 2 + nPos, pBuf + nPos, w * 60);
-				for(i = 0; i < 2; i++)
-				{
-					CopyMemory(pDlg->m_pQcifTempBuf + w * (62 + i) + nPos, pBuf + w * 59 + nPos, w);
-				}
-				nPos += nSize*1/6;
-			}
-
-			g_classAVI.AddFileToAVI((char*)pDlg->m_pQcifTempBuf, nSize);
-		}
-		else
-		{		
-			g_classAVI.AddFileToAVI(pBuf, nSize);
-		}
-
-		if(g_classAVI.IsExceedMaxFileLen())
-		{
-			SendMessage(AfxGetApp()->GetMainWnd()->m_hWnd,WM_FILE_END,m_lPort,0);		   
-		}	
+	if(g_classAVI.IsWriteAVIHdr())
+	{
+	g_classAVI.SetFPS(pFrameInfo->nFrameRate);
+	g_classAVI.WriteHeaders();
 	}
-*/
-//	Sleep(1);
+
+	// ntsc qcif
+	if(pFrameInfo->nHeight == 128)
+	{
+	if(pDlg->m_pQcifTempBuf == NULL)
+	{
+	pDlg->m_pQcifTempBuf = new BYTE[nSize];
+	}
+
+	int nPos = 0;		
+	// Y 分量
+	for(int i = 0; i < 4; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + i * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth);
+	}
+
+	CopyMemory(pDlg->m_pQcifTempBuf + 4 * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth * 120);
+	for(i = 0; i < 4; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + (124 + i) * pFrameInfo->nWidth, pBuf + pFrameInfo->nWidth * 119, pFrameInfo->nWidth);
+	}
+
+	nPos += nSize*2/3;
+
+	int w = pFrameInfo->nWidth/2; 
+	// U/V分量
+	for(int j = 0; j < 2; j++)
+	{
+	for(i = 0; i < 2; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + i * w + nPos,  pBuf + nPos, w);
+	}
+	CopyMemory(pDlg->m_pQcifTempBuf + w * 2 + nPos, pBuf + nPos, w * 60);
+	for(i = 0; i < 2; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + w * (62 + i) + nPos, pBuf + w * 59 + nPos, w);
+	}
+	nPos += nSize*1/6;
+	}
+
+	g_classAVI.AddFileToAVI((char*)pDlg->m_pQcifTempBuf, nSize);
+	}
+	else
+	{		
+	g_classAVI.AddFileToAVI(pBuf, nSize);
+	}
+
+	if(g_classAVI.IsExceedMaxFileLen())
+	{
+	SendMessage(AfxGetApp()->GetMainWnd()->m_hWnd,WM_FILE_END,m_lPort,0);		   
+	}	
+	}
+	*/
+	//	Sleep(1);
 }
 
 // Funtion:The source buffer call back funtion.
@@ -1165,39 +1107,39 @@ void CALLBACK SourceBufFun(long nPort,DWORD nBufSize,DWORD dwUser,void*pContext)
 
 	CPlayerDlg* pOwner = (CPlayerDlg*)dwUser;
 
-	if( (pOwner->m_enumState == State_Close) || (pOwner->m_enumState == State_Stop) )
+	if( (pOwner->GetPlayer()->GetPlayState() == State_Close) || (pOwner->GetPlayer()->GetPlayState() == State_Stop) )
 	{
 		return ;
 	}
 	NAME(PlayM4_ResetSourceBufFlag)(nPort);
 	if(pOwner->m_bFileEnd)
 	{
-		
-		PostMessage(pOwner->m_hWnd, WM_FILE_END, m_lPort, 0);
+
+		PostMessage(pOwner->m_hWnd, WM_FILE_END, pOwner->GetPlayer()->GetPort(), 0);
 		pOwner->m_bFileEnd = FALSE;
 	}
 	else
 	{
-		SetEvent(pOwner->m_hEventInput);
+		SetEvent(pOwner->GetPlayer()->m_hEventInput);
 	}
 }
 
 // Functon:File reference call back function.
 void CALLBACK FileRefDone(DWORD /*nReserved*/,DWORD nUser)
 {
- 	CPlayerDlg* pOwner = (CPlayerDlg*)nUser;
- 	pOwner->m_bFileRefCreated = TRUE;
- //	pOwner->//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE,MF_ENABLED);
- 	//pOwner->//m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_ENABLED);
+	CPlayerDlg* pOwner = (CPlayerDlg*)nUser;
+	pOwner->GetPlayer()->CanStepBackword(true);
+	//	pOwner->//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE,MF_ENABLED);
+	//pOwner->//m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_ENABLED);
 	TRACE("File reference created!\n");
 
-//	DWORD dwIndex = 0;
-//	NAME(PlayM4_GetRefValue)(m_lPort, NULL, &dwIndex);
-//	BYTE* pIndex = new BYTE[dwIndex];
-//	NAME(PlayM4_GetRefValue)(m_lPort, pIndex, &dwIndex);
-//	HANDLE hFile = CreateFile("D:\\new.idx", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-//	DWORD dw;
-//	WriteFile(hFile, pIndex, dwIndex, &dw, NULL);
+	//	DWORD dwIndex = 0;
+	//	NAME(PlayM4_GetRefValue)(m_lPort, NULL, &dwIndex);
+	//	BYTE* pIndex = new BYTE[dwIndex];
+	//	NAME(PlayM4_GetRefValue)(m_lPort, pIndex, &dwIndex);
+	//	HANDLE hFile = CreateFile("D:\\new.idx", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	//	DWORD dw;
+	//	WriteFile(hFile, pIndex, dwIndex, &dw, NULL);
 }
 
 // Functon:File Verify call back function.
@@ -1206,18 +1148,18 @@ void CALLBACK VerifyFun(long nPort, FRAME_POS * pFilePos, DWORD bIsVideo,  DWORD
 {
 //	TRACE("File have been changed at: pos = 0x%X; time(s) = %d, frameNum = %d; IsVideo = %d\n",
 //		pFilePos->nFilePos, pFilePos->nFrameTime/1000, pFilePos->nFrameNum, bIsVideo);
-	CString abstime;
-	CString str;
-	if (pFilePos->pErrorTime )
-	{
-		abstime.Format(_T("%02d-%02d-%02d %02d:%02d:%02d",pFilePos->pErrorTime->wYear, pFilePos->pErrorTime->wMonth,
-			pFilePos->pErrorTime->wDay, pFilePos->pErrorTime->wHour, pFilePos->pErrorTime->wMinute, pFilePos->pErrorTime->wSecond);
-	}
-	str.Format(_T("file error at pos=0x%X, time(s) =%d,frameNum=%d,isVideo=%d, \
-		errorframe at%d,lostframe=%d,lostdata=%d,time=%s\n",	\
-		pFilePos->nFilePos, pFilePos->nFrameTime/1000, pFilePos->nFrameNum, bIsVideo,	\
-		pFilePos->nErrorFrameNum, pFilePos->nErrorLostFrameNum, pFilePos->nErrorFrameSize, abstime);
-	TRACE(str); 
+CString abstime;
+CString str;
+if (pFilePos->pErrorTime )
+{
+abstime.Format(_T("%02d-%02d-%02d %02d:%02d:%02d",pFilePos->pErrorTime->wYear, pFilePos->pErrorTime->wMonth,
+pFilePos->pErrorTime->wDay, pFilePos->pErrorTime->wHour, pFilePos->pErrorTime->wMinute, pFilePos->pErrorTime->wSecond);
+}
+str.Format(_T("file error at pos=0x%X, time(s) =%d,frameNum=%d,isVideo=%d, \
+errorframe at%d,lostframe=%d,lostdata=%d,time=%s\n",	\
+pFilePos->nFilePos, pFilePos->nFrameTime/1000, pFilePos->nFrameNum, bIsVideo,	\
+pFilePos->nErrorFrameNum, pFilePos->nErrorLostFrameNum, pFilePos->nErrorFrameSize, abstime);
+TRACE(str); 
 }
 */
 
@@ -1249,12 +1191,12 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 {
 	CPlayerDlg* pOwner = (CPlayerDlg*)lpParameter;
 	HANDLE hMulEvents[2];
-	hMulEvents[0] = pOwner->m_hEventKill;
-	hMulEvents[1] = pOwner->m_hEventInput;
+	hMulEvents[0] = pOwner->GetPlayer()->m_hEventKill;
+	hMulEvents[1] = pOwner->GetPlayer()->m_hEventInput;
 	BYTE pBuf[BUF_SIZE];
 	DWORD nRealRead;
 	BOOL bBufFull = FALSE;
-    DWORD dwSize = BUF_SIZE;
+	DWORD dwSize = BUF_SIZE;
 	unsigned char chType;
 	DWORD	dwDataLen = 0;
 
@@ -1263,52 +1205,52 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 		if(!bBufFull)
 		{
 			// TRACE("Read file and put it input into the stream buffer.\n");
-            if(pOwner->m_dwSysFormat != SYSTEM_RTP)
-            {
-				if(!(ReadFile(pOwner->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+			if(pOwner->m_dwSysFormat != SYSTEM_RTP)
+			{
+				if(!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				{
 					//File end;
 					pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->m_hEventInput);
+					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
 				}
 				dwDataLen = nRealRead;
-            }
-            else
-            {
-                //先读出4字节rtp包长
+			}
+			else
+			{
+				//先读出4字节rtp包长
 
-                if (!(ReadFile(pOwner->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
-                {
-                    //File end;
+				if (!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
+				{
+					//File end;
 					pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->m_hEventInput);
-                }
+					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+				}
 
 				dwSize = pBuf[0] + (pBuf[1] << 8) + (pBuf[2] << 16) + (pBuf[3] << 24);
-		
-                if (!(ReadFile(pOwner->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
-                {
-                    //File end;
+
+				if (!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+				{
+					//File end;
 					pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->m_hEventInput);
-                }
+					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+				}
 
-                dwDataLen = nRealRead;
-            }
-			
-			while ( !NAME(PlayM4_InputData)(m_lPort, pBuf, dwDataLen) )
+				dwDataLen = nRealRead;
+			}
+
+			while ( !NAME(PlayM4_InputData)(pOwner->GetPlayer()->GetPort(), pBuf, dwDataLen) )
 			{
-				if ( PlayM4_GetLastError(m_lPort) == PLAYM4_BUF_OVER )
+				if ( PlayM4_GetLastError(pOwner->GetPlayer()->GetPort()) == PLAYM4_BUF_OVER )
 				{
 					Sleep(10);
 					continue;
 				}
-					
+
 				bBufFull = TRUE;
-				ResetEvent(pOwner->m_hEventInput);
+				ResetEvent(pOwner->GetPlayer()->m_hEventInput);
 				break;
 			}
 		}
@@ -1331,17 +1273,17 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 {
 #ifdef _FOR_HIKPLAYM4_DLL_
-		CFileDialog dlg(TRUE, 
-						_T("mpg"),
-						NULL, 
-						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-						_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+	CFileDialog dlg(TRUE, 
+		_T("mpg"),
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #else
-		CFileDialog dlg(TRUE, 
-						_T("mpg"),
-						NULL, 
-						OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-						_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+	CFileDialog dlg(TRUE, 
+		_T("mpg"),
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #endif
 
 	if(dlg.DoModal() == IDCANCEL)
@@ -1352,276 +1294,14 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 	return TRUE;
 }
 
-// open file and play
-void CPlayerDlg::OpenFile()
-{
-	CString strError;
-	
-	NAME(PlayM4_SetFileEndMsg)(m_lPort, m_hWnd, WM_FILE_END);
-
-	NAME(PlayM4_SetFileRefCallBack)(m_lPort, FileRefDone, (DWORD)this);
-//	NAME(PlayM4_SetVerifyCallBack)(m_lPort, 0, 0xffffffff, VerifyFun, (DWORD) this); // verify the whole file;
-//	NAME(PlayM4_SetDecCallBackMend)(m_lPort, DecCBFun, (long)this);	
-	NAME(PlayM4_SetDecCallBackEx)(m_lPort, DecCBFun, NULL, 0);	
-	
-//	BOOL bRelt = PlayM4_SetDecodeFrameType(m_lPort, 0);
-	char szFilename[MAX_PATH];
-	strcpy(szFilename, CT2A((LPCTSTR)m_strPlayFileName));
-
-	if(!NAME(PlayM4_OpenFile)(m_lPort, szFilename))
-	{
-		m_strPlayFileName = _T("");
-		strError.Format(_T("Open file failed(%s)"), MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
-		MessageBox(strError);
-		throw 0;
-	}
-
-//	HANDLE hFile = CreateFile("D:\\F009-100726-142016.hik.idx", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-//	DWORD dwIndex = GetFileSize(hFile, NULL);
-//	BYTE* pIndex = new BYTE[dwIndex];
-//	DWORD dw;
-//	ReadFile(hFile, pIndex, dwIndex, &dw, NULL);
-//	NAME(PlayM4_SetRefValue)(m_lPort, pIndex, dwIndex);
-
-//	PlayM4_SetSecretKey(m_lPort, 1, "tyco_oem_ver", 12 * 8);
-
-	NAME(PlayM4_SyncToAudio)(m_lPort, TRUE);
-	
-	// try overlay mode!
-//	NAME(PlayM4_SetOverlayMode)(m_lPort, TRUE, RGB(255,0,255));
-	// try flip overlay mode
-//	NAME(PlayM4_SetOverlayFlipMode)(m_lPort, TRUE);
-
-	m_dwMaxFileTime = NAME(PlayM4_GetFileTime)(m_lPort);
-	if(!m_dwMaxFileTime)
-	{
-// 		strError.Format(_T("File seconds is zero");
-// 		MessageBox(strError);
-// 		throw 0;
-		m_dwMaxFileTime = 1;
-	}
-
-	m_dwDisplayHour		= m_dwMaxFileTime/3600;
-	m_dwDisplayMinute   = (m_dwMaxFileTime % 3600) / 60;
-	m_dwDisplaySecond   = m_dwMaxFileTime % 60;
-	m_dwTotalFrames		= NAME(PlayM4_GetFileTotalFrames)(m_lPort);
-
-	if(m_bConvertAVI)
-	{
-		AVI_CONVERT_PARA strParam;
-		long dwHeight, dwWidth;
-		NAME(PlayM4_GetPictureSize)(m_lPort, &dwWidth, &dwHeight);
-		strParam.dwFrameWidth  = MOD16(dwWidth);
-		strParam.dwFrameHeight = MOD16(dwHeight);
-		strParam.dwFrameSize   = strParam.dwFrameWidth * strParam.dwFrameHeight *3/2;
-		strParam.dwTotalFrames = m_dwTotalFrames;
-
-		BOOL bInitAVI = g_classAVI.InitResource(&strParam, m_strSaveAVIPath);
-		if(!bInitAVI)
-		{
-			strError.Format(_T("Init AVI Resource failed!"));
-			MessageBox(strError);
-			g_classAVI.ReleaseResource();
-			m_bConvertAVI = FALSE;
-		}
-	}
-
-	// If you want to change the display buffer. Do hear!
-//	NAME(PlayM4_SetDisplayBuf)(m_lPort,50);
-//	NAME(PlayM4_SetDisplayBufAddtionalLen)(m_lPort, 6);
-
-	Play();
-//	PlayM4_SetPlayedTimeEx(m_lPort, 3000000);
-// 	BOOL b = NAME(PlayM4_SetDisplayType)(m_lPort, 3);
-//	PlayM4_SetCurrentFrameNum(m_lPort, 10000);
-//	PlayM4_SetPlayPos(m_lPort, 1.2);
-// 	DWORD dw = PlayM4_GetLastError(m_lPort);
-	SetWindowText((LPCTSTR) m_strPlayFileName);
-}
-
-// close file
-void CPlayerDlg::CloseFile()
-{
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		m_pDisplayRegion->DestroyWindow();
-		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
-		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
-		
-	}
-
-	Stop();
-	NAME(PlayM4_CloseFile)(m_lPort);
-//	NAME(PlayM4_FreePort)(m_lPort);
-	////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_ENABLED|MF_BYPOSITION);
-	m_enumState = State_Close;
-	m_bOpen = FALSE;
-	m_bFileRefCreated =	FALSE;	
-}
-
-// Funtion: Open the file by stream type and play it
-void CPlayerDlg::OpenStream()
-{
-	m_dwDisplayHour		= 0;
-	m_dwDisplayMinute   = 0;
-	m_dwDisplaySecond   = 0;
-	m_dwTotalFrames     = 0;
-	m_bFileEnd          = FALSE;
-	HIK_MEDIAINFO		stInfo;
-	ZeroMemory(&stInfo,sizeof(HIK_MEDIAINFO));
-	
-	m_hStreamFile = CreateFile(m_strPlayFileName,
-							   GENERIC_READ,
-							   FILE_SHARE_READ,
-							   NULL,
-							   OPEN_EXISTING,
-							   FILE_ATTRIBUTE_NORMAL,
-							   NULL);
-	if(m_hStreamFile == INVALID_HANDLE_VALUE)
-	{
-		MessageBox(_T("Open file failed"));
-		throw 0;
-	}
-	m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
-//	NAME(PlayM4_SetSourceBufCallBack)(m_lPort, 6000000, SourceBufFun, (DWORD)this, NULL);
-	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
-	m_dwHeadSize = NAME(PlayM4_GetFileHeadLength)();
-	PBYTE pBuf = NULL;
-	char csError[50];
-	
-	pBuf = new BYTE[m_dwHeadSize];
-	if(!pBuf)
-	{
-		MessageBox(_T("Alloc memory failed"));
-		throw 0;
-	}
-	DWORD nRealRead;
-	SetFilePointer(m_hStreamFile, 0, 0, FILE_BEGIN);
-	ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
-	if(nRealRead != m_dwHeadSize)
-	{
-		MessageBox(_T("File is too small"));
-		delete []pBuf;
-		pBuf = NULL;
-		throw 0;
-	}
-
-	unsigned int g_strFileHdr[10] = { 0x484B4834, 0xd6d0b3fe, 0x20040308, 0x0, 0x10011001, 0x00101001, 0x3e80, 0x01200160, 0x1011, 0x4 };
-
-//	NAME(PlayM4_OpenStream)(m_lPort, g_strFileHdr, 40,  6*1000*1024)
-#ifdef SPLIT_INPUT
-	if(!NAME(PlayM4_OpenStreamEx)(m_lPort, (BYTE*)&stInfo, m_dwHeadSize, 6*1000*1024))
-	{
-		sprintf(csError, "Open stream failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
-		MessageBox(csError);
-		delete []pBuf;
-		pBuf = NULL;
-		throw 0;
-	}
-	PlayM4_SyncToAudio(m_lPort, FALSE);
-#else defined MIX_INPUT	
-
-	if(!NAME(PlayM4_OpenStream)(m_lPort, pBuf, sizeof(stInfo),  6*1000*1024))
-	{
-		sprintf(csError, "Open stream failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
-		MessageBox(CA2T(csError));
-		delete []pBuf;
-		pBuf = NULL;
-		throw 0;
-	}
-	NAME(PlayM4_SyncToAudio)(m_lPort, FALSE);
-#endif
-
-	delete []pBuf;
-	pBuf = NULL;
-
-	DWORD dw;
-	m_hThread	  = NULL;
-	m_hEventInput = NULL;
-	m_hEventKill  = NULL;
-
-	m_hThread	  =	CreateThread(NULL,0, LPTHREAD_START_ROUTINE (InputStreamThread),this,0,&dw);
-	m_hEventInput =	CreateEvent(NULL,TRUE,FALSE,NULL);
-	m_hEventKill  =	CreateEvent(NULL,FALSE,FALSE,NULL);
-	if( !(m_hThread&&m_hEventInput&&m_hEventKill) )
-	{
-		MessageBox(_T("Create thread failed"));
-		throw 0;
-	}
-
-	// try overlay mode!
-//	NAME(PlayM4_SetOverlayMode)(m_lPort, TRUE, RGB(255,0,255));
-	// try flip overlay mode
-//	NAME(PlayM4_SetOverlayFlipMode)(m_lPort, TRUE);
-	
-	Play();
-}
-
-
-// Function:Close the stream.
-void CPlayerDlg::CloseStream()
-{
-	Stop();
-	NAME(PlayM4_CloseStream)(m_lPort);
-	if(m_hStreamFile)
-	{
-		CloseHandle(m_hStreamFile);
-		m_hStreamFile = NULL;
-	}
-	
-	if(m_hThread)
-	{
-		SetEvent(m_hEventKill);
-		DWORD dwStatus;
-		for(int i = 0; i < 5; i++)
-		{
-			if(!::GetExitCodeThread(m_hThread, &dwStatus)|| (i == 4) )
-			{
-				TerminateThread(m_hThread, 0);
-				TRACE("GetExitCode option error!-decodethread\n");
-			}
-			else
-			{
-				if(dwStatus == STILL_ACTIVE)
-				{
-					SetEvent(m_hEventKill);
-					Sleep(2);
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		CloseHandle(m_hThread);
-		m_hThread = NULL;
-	}
-
-	if(m_hEventInput)
-	{
-		CloseHandle(m_hEventInput);
-		m_hEventInput = NULL;
-	}
-
-	if(m_hEventKill)
-	{
-		CloseHandle(m_hEventKill);
-		m_hEventKill = NULL;
-	}
-	
-	m_enumState = State_Close;
-	m_bOpen = FALSE;
-	m_bFileRefCreated =	FALSE;		
-}
-
 // set play state
 // Funtion: Draw the status .
 void CPlayerDlg::DrawStatus()
 {
-	DWORD nCurrentTime = NAME(PlayM4_GetPlayedTime)(m_lPort);
+	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
 
-	TRACE("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
-	
+	//TRACE("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
+
 	//TRACE("Get time is:%d\n",nCurrentTime);			
 	DWORD nHour   = (nCurrentTime / 3600) % 24;
 	DWORD nMinute = (nCurrentTime % 3600) / 60;
@@ -1629,22 +1309,22 @@ void CPlayerDlg::DrawStatus()
 	int nPos = 0;
 	if(m_bStreamType)
 	{
-		DWORD nFilePos = SetFilePointer(m_hStreamFile, 0, 0, FILE_CURRENT);
+		DWORD nFilePos = SetFilePointer(GetPlayer()->m_hStreamFile, 0, 0, FILE_CURRENT);
 		nPos = nFilePos * PLAYER_SLIDER_MAX / m_dwMaxFileSize;
 	}
 	else
 	{
 #ifdef _FILE_POS
-	float fPos = NAME(PlayM4_GetPlayPos)(m_lPort);
-	nPos = int(fPos * PLAYER_SLIDER_MAX);
-	
+		float fPos = NAME(PlayM4_GetPlayPos)(m_lPort);
+		nPos = int(fPos * PLAYER_SLIDER_MAX);
+
 #else
-	nPos = nCurrentTime * PLAYER_SLIDER_MAX / m_dwMaxFileTime;
-			
+		nPos = nCurrentTime * PLAYER_SLIDER_MAX / GetPlayer()->GetDuration();
+
 #endif
 	}
-	
-	DWORD nCurrentFrame = NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
+
+	DWORD nCurrentFrame = GetPlayer()->GetCurrentFrameNum();//NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
 
 	TRACE("nCurrentFrame %d----------nCurrentTime %d--------------\n", nCurrentFrame, nCurrentTime);
 	if(m_nSpeed > 0)
@@ -1670,7 +1350,7 @@ void CPlayerDlg::DrawStatus()
 
 
 	//adjust the slider.
-//	INT nAdjust = (m_nPrePlayPos < nPos) ? 1 : 0;
+	//	INT nAdjust = (m_nPrePlayPos < nPos) ? 1 : 0;
 	int nScrollPos = 0;
 	if (m_dwTotalFrames != 1)
 	{
@@ -1680,7 +1360,7 @@ void CPlayerDlg::DrawStatus()
 	{
 		nScrollPos = 1;
 	}
-	
+
 	if (m_nPrePlayPos == nScrollPos)
 	{
 		return;
@@ -1691,17 +1371,17 @@ void CPlayerDlg::DrawStatus()
 	// test
 	// TRACE("Current frame rate:%d\n",NAME(PlayM4_GetCurrentFrameRate)(m_lPort));
 	// TRACE("Current time use ms:%d\n",NAME(PlayM4_GetPlayedTimeEx)(m_lPort));
-	
+
 }
 
 // set state
 void CPlayerDlg::SetState()
 {
 	int i;
-	switch(m_enumState)
+	switch(m_DVRPlayer.GetPlayState())
 	{
 	case State_Close:
-		
+
 		// button state
 
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_DISABLE);
@@ -1733,16 +1413,16 @@ void CPlayerDlg::SetState()
 
 		m_ctrlStepForward.SetIcon(IDI_STEPFORWARD_DISABLE);
 		m_ctrlStepForward.EnableWindow(FALSE);
-		
+
 		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_DISABLE);
 		m_ctrlBtnCapPic.EnableWindow(FALSE);
-		
+
 		m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
 		m_ctrlBtnSound.EnableWindow(FALSE);
-		
+
 		// menu state
 		////m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_GRAYED | MF_DISABLED);
-//		//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_GRAYED | MF_DISABLED);
+		//		//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_GRAYED | MF_DISABLED);
 		////m_pMainMenu->EnableMenuItem(IDM_SET_KEY, MF_ENABLED);
 
 		for(i = 0; i < 3; i++)
@@ -1766,14 +1446,6 @@ void CPlayerDlg::SetState()
 		////m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED | MF_DISABLED);
 
 		////m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_ENABLED);
-		if(m_bHighFluid)
-		{
-			////m_pMainMenu->CheckMenuItem(IDM_PREVIEW50, MF_CHECKED);
-		}
-		else
-		{
-			////m_pMainMenu->CheckMenuItem(IDM_PREVIEW50, MF_UNCHECKED);
-		}
 
 		////m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_ENABLED);
 		for(i=0; i<2; i++)
@@ -1784,7 +1456,7 @@ void CPlayerDlg::SetState()
 		////m_pMainMenu->CheckMenuItem(IDM_BYRATE, MF_CHECKED);
 		////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_ENABLED|MF_BYPOSITION);
 
-		
+
 		// scroll state	
 		m_PlaySlider.SetScrollPos(0);
 		m_PlaySlider.EnableWindow(FALSE);
@@ -1800,7 +1472,7 @@ void CPlayerDlg::SetState()
 		{
 			m_ctrlVideoPic.SetBitmap(m_HikvisionBmp);
 		}
-		
+
 		InitWindowSize(WIDTH,HEIGHT_PAL);
 
 		break;
@@ -1840,7 +1512,7 @@ void CPlayerDlg::SetState()
 			m_ctrlStepBackward.SetIcon(IDI_STEPBACKWARD_ENABLE);
 			m_ctrlStepBackward.EnableWindow(TRUE);
 		}
-	
+
 
 		m_ctrlBtnSlow.SetIcon(IDI_FASTBACKWARD_ENABLE);
 		m_ctrlBtnSlow.EnableWindow(TRUE);
@@ -1868,17 +1540,6 @@ void CPlayerDlg::SetState()
 		////m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_ENABLED);
 		////m_pMainMenu->EnableMenuItem(IDM_SET_KEY, MF_GRAYED | MF_DISABLED);
 
-		if(m_bFileRefCreated)
-		{
-//			//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_ENABLED);
-			////m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_ENABLED);
-		}
-		else
-		{
-//			//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_GRAYED | MF_DISABLED);
-			////m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_GRAYED | MF_DISABLED);
-		}
-
 		////m_pMainMenu->GetSubMenu(1)->EnableMenuItem(1, MF_ENABLED | MF_BYPOSITION);
 		////m_pMainMenu->EnableMenuItem(IDM_VIEW_FULLSCREEN, MF_ENABLED);
 		////m_pMainMenu->EnableMenuItem(IDM_INFO, MF_ENABLED);
@@ -1893,7 +1554,7 @@ void CPlayerDlg::SetState()
 		////m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_GRAYED | MF_DISABLED);
 		////m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_GRAYED | MF_DISABLED);
 		////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_DISABLED|MF_GRAYED|MF_BYPOSITION);
-	
+
 		//if(m_bStreamType)
 		//{
 		//	//m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_GRAYED | MF_DISABLED);
@@ -1917,7 +1578,7 @@ void CPlayerDlg::SetState()
 			m_PlaySlider.EnableWindow(TRUE);
 		}
 		m_SoundSlider.EnableWindow(TRUE);
-	
+
 		if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
 		{
 			m_ctrlVideoPic.SetBitmap(m_OverlayBmp);
@@ -1961,7 +1622,7 @@ void CPlayerDlg::SetState()
 			m_ctrlStepBackward.SetIcon(IDI_STEPBACKWARD_ENABLE);
 			m_ctrlStepBackward.EnableWindow(TRUE);
 		}
-	
+
 		m_ctrlBtnSlow.SetIcon(IDI_FASTBACKWARD_ENABLE);
 		m_ctrlBtnSlow.EnableWindow(TRUE);
 
@@ -1973,7 +1634,7 @@ void CPlayerDlg::SetState()
 
 		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_AT, IDI_CAPPIC_ENABLE);
 		m_ctrlBtnCapPic.EnableWindow(TRUE);
-		
+
 		break;
 
 	case State_Stop:
@@ -2006,69 +1667,37 @@ void CPlayerDlg::SetState()
 
 		m_ctrlStepForward.SetIcon(IDI_STEPFORWARD_DISABLE);
 		m_ctrlStepForward.EnableWindow(FALSE);
-		
+
 		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_DISABLE);
 		m_ctrlBtnCapPic.EnableWindow(FALSE);
-		
-		// menu state
-		////m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_ENABLED);
-
-		if(m_bFileRefCreated)
-		{
-//			//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_ENABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_ENABLED);
-		}
-		else
-		{
-//			//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_DISABLED);
-		//	//m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_DISABLED);
-		}
-
-		////m_pMainMenu->GetSubMenu(1)->EnableMenuItem(1, MF_DISABLED|MF_GRAYED|MF_BYPOSITION);
-		////m_pMainMenu->EnableMenuItem(IDM_VIEW_FULLSCREEN, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_INFO, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_GRAYED | MF_DISABLED);
-
-		////m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_PLAY_PAUSE, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STOP, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_GOTOSTART, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STEPBACKWARD, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STEPFORWARD, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED | MF_DISABLED);
-
-		////m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_ENABLED);
-		////m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_GRAYED | MF_DISABLED);
-		////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_DISABLED|MF_GRAYED|MF_BYPOSITION);
 
 		// scroll state
 		m_PlaySlider.SetScrollPos(0);
 		m_PlaySlider.EnableWindow(FALSE);
-		
+
 #ifdef _WAVE_ADJ
 		m_SoundSlider.SetPos(0);
 #else
 		m_SoundSlider.SetPos(0xffff>>1);
 #endif
 		m_SoundSlider.EnableWindow(FALSE);
-		
+
 		if((HBITMAP)m_HikvisionBmp != m_ctrlVideoPic.GetBitmap())
 		{
 			m_ctrlVideoPic.SetBitmap(m_HikvisionBmp);
 		}
 
 		break;
-		
+
 	default:
 		break;
 	}
-	
+
 	SortControl();
-	
+
 	UpdateData(FALSE);
-	NAME(PlayM4_RefreshPlay)(m_lPort);
+	GetPlayer()->RefreshPlay();
+	//NAME(PlayM4_RefreshPlay)(m_lPort);
 }
 
 // set avi state
@@ -2105,36 +1734,13 @@ void CPlayerDlg::SetAVIState()
 
 	m_ctrlStepForward.SetIcon(IDI_STEPFORWARD_DISABLE);
 	m_ctrlStepForward.EnableWindow(FALSE);
-	
+
 	m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_DISABLE);
 	m_ctrlBtnCapPic.EnableWindow(FALSE);
-	
+
 	m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
 	m_ctrlBtnSound.EnableWindow(FALSE);
-	
-	// menu state
-//	//m_pMainMenu->EnableMenuItem(IDM_FILE_CLOSE, MF_ENABLED);
-////	//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE, MF_GRAYED | MF_DISABLED);
-//
-//	//m_pMainMenu->GetSubMenu(1)->EnableMenuItem(1, MF_DISABLED | MF_GRAYED | MF_BYPOSITION);
-//	//m_pMainMenu->EnableMenuItem(IDM_VIEW_FULLSCREEN, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_INFO, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_GRAYED | MF_DISABLED);
-//
-//	//m_pMainMenu->EnableMenuItem(IDM_SEEK, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_PLAY_PAUSE, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_STOP, MF_ENABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_GOTOEND, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_GOTOSTART, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_STEPBACKWARD, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_STEPFORWARD, MF_GRAYED | MF_DISABLED);
-//
-//	//m_pMainMenu->EnableMenuItem(IDM_PREVIEW50, MF_GRAYED | MF_DISABLED);
-//	//m_pMainMenu->EnableMenuItem(IDM_STREAM_TYPE, MF_GRAYED | MF_DISABLED);	
-//	//m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_GRAYED | MF_DISABLED | MF_BYPOSITION);
 
-	
 	// scroll state	
 	m_PlaySlider.SetScrollPos(0);
 	m_PlaySlider.EnableWindow(FALSE);
@@ -2190,7 +1796,7 @@ void CPlayerDlg::SetWindowSize()
 	m_dwDlgTopSize = rcClient.top - rcWin.top;
 
 	TRACE("init window size!\n");
-	NAME(PlayM4_GetPictureSize)(m_lPort, &m_nWidth, &m_nHeight);
+	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
 	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 	TRACE("get window size ok\n");
 
@@ -2198,7 +1804,7 @@ void CPlayerDlg::SetWindowSize()
 	{
 		m_nHeight <<= 1;
 	}
-	
+
 	DWORD nWindowHeight = m_nHeight + PANNEL_HEIGHT + m_dwDlgTopSize + m_dwDlgEdge + 10;
 	DWORD nWindowWidth  = m_nWidth + (m_dwDlgEdge << 1);
 
@@ -2230,10 +1836,10 @@ void CPlayerDlg::SortControl()
 	}
 
 	CRect rcClient, rcVideo;
-	
+
 	GetClientRect(&rcClient);
 	DWORD x=LEFT_EDGE+10,y=rcClient.bottom-STATE_HEIGHT;
-	
+
 	//STATE 
 	m_ctrlPlayText.MoveWindow(0,y,rcClient.Width()+1,STATE_HEIGHT,TRUE);
 
@@ -2282,7 +1888,7 @@ void CPlayerDlg::SortControl()
 	m_ctrlBtnCapPic.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
 
-	
+
 	//SOUND
 	x=rcClient.right-SOUND_SLIDER_WIDTH;
 	m_SoundSlider.MoveWindow(x,y+BUTTON_SIZE-SOUND_SLIDER_HEIGHT,SOUND_SLIDER_WIDTH,SOUND_SLIDER_HEIGHT,TRUE);
@@ -2300,7 +1906,8 @@ void CPlayerDlg::SortControl()
 	//pic show
 	m_ctrlVideoPic.MoveWindow(0,0,rcClient.Width(),y,TRUE);
 
-	NAME(PlayM4_RefreshPlay)(m_lPort);
+	GetPlayer()->RefreshPlay();
+	//NAME(PlayM4_RefreshPlay)(m_lPort);
 
 	// redraw whole the dialog rect except the video show rect
 	m_ctrlVideoPic.GetClientRect(&rcVideo);
@@ -2324,10 +1931,10 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 	m_dwDlgEdge = (rcWin.Width() - rcClient.Width()) >> 1;
 	ClientToScreen(&rcClient);
 	m_dwDlgTopSize = rcClient.top - rcWin.top;
-	
+
 	DWORD nWindowWidth  = cx + (m_dwDlgEdge << 1);
 	DWORD nWindowHeight = cy + PANNEL_HEIGHT + m_dwDlgTopSize + m_dwDlgEdge + 10;
-	
+
 	nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 	nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
@@ -2337,7 +1944,7 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 		nWindowWidth,
 		nWindowHeight,
 		TRUE);
-	
+
 	SortControl();
 
 	//for the small picture size.The menu will be high. 
@@ -2357,11 +1964,11 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 		nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
 		MoveWindow(
-				  (m_dwScreenWidth  - nWindowWidth)  / 2 + m_rcScreen.left,
-				  (m_dwScreenHeight - nWindowHeight) / 2 + m_rcScreen.top,
-				  nWindowWidth,
-				  nWindowHeight,
-				  TRUE);
+			(m_dwScreenWidth  - nWindowWidth)  / 2 + m_rcScreen.left,
+			(m_dwScreenHeight - nWindowHeight) / 2 + m_rcScreen.top,
+			nWindowWidth,
+			nWindowHeight,
+			TRUE);
 		SortControl();
 	}
 }
@@ -2389,7 +1996,7 @@ CRect CPlayerDlg::GetOnPicRect(CRect rcWnd, CRect rcOnWnd, LONG nPicWidth, LONG 
 	rcOnPic.top    = nWndY * nPicHeight / rcWnd.Height();
 	rcOnPic.right  = rcOnPic.left + rcOnWnd.Width()  * nPicWidth/rcWnd.Width();
 	rcOnPic.bottom = rcOnPic.top  + rcOnWnd.Height() * nPicHeight/rcWnd.Height();
-	
+
 	if(rcOnPic.right > nPicWidth)
 	{
 		rcOnPic.right = nPicWidth;
@@ -2399,633 +2006,23 @@ CRect CPlayerDlg::GetOnPicRect(CRect rcWnd, CRect rcOnWnd, LONG nPicWidth, LONG 
 	{
 		rcOnPic.bottom = nPicHeight;
 	}
-	
+
 	return rcOnPic;
 }
-	
-// Funtion: test the capability of your system.
-void CPlayerDlg::TestCapability(DWORD nDeviceNum)
-{
-	CString csCap=_T("");
-#if (WINVER > 0x0400)
-	int nFlag=NAME(PlayM4_GetCapsEx)(nDeviceNum);
-#else
-	int nFlag=NAME(PlayM4_GetCaps());
-#endif
 
-	if(!(nFlag&SUPPORT_SSE))
-	{
-		csCap+=_T("Don't support SSE instruction set;\r\n");
-	}
 
-	if(!(nFlag&SUPPORT_DDRAW))
-	{
-		csCap+=_T("Create DirectDraw faild;\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLT))
-	{
-		csCap+=_T("Error when blitting overlay or offscreen;Error when blitting overlay or offscreen;\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLTFOURCC))
-	{
-		csCap+=_T("Don't support color-space conversions;\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLTSHRINKX))
-	{
-		csCap+=_T("Don't support arbitrary shrinking of a surface along the x-axis\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLTSHRINKY))
-	{
-		csCap+=_T("Don't supports arbitrary shrinking of a surface along the y-axis (vertically);\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLTSTRETCHX))
-	{
-		csCap+=_T("Don't supports arbitrary stretching of a surface along the x-axis;\r\n");
-	}
-
-	if(!(nFlag&SUPPORT_BLTSTRETCHY))
-	{
-		csCap+=_T("Don't supports arbitrary stretching of a surface along the y-axis;\r\n");
-	}
-	
-	if(csCap.GetLength()>0)
-	{
-		csCap+=_T("If your video adapter chip is made by nVidia,please update the new driver!\r\n");
-		MessageBox(csCap,_T("Warning"),MB_OK);
-	}
-}
 
 void CPlayerDlg::SetDisplayRegion(RECT Rect)
 {
-	if (m_enumState != State_Step && m_enumState != State_Pause) 
-	{
-		return;
-	}
-
-	NAME(PlayM4_SetDisplayRegion)(m_lPort, 0, &Rect, GetDlgItem(IDC_SHOW)->m_hWnd, TRUE);
+	GetPlayer()->SetDisplayRegion(GetDlgItem(IDC_SHOW)->m_hWnd, &Rect);
 	UpdateWindow();
- 	NAME(PlayM4_RefreshPlayEx)(m_lPort, 0);
-}
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/*  assistant operation over
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-
-
-
-
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/* button operation begin
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-// play / pause / stop
-void CPlayerDlg::Play()
-{
-	if(m_enumState == State_Play)
-	{
-		return;
-	}
-	
-	if(m_enumState == State_Pause)
-	{
-//		DWORD nPreSpeed = m_nSpeed;
-
-		NAME(PlayM4_Pause)(m_lPort, FALSE);
-
-		m_enumState = State_Play;
-
-		// when u called this api, the speed is adjust to normal speed, so we must resume it.
-//		NAME(PlayM4_Play)(m_lPort, m_ctrlVideoPic.GetSafeHwnd());
-//		m_nSpeed = 0;
-//		ThrowB(IDM_THROW0);
-//		AdjustSpeed(nPreSpeed);
-	}
-	else if (m_enumState == State_Stop && m_bStreamType)
-	{
-		Open();
-	}
-	else if(m_enumState == State_Step)
-	{
-		NAME(PlayM4_Play)(m_lPort, m_ctrlVideoPic.GetSafeHwnd());
-		m_nSpeed = 0;
-		ThrowB(IDM_THROW0);
-
-		m_enumState = State_Play;
-	}
-	else
-	{
-		ZeroMemory(&m_strWaterMark, sizeof(WATERMARK_VER1_INFO));
-		NAME(PlayM4_SetCheckWatermarkCallBack)(m_lPort, funCheckWatermark, (DWORD)this);
-		
-		m_nSpeed = 0;
-		ThrowB(IDM_THROW0);
-
-		// set image sharpen level, default is 0
-		NAME(PlayM4_SetImageSharpen)(m_lPort, m_dwImageSharpenLevel);
-		// set play mode, high fluid
-		NAME(PlayM4_SetPlayMode)(m_lPort, m_bHighFluid);
-		
-		// set decode type
-		UINT nMenuState;
-		for(int i = IDM_DECODE_NORMAL; i <= IDM_DECODE_NONE; i ++ )
-		{
-			//nMenuState = //m_pMainMenu->GetMenuState(i, MF_BYCOMMAND);
-			//if(nMenuState & MF_CHECKED)
-			{
-				NAME(PlayM4_SetDecodeFrameType)(m_lPort, i - IDM_DECODE_NORMAL);
-				break;
-			}
-		}
-
-		if(m_bConvertAVI)
-		{
-			NAME(PlayM4_SetDecCallBackMend)(m_lPort, DecCBFun, DWORD(this));
-			m_bFileRefCreated = FALSE;
-		}
-
-		if(m_bStreamType)
-		{
-//			NAME(PlayM4_ResetSourceBuffer)(m_lPort);
-			SetEvent(m_hEventInput);
-		}
-
-		if(NAME(PlayM4_Play)(m_lPort, m_ctrlVideoPic.m_hWnd))
-		{
-			m_enumState = State_Play;
-
-			SetTimer(PLAY_TIMER, 500, NULL);
-
-			NAME(PlayM4_RefreshPlay)(m_lPort);
-		}
-
-		m_bSound = NAME(PlayM4_PlaySound)(m_lPort);	
-	}	
-
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		m_pDisplayRegion->Enable(FALSE);
- 	}
-}
-
-void CPlayerDlg::Pause()
-{
-	if(m_enumState == State_Play)
-	{
-		NAME(PlayM4_Pause)(m_lPort, TRUE);
-		m_enumState = State_Pause;
-	}
-
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		Sleep(50);	
-		m_pDisplayRegion->Enable(TRUE);
-		m_pDisplayRegion->DrawRectangle();
-	}
-}
-
-void CPlayerDlg::Stop()
-{
-	if(m_enumState == State_Stop)
-	{
-		return;
-	}
-	
-	KillTimer(PLAY_TIMER);
-
-	// stop sound
-	if(NAME(PlayM4_StopSound)())
-	{
-		m_bSound = FALSE;
-		m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
-	}
-	
-	// stop video
-	if(NAME(PlayM4_Stop)(m_lPort))	
-	{
-		m_strPlayStateText = "Stop";
-		m_ctrlPlayText.ShowText(m_strPlayStateText);
-	
-		if(m_bStreamType)
-		{
-			ResetEvent(m_hEventInput);
-		}
-	}	
-
-	if(m_bConvertAVI)
-	{
-	   g_classAVI.ReleaseResource();
-		
-	   m_strSaveAVIPath = _T("");
-	   m_bConvertAVI = FALSE;    
-	}
-
-	ZeroMemory(&m_strWaterMark, sizeof(WATERMARK_VER1_INFO));
-	if(m_pWatermarkDlg->m_hWnd)
-	{
-		m_pWatermarkDlg->Clear();
-	}
-
-	m_enumState = State_Stop;
-}
-
-// gotostart / slow / fast / gotoend
-void CPlayerDlg::GotoStart() 
-{
-	// TODO: Add your control notification handler code here
-
-	if(m_bFileRefCreated)
-	{
-		NAME(PlayM4_SetPlayedTimeEx)(m_lPort, 0);
-	}
-	else
-	{
-		NAME(PlayM4_SetPlayPos)(m_lPort, 0);
-	}
-}
-
-void CPlayerDlg::GotoEnd() 
-{
-	// TODO: Add your control notification handler code here
-	
-	if(m_bFileRefCreated)
-	{
-		//Note: May create many WM_FILE_END message. The best way is to synchronize the option;
-		
-//		int nEndFrame = m_dwTotalFrames;
-//		int nCurFrame = NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
-		while( !NAME(PlayM4_SetPlayedTimeEx)(m_lPort, m_dwMaxFileTime * 1000 ) )
-		{
-			//TRACE("FrameNum is :%d\n",nEndFrame);
-//			if(nEndFrame <= int(max(0, m_dwTotalFrames - 3)))
-//			{
-//				NAME(PlayM4_SetCurrentFrameNum)(m_lPort, nCurFrame);
-//				break;
-//			}
-		}
-	}
-	else
-	{
-		NAME(PlayM4_SetPlayPos)(m_lPort, 1);
-	}
-
-}
-
-void CPlayerDlg::Fast() 
-{
-	// TODO: Add your control notification handler code here
-
-	// Throw B-Frame ,improve the performance;
-	
-	if(NAME(PlayM4_Fast)(m_lPort))
-	{
-		m_nSpeed ++;
-		if(m_nSpeed > 0)
-		{
-			ThrowB(IDM_THROW2);	
-		}
-	}	
-}
-
-void CPlayerDlg::Slow() 
-{
-	// TODO: Add your control notification handler code here
-	
-	if(NAME(PlayM4_Slow)(m_lPort))
-	{
-		m_nSpeed --;
-		if(m_nSpeed <= 0)
-		{
-			ThrowB(IDM_THROW0);
-		}
-	}
-}
-
-void CPlayerDlg::AdjustSpeed(int nSpeed)
-{
-	int nCyc = 0;
-	while(m_nSpeed != nSpeed)
-	{
-		if(nSpeed > m_nSpeed)
-		{
-			Fast();	
-		}
-		else if(nSpeed < m_nSpeed)
-		{
-			Slow();
-		}
-
-		nCyc ++;
-		if(nCyc >= 10)
-		{
-			break;
-		}
-	}
-}
-
-// stepback / stepfore / cap picture
-void CPlayerDlg::StepBackward() 
-{
-	// TODO: Add your control notification handler code here
-
-	if(m_bFileRefCreated)
-	{
-		NAME(PlayM4_OneByOneBack)(m_lPort);
-		m_enumState = State_Step;
-		if (m_pDisplayRegion->m_bValid) 
-		{
-			Sleep(50);	
-			m_pDisplayRegion->Enable(TRUE);
-			m_pDisplayRegion->DrawRectangle();
-		}
-	}
-	else
-	{
-		MessageBox(_T("File reference hasn't been created."), NULL, MB_OK);
-	}
-}
-
-void CPlayerDlg::StepForward() 
-{
-	// TODO: Add your control notification handler code here
-	
-	// you can do it like the followed too.
-	// DWORD nCurrentFrame = NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
-	// NAME(PlayM4_SetCurrentFrameNum)(m_lPort,nCurrentFrame+1);
-	ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
-	NAME(PlayM4_OneByOne)(m_lPort);
-	m_enumState = State_Step;
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		Sleep(50);	
-		m_pDisplayRegion->Enable(TRUE);
-		m_pDisplayRegion->DrawRectangle();
-	}
-}
-
-void CPlayerDlg::GetPic(PBYTE pImage, DWORD nBufSize)
-{
-	CString sFilePath;
-	CFile	clsFile;
-
-	DWORD   pImageSize	= 0;
-	
-	if(m_nCapPicType == 1)
-	{
-		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
-		{
-			return;
-		}
-
-		if(m_strCapPicPath.Compare(_T("")))
-		{
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), m_strCapPicPath, m_npic_jpeg);
-		}
-		else
-		{
-			sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
-		}
-	}
-	else
-	{
-		if( !NAME(PlayM4_GetBMP)(m_lPort, pImage, nBufSize, &pImageSize) )
-		{
-			return;
-		}
-
-		if(m_strCapPicPath.Compare(_T("")))
-		{
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), m_strCapPicPath, m_npic_bmp);
-		}
-		else
-		{
-			sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
-		}
-	}
-	
-	if(!clsFile.Open(sFilePath,CFile::modeCreate|CFile::modeWrite))
-	{
-		return;
-	}
-
-	try							
-	{
-		clsFile.Write(pImage, pImageSize);
-		clsFile.Close();
-
-		if(m_nCapPicType == 0)
-		{
-			m_npic_bmp++;
-		}
-		else
-		{
-			m_npic_jpeg++;
-		}
-	}
-	catch (CFileException* e) 
-	{
-		e->ReportError();
-		e->Delete();
-	}
-}
-
-void CPlayerDlg::Cappic() 
-{
-	// TODO: Add your control notification handler code here
-	PBYTE	pImage		= NULL;
-	DWORD   nBufSize	= m_nWidth * m_nHeight * 5;  // 保证足够大即可(不会小于一幅bmp或者jpeg图像大小)
-
-	try
-	{
-		pImage = new BYTE[nBufSize];
-		if(NULL == pImage)
-		{
-			throw 0;
-		}
-		
-		GetPic(pImage, nBufSize);
-	}
-	catch(...)
-	{
-	}
-
-	if(pImage != NULL)
-	{
-		delete []pImage;
-		pImage = NULL;
-	}
-}
-
-// close or open sound
-void CPlayerDlg::Sound() 
-{
-	// TODO: Add your control notification handler code here
-	if(m_bSound)
-	{
-		if(NAME(PlayM4_StopSound)())
-		{
-			m_bSound = FALSE;
-			m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
-		}
-	}
-	else
-	{
-		if(NAME(PlayM4_PlaySound)(m_lPort))
-		{
-			m_ctrlBtnSound.SetIcon(IDI_SOUND_ENABLE);
-			m_bSound = TRUE;
-		}
-	}
-}
-
-// adjust sound
-void  CPlayerDlg::AdjustSound(BOOL bFlag)
-{
-	int nSoundPos = m_SoundSlider.GetPos();	
-
-	if(bFlag)
-	{
-#ifdef _WAVE_ADJ
-		nSoundPos += (MAX_WAVE_COEF - MIN_WAVE_COEF)/0xf;
-		nSoundPos = min(nSoundPos, MAX_WAVE_COEF);
-#else
-		nSoundPos += 0xffff/0xf;
-		nSoundPos = min(nSoundPos, 0xffff-1);
-#endif
-	}
-	else
-	{
-#ifdef _WAVE_ADJ
-		nSoundPos -= (MAX_WAVE_COEF - MIN_WAVE_COEF)/0xf;
-		nSoundPos = max(nSoundPos, MIN_WAVE_COEF);
-#else
-		nSoundPos -= 0xffff/0xf;
-		nSoundPos = max(nSoundPos, 0);
-#endif
-	}
-
-#ifdef _WAVE_ADJ
-		NAME(PlayM4_AdjustWaveAudio)(m_lPort, nSoundPos);
-#else
-		NAME(PlayM4_SetVolume)(m_lPort, WORD(nSoundPos));
-#endif
-
-	m_SoundSlider.SetPos(nSoundPos);
-}
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/* button operation over
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-
-
-
-
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/* menu operation begin
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-// file operation:
-void CPlayerDlg::Open() 
-{
-	Close();
-	SetState();
-
-	if (m_lPort == -1)
-	{
-		PlayM4_GetPort(&m_lPort);
-	}
-
-	try
-	{
-		NAME(PlayM4_SetEncChangeMsg)(m_lPort, m_hWnd, WM_ENC_CHANGE);
-		NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
-
-		if(m_bStreamType)
-		{
-			OpenStream();
-		}
-		else
-		{
-			OpenFile();
-		}
-		
-		NAME(PlayM4_SetPicQuality)(m_lPort, m_bPicQuality);
-		NAME(PlayM4_SetDeflash)(m_lPort, m_bDeflash);
-//		NAME(PlayM4_SetPlayMode)(m_lPort, m_bHighFluid);
-
-		m_bOpen = TRUE;
-		
-		NAME(PlayM4_GetPictureSize)(m_lPort, &m_nWidth, &m_nHeight);
-		NAME(PlayM4_SetVolume)(m_lPort,WORD(m_SoundSlider.GetPos()));
-		m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
-		////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Multi Display");
-		// if video format is HCIF, then double the height
-		if( (m_nWidth == WIDTH*2) && (m_nHeight <= HEIGHT_PAL) )
-		{
-			m_nHeight *= 2;
-		}
-
-		InitWindowSize(m_nWidth, m_nHeight);
-	}
-	catch(...)
-	{
-		Close();
-	}
-}
-
-
-void CPlayerDlg::Close() 
-{
-	// TODO: Add your command handler code here
-	if(m_bOpen)
-	{
-		if(m_bStreamType)
-		{
-			CloseStream();
-		}
-		else
-		{
-			CloseFile();	
-		}
-
-		if(m_pWatermarkDlg)
-		{
-			m_pWatermarkDlg->DestroyWindow();
-		}
-
-		m_nWidth = 352;
-		m_nHeight = 288;
-
-		
-//		m_HikvisionBmp.LoadBitmap(IDB_HIKVISION);
-// 		m_ctrlVideoPic.SetBitmap(m_HikvisionBmp);
-// 		m_ctrlVideoPic.ShowWindow(SW_SHOW);
-		SetWindowText(_T("Player"));
-		m_ctrlVideoPic.Invalidate();
-	}
 }
 
 void CPlayerDlg::CutFile() 
 {
 	// TODO: Add your command handler code here
-	CCutFile cutDlg;
-	if(cutDlg.SetFileName(m_strPlayFileName))
+	CCutFile cutDlg(GetPlayer());
+	//if(cutDlg.SetFileName(m_strPlayFileName))
 	{
 		cutDlg.DoModal();
 	}
@@ -3033,7 +2030,7 @@ void CPlayerDlg::CutFile()
 
 void CPlayerDlg::SetSecretKey()
 {
-	CSetKeyDlg keyDlg(m_lPort);
+	CSetKeyDlg keyDlg(GetPlayer()->GetPort());
 
 	keyDlg.DoModal();
 }
@@ -3043,26 +2040,26 @@ void CPlayerDlg::ViewFullScreen()
 {
 	// TODO: Add your command handler code here
 	m_bFullScreen = !m_bFullScreen;
-	
+
 	if(m_bFullScreen)
 	{
 		//Save the pre info;
 		GetWindowPlacement(&m_OldWndpl);
 		//Remove WS_SIZEBOX windows style. or not the window can't be full-creen.
 		ModifyStyle(WS_SIZEBOX, 0, 0);
-		
+
 		CRect WindowRect, ClientRect;
 		RECT  m_FullScreenRect;
 		//ReDraw the window. Get the correct edge value.
-//		GetWindowRect(&WindowRect);
-//		WindowRect.left  += 1;
-//		WindowRect.right += 1;
-//		MoveWindow(CRect(0, 0, 352, 288), TRUE);
-		
+		//		GetWindowRect(&WindowRect);
+		//		WindowRect.left  += 1;
+		//		WindowRect.right += 1;
+		//		MoveWindow(CRect(0, 0, 352, 288), TRUE);
+
 		GetWindowRect(&WindowRect);
 		GetClientRect(&ClientRect);
 		ClientToScreen(&ClientRect);
-		
+
 		//get the dest window rect.
 		m_FullScreenRect.left   = WindowRect.left   - ClientRect.left + m_rcScreen.left;
 		m_FullScreenRect.top    = WindowRect.top    - ClientRect.top  + m_rcScreen.top;
@@ -3079,7 +2076,7 @@ void CPlayerDlg::ViewFullScreen()
 		RECT rc;
 		GetClientRect(&rc);
 		m_ctrlVideoPic.MoveWindow(&rc,TRUE);
-	
+
 		//Remove WS_VISIBLE window style.
 		m_ctrlBtnPlay.ModifyStyle(WS_VISIBLE, 0, 0);
 		m_ctrlBtnPause.ModifyStyle(WS_VISIBLE, 0, 0);
@@ -3126,7 +2123,7 @@ void CPlayerDlg::ViewFullScreen()
 		m_SoundSlider.ModifyStyle(0,WS_VISIBLE,0);
 
 		m_ctrlPlayText.ModifyStyle(0,WS_VISIBLE,0);
-		
+
 		//make the window can be resize.
 		ModifyStyle(0, WS_SIZEBOX, 0);
 		//change the window pos to pre rect.
@@ -3135,7 +2132,8 @@ void CPlayerDlg::ViewFullScreen()
 	}
 	this->RedrawWindow();
 
-	NAME(PlayM4_RefreshPlay)(m_lPort);
+	GetPlayer()->RefreshPlay();
+	//NAME(PlayM4_RefreshPlay)(m_lPort);
 }
 
 void CPlayerDlg::ViewZoom(UINT nID)
@@ -3176,7 +2174,7 @@ void CPlayerDlg::Infomation()
 {
 	// TODO: Add your command handler code here
 
-	CInfo infoDlg;
+	CInfo infoDlg(GetPlayer());
 	infoDlg.DoModal();
 }
 
@@ -3189,32 +2187,32 @@ void CPlayerDlg::SetDisplay()
 
 	if (!m_pDisplayRegion->m_bValid) 
 	{	
-		if(m_enumState == State_Play)
+		if(GetPlayer()->GetPlayState() == State_Play)
 		{
-			NAME(PlayM4_Pause)(m_lPort, TRUE);
-			m_enumState = State_Pause;
+			//NAME(PlayM4_Pause)(m_lPort, TRUE);
+			Pause();//GetPlayState() = State_Pause;
 			SetState();
 		}
-		
-//		m_ctrlBtnCapPic.EnableWindow(FALSE);
-//		m_ctrlBtnSound.EnableWindow(FALSE);	
-//		m_ctrlBtnSlow.EnableWindow(FALSE);
-//		m_ctrlBtnFast.EnableWindow(FALSE);
-//		m_ctrlBtnGStart.EnableWindow(FALSE);
-//		m_ctrlBtnGEnd.EnableWindow(FALSE);
-//		m_ctrlBtnStop.EnableWindow(FALSE);
-//		m_ctrlBtnPlay.EnableWindow(FALSE);
-//		m_ctrlBtnPause.EnableWindow(FALSE);	
-//		m_ctrlStepBackward.EnableWindow(FALSE);
-//		m_ctrlStepForward.EnableWindow(FALSE);
-// 		//m_pMainMenu->EnableMenuItem(2, MF_GRAYED|MF_BYPOSITION|MF_DISABLED);
+
+		//		m_ctrlBtnCapPic.EnableWindow(FALSE);
+		//		m_ctrlBtnSound.EnableWindow(FALSE);	
+		//		m_ctrlBtnSlow.EnableWindow(FALSE);
+		//		m_ctrlBtnFast.EnableWindow(FALSE);
+		//		m_ctrlBtnGStart.EnableWindow(FALSE);
+		//		m_ctrlBtnGEnd.EnableWindow(FALSE);
+		//		m_ctrlBtnStop.EnableWindow(FALSE);
+		//		m_ctrlBtnPlay.EnableWindow(FALSE);
+		//		m_ctrlBtnPause.EnableWindow(FALSE);	
+		//		m_ctrlStepBackward.EnableWindow(FALSE);
+		//		m_ctrlStepForward.EnableWindow(FALSE);
+		// 		//m_pMainMenu->EnableMenuItem(2, MF_GRAYED|MF_BYPOSITION|MF_DISABLED);
 		////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Cancel Multi Display");
-		
+
 		m_pDisplayRegion->Create(IDD_RANGE);
 		GetWindowRect(&RectP);
-		
+
 		m_pDisplayRegion->GetWindowRect(&RectS);
-		
+
 		RectS.right = RectS.right - RectS.left + RectP.right;
 		RectS.left = RectP.right;
 		RectS.bottom = RectS.bottom - RectS.top + RectP.top;
@@ -3225,63 +2223,65 @@ void CPlayerDlg::SetDisplay()
 			RectS.right = RectP.left;
 		}
 		m_pDisplayRegion->MoveWindow(&RectS);
-		
-		
+
+
 		m_pDisplayRegion->InitShow();
-		ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
-//		NAME(PlayM4_OneByOne)(m_lPort);
-//		m_enumState = State_Step;
-		
+		GetPlayer()->ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
+		//		NAME(PlayM4_OneByOne)(m_lPort);
+		//		m_enumState = State_Step;
+
 		Sleep(50);
 		m_pDisplayRegion->DrawRectangle();
 	}
 	else
 	{
-//		m_ctrlBtnCapPic.EnableWindow(TRUE);
-//		m_ctrlBtnSound.EnableWindow(TRUE);	
-//		m_ctrlBtnSlow.EnableWindow(TRUE);
-//		m_ctrlBtnFast.EnableWindow(TRUE);
-//		m_ctrlBtnGStart.EnableWindow(TRUE);
-//		m_ctrlBtnGEnd.EnableWindow(TRUE);
-//		m_ctrlBtnStop.EnableWindow(TRUE);
-//		m_ctrlBtnPlay.EnableWindow(TRUE);
-//		m_ctrlBtnPause.EnableWindow(TRUE);	
-//		m_ctrlStepBackward.EnableWindow(TRUE);
-//		m_ctrlStepForward.EnableWindow(TRUE);
-// 		//m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+		//		m_ctrlBtnCapPic.EnableWindow(TRUE);
+		//		m_ctrlBtnSound.EnableWindow(TRUE);	
+		//		m_ctrlBtnSlow.EnableWindow(TRUE);
+		//		m_ctrlBtnFast.EnableWindow(TRUE);
+		//		m_ctrlBtnGStart.EnableWindow(TRUE);
+		//		m_ctrlBtnGEnd.EnableWindow(TRUE);
+		//		m_ctrlBtnStop.EnableWindow(TRUE);
+		//		m_ctrlBtnPlay.EnableWindow(TRUE);
+		//		m_ctrlBtnPause.EnableWindow(TRUE);	
+		//		m_ctrlStepBackward.EnableWindow(TRUE);
+		//		m_ctrlStepForward.EnableWindow(TRUE);
+		// 		//m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
 		////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Multi Display"); 
 		Play();
+		if (GetPlayer()->GetPlayState() == State_Play)
+			SetTimer(PLAY_TIMER, 500, NULL);
 		SetState();
 		m_pDisplayRegion->DestroyWindow();
 	}
 }
 
-BOOL CPlayerDlg::SetDevice(UINT nID)
-{
-	BOOL bFunctionOK = FALSE;
-
-#if (WINVER > 0x0400)
-	DWORD nVal = NAME(PlayM4_GetDDrawDeviceTotalNums)();
-	if(nVal >= 1)
-	{
-		UINT nDeviceSeq = nID - IDM_DEVICE0;
-		for(int i = 0; i < MAX_DISPLAY_DEVICE; i++)
-		{
-			////m_pMainMenu->CheckMenuItem(IDM_DEVICE0 + i, MF_UNCHECKED);
-		}
-
-		if(NAME(PlayM4_SetDDrawDevice)(m_lPort, nDeviceSeq + 1))
-		{
-			bFunctionOK = TRUE;
-		}
-		
-		NAME(PlayM4_SetDDrawDeviceEx)(m_lPort, 1, nDeviceSeq + 1);
-		////m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-	}
-#endif
-
-	return bFunctionOK;
-}
+//BOOL CPlayerDlg::SetDevice(UINT nID)
+//{
+//	BOOL bFunctionOK = FALSE;
+//
+//#if (WINVER > 0x0400)
+//	DWORD nVal = NAME(PlayM4_GetDDrawDeviceTotalNums)();
+//	if(nVal >= 1)
+//	{
+//		UINT nDeviceSeq = nID - IDM_DEVICE0;
+//		for(int i = 0; i < MAX_DISPLAY_DEVICE; i++)
+//		{
+//			////m_pMainMenu->CheckMenuItem(IDM_DEVICE0 + i, MF_UNCHECKED);
+//		}
+//
+//		if(NAME(PlayM4_SetDDrawDevice)(m_lPort, nDeviceSeq + 1))
+//		{
+//			bFunctionOK = TRUE;
+//		}
+//
+//		NAME(PlayM4_SetDDrawDeviceEx)(m_lPort, 1, nDeviceSeq + 1);
+//		////m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
+//	}
+//#endif
+//
+//	return bFunctionOK;
+//}
 
 // control operation:
 void CPlayerDlg::VideoControl()
@@ -3328,7 +2328,8 @@ void CPlayerDlg::Deflash()
 	UINT nFlag = m_bDeflash ? MF_CHECKED : MF_UNCHECKED;
 	////m_pMainMenu->CheckMenuItem(IDM_DEFLASH, nFlag);
 
-	NAME(PlayM4_SetDeflash)(m_lPort, m_bDeflash);
+	GetPlayer()->RefreshPlay();
+	//NAME(PlayM4_SetDeflash)(m_lPort, m_bDeflash);
 }
 
 void CPlayerDlg::Quality() 
@@ -3338,53 +2339,42 @@ void CPlayerDlg::Quality()
 	m_bPicQuality = !m_bPicQuality;
 	UINT nFlag = m_bPicQuality ? MF_CHECKED : MF_UNCHECKED;
 	////m_pMainMenu->CheckMenuItem(IDM_QUALITY, nFlag);
-
-	NAME(PlayM4_SetPicQuality)(m_lPort, m_bPicQuality);
+	GetPlayer()->SetPictureQuality(m_bPicQuality);
+	//NAME(PlayM4_SetPicQuality)(m_lPort, m_bPicQuality);
 }
 
-void CPlayerDlg::HighFluid()
-{
-	// TODO: Add your command handler code here
+//void CPlayerDlg::HighFluid()
+//{
+//	// TODO: Add your command handler code here
+//
+//	m_bHighFluid = !m_bHighFluid;
+//	UINT nFlag = m_bHighFluid ? MF_CHECKED : MF_UNCHECKED;
+//	//m_pMainMenu->CheckMenuItem(IDM_PREVIEW50, nFlag);
+//
+//	NAME(PlayM4_SetPlayMode)(m_lPort, m_bHighFluid);
+//}
 
-	m_bHighFluid = !m_bHighFluid;
-	UINT nFlag = m_bHighFluid ? MF_CHECKED : MF_UNCHECKED;
-	//m_pMainMenu->CheckMenuItem(IDM_PREVIEW50, nFlag);
+//void CPlayerDlg::ImageSharpenLevel(UINT nID)
+//{
+//	UINT nOldID = IDM_SHARPEN_NONE + m_dwImageSharpenLevel;
+//	m_dwImageSharpenLevel = nID - IDM_SHARPEN_NONE;
+//
+//	NAME(PlayM4_SetImageSharpen)(m_lPort, m_dwImageSharpenLevel);
+//
+//	//m_pMainMenu->CheckMenuItem(nOldID, MF_UNCHECKED);
+//	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
+//}
 
-	NAME(PlayM4_SetPlayMode)(m_lPort, m_bHighFluid);
-}
-
-void CPlayerDlg::ImageSharpenLevel(UINT nID)
-{
-	UINT nOldID = IDM_SHARPEN_NONE + m_dwImageSharpenLevel;
-	m_dwImageSharpenLevel = nID - IDM_SHARPEN_NONE;
-
-	NAME(PlayM4_SetImageSharpen)(m_lPort, m_dwImageSharpenLevel);
-	
-	//m_pMainMenu->CheckMenuItem(nOldID, MF_UNCHECKED);
-	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-}
-
-void CPlayerDlg::ThrowB(UINT nID)
-{
-	NAME(PlayM4_ThrowBFrameNum)(m_lPort, nID - IDM_THROW0);
-
-	for(int i = IDM_THROW0; i <= IDM_THROW2; i++ )
-	{
-		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-	}
-	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-}
-
-void CPlayerDlg::SetDecodeType(UINT nID)
-{
-	NAME(PlayM4_SetDecodeFrameType)(m_lPort, nID - IDM_DECODE_NORMAL);
-
-	for(int i = IDM_DECODE_NORMAL; i <= IDM_DECODE_NONE; i++ )
-	{
-		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-	}
-	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-}
+//void CPlayerDlg::SetDecodeType(UINT nID)
+//{
+//	NAME(PlayM4_SetDecodeFrameType)(m_lPort, nID - IDM_DECODE_NORMAL);
+//
+//	for(int i = IDM_DECODE_NORMAL; i <= IDM_DECODE_NONE; i++ )
+//	{
+//		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
+//	}
+//	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
+//}
 
 void CPlayerDlg::DisplayType(UINT nID)
 {
@@ -3392,36 +2382,20 @@ void CPlayerDlg::DisplayType(UINT nID)
 	//m_pMainMenu->CheckMenuItem(IDM_DISQUARTER, MF_UNCHECKED);
 	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
 
-	if(nID == IDM_DISNORMAL)
-	{
-		NAME(PlayM4_SetDisplayType)(m_lPort, DISPLAY_NORMAL);
-	}
-	else
-	{
-		NAME(PlayM4_SetDisplayType)(m_lPort, DISPLAY_QUARTER);
-	}
+	GetPlayer()->SetDisplayType(nID == IDM_DISNORMAL ? DISPLAY_NORMAL : DISPLAY_QUARTER);
+
 }
 
 void CPlayerDlg::SelectTimer(UINT nID)
 {
-	for (int i = IDM_TIMERNULL; i < IDM_TIMER2; i++)
-	{
-		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-	}
-	
-	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-
-	NAME(PlayM4_SetTimerType)(m_lPort, nID - IDM_TIMERNULL, 0);
+	GetPlayer()->SetTimerType(nID - IDM_TIMERNULL);
 }
 
 void CPlayerDlg::ResetBuf() 
 {
 	// TODO: Add your command handler code here
 	// Only test the interface. 
-	NAME(PlayM4_ResetBuffer)(m_lPort, BUF_VIDEO_RENDER);
-	NAME(PlayM4_ResetBuffer)(m_lPort, BUF_AUDIO_RENDER);
-	NAME(PlayM4_ResetBuffer)(m_lPort, BUF_VIDEO_SRC);
-	NAME(PlayM4_ResetBuffer)(m_lPort, BUF_AUDIO_SRC);
+	GetPlayer()->ResetBuf();
 }
 
 void CPlayerDlg::CapPicType(UINT nID)
@@ -3482,9 +2456,9 @@ void CPlayerDlg::ConvertToAVI()
 	str.Format(_T("Playing the Converted AVI File must Install the Divx!\n\n"));
 	m_csInfo += str;
 	str.Format(_T("if Continued,Click OK Button!\n"));
-    m_csInfo += str;
+	m_csInfo += str;
 	ReturnValue = MessageBox((LPCTSTR)m_csInfo, NULL, MB_YESNO); 
-	
+
 
 	if(ReturnValue == IDYES)
 	{
@@ -3492,17 +2466,18 @@ void CPlayerDlg::ConvertToAVI()
 
 		m_bConvertAVI = TRUE;
 		str.Format(_T("AVI Movie Files (*.avi)|*.avi||"));
-	   
+
 		CFileDialog Filedlg(FALSE, _T("*.avi"), _T("*.avi"), OFN_LONGNAMES|OFN_CREATEPROMPT|OFN_OVERWRITEPROMPT, str, this);
-	   
+
 		if(Filedlg.DoModal() == IDOK)
 		{
 			m_strSaveAVIPath = Filedlg.GetPathName();
-		  
-		    if(BrowseFile(&m_strPlayFileName))
+
+			CString csFile;
+			if(BrowseFile(&csFile))
 			{
-				Open();
-			
+				Open(csFile);
+
 				if(m_bConvertAVI)
 				{
 					SetAVIState();
@@ -3532,7 +2507,7 @@ void CPlayerDlg::AppAbout()
 	// TODO: Add your command handler code here
 	//CAboutDlg AboutDlg;
 	//AboutDlg.DoModal();
-	
+
 }
 
 void CPlayerDlg::AppHelp()
@@ -3559,25 +2534,26 @@ void CPlayerDlg::AppHelp()
 /*************************************************************************/
 void CPlayerDlg::OnMenuItem(UINT nID)
 {
+	CString csFile;
 	switch(nID)
 	{
 	case IDM_FILE_OPEN:
-		if(BrowseFile(&m_strPlayFileName)) 
+		if(BrowseFile(&csFile)) 
 		{
-			Open();
+			Open(csFile);
 			SetState();
 		}
 		break;
-		
+
 	case IDM_FILE_CLOSE:
 		Close();
 		SetState();
 		break;
-	
-/*	case IDM_CUT_FILE:
+
+		/*	case IDM_CUT_FILE:
 		CutFile();
 		break;
-*/
+		*/
 	case IDM_SET_KEY:
 		SetSecretKey();
 		break;
@@ -3595,20 +2571,20 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	case IDM_VIEW_ZOOM_200:
 		ViewZoom(nID);
 		break;
-	
+
 	case IDM_INFO:
 		Infomation();
 		break;
-	
+
 	case IDM_SETDISPLAY:
 		SetDisplay();
 		break;
-	
+
 	case IDM_DEVICE0:
 	case IDM_DEVICE1:
 	case IDM_DEVICE2:
 	case IDM_DEVICE3:
-		SetDevice(nID);
+		//SetDevice(nID);
 		break;
 
 	case IDM_WATERMARK:
@@ -3616,12 +2592,12 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_PLAY_PAUSE:
-		if(m_enumState == State_Play)
+		if(GetPlayer()->GetPlayState() == State_Play)
 		{
 			Pause();
 			SetState();
 		}
-		else if(m_enumState == State_Pause || m_enumState == State_Stop)
+		else if(GetPlayer()->GetPlayState() == State_Pause || GetPlayer()->GetPlayState() == State_Stop)
 		{
 			Play();
 			SetState();
@@ -3629,7 +2605,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_STOP:
-		if(m_enumState != State_Close)
+		if(GetPlayer()->GetPlayState() != State_Close)
 		{
 			Stop();
 			SetState();
@@ -3637,15 +2613,15 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_STEPFORWARD:
-		if(m_enumState != State_Stop)
+		if(GetPlayer()->GetPlayState() != State_Stop)
 		{
 			StepForward();
 			SetState();
 		}
 		break;
-		
+
 	case IDM_STEPBACKWARD:
-		if(m_enumState != State_Stop)
+		if(GetPlayer()->GetPlayState() != State_Stop)
 		{
 			StepBackward();
 			SetState();
@@ -3653,11 +2629,11 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_GOTOSTART:
-		GotoStart();
+		m_DVRPlayer.GotoStart();
 		break;
 
 	case IDM_GOTOEND:
-		GotoEnd();
+		m_DVRPlayer.GotoEnd();
 		break;
 
 	case IDM_SEEK:
@@ -3671,23 +2647,23 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	case IDM_REPEAT:
 		Repeat();
 		break;
-	
+
 	case IDM_STREAM_TYPE:
 		StreamType();
 		break;
-	
+
 	case IDM_DEFLASH:
 		Deflash();
 		break;
-		
+
 	case IDM_QUALITY:
 		Quality();
 		break;
-	
+
 	case IDM_PREVIEW50:
-		HighFluid();
+		//HighFluid();
 		break;
-		
+
 	case IDM_SHARPEN_NONE:
 	case IDM_SHARPEN_LEVEL1:
 	case IDM_SHARPEN_LEVEL2:
@@ -3695,19 +2671,19 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	case IDM_SHARPEN_LEVEL4:
 	case IDM_SHARPEN_LEVEL5:
 	case IDM_SHARPEN_LEVEL6:
-		ImageSharpenLevel(nID);
+		//ImageSharpenLevel(nID);
 		break;
 
 	case IDM_THROW0:
 	case IDM_THROW1:                      
 	case IDM_THROW2:
-		ThrowB(nID);
+		GetPlayer()->ThrowB(nID);
 		break;
 
 	case IDM_DECODE_NORMAL:
 	case IDM_DECODE_I:
 	case IDM_DECODE_NONE:
-		SetDecodeType(nID);
+		//SetDecodeType(nID);
 		break;
 
 	case IDM_DISNORMAL:                   
@@ -3733,15 +2709,15 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	case IDM_CAPPIC_PATH:
 		CappicPath();
 		break;
-		
-/*	case IDM_CONVERT:
+
+		/*	case IDM_CONVERT:
 		ConvertToAVI();
 		break;
-*/	
+		*/	
 	case IDM_APP_HELP:
 		AppHelp();
 		break;
-		
+
 	case IDM_APP_ABOUT:
 		AppAbout();
 		break;
@@ -3757,79 +2733,12 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 void CPlayerDlg::GetWatermark()
 {
 	// TODO: Add your command handler code here
-//	WaterMarkDlg dlg;
-//	dlg.DoModal();
+	//	WaterMarkDlg dlg;
+	//	dlg.DoModal();
 	m_pWatermarkDlg->Create(IDD_WATERMARK);
 	//m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED);
 }
 
-//错误信息
-char* CPlayerDlg::MyErrorToString(DWORD error)
-{
-	switch(error)
-	{
-	case 0:
-		return "No error.\0";
-    case 1:
-      return "The parameter that user inputted is invalid.\0";
-    case 2:
-      return "The order of the function to be called is incorrect.\0";
-    case 3:
-      return "Failure when creating system multimedia clock.\0";
-    case 4:
-      return "Failure when decoding video data.\0";
-    case 5:
-      return "Failure when decoding audio data.\0";
-    case 6:
-      return "Failure when allocating memory.\0";
-    case 7:
-      return "File open failed when calling API Hik_PlayM4_OpenFile.\0";
-	case 8:
-      return "Failure when creating thread or event.\0";
-	case 9:
-      return "Failure when creating directdraw object.\0";
-	case 10:
-      return "Failure when creating off-screen surface.\0";
-	case 11:
-      return "The input source buffer has overflowed when calling API Hik_PlayM4_InputData.\0";
-	case 12:
-      return "Failure when creating audio device.\0";
-	case 13:
-      return "Failure when setting audio volume.\0";
-	case 14:
-      return "The function only supports playing a file.\0";
-	case 15:
-      return "The function only supports playing a stream.\0";
-	case 16:
-      return "Neither MMX nor SSE arithmetic is supported by system.\0";
-	case 17:
-      return "Unknown file header.\0";
-	case 18:
-      return "The version of video decoder and video encoder is not compatible.\0";
-	case 19:
-      return "Failure when initializing decoder.\0";
-	case 20:
-      return "The file data is unknown. No I-frame found.\0";
-	case 21:
-      return "Failure when initializing multimedia clock.\0";
-	case 22:
-      return "Failure when blitting overlay.\0";
-	case 23:
-      return "Failure when updating overlay or offscreen surface.\0";
-	case 24:
-      return "Open file error, streamtype is multi.\0";
-	case 25:
-      return "Openfile error, streamtype is video.\0";
-	case 26:
-      return "JPEG compression error when capturing jpeg file.\0";
-	case 27:
-      return "Version of this file not supported when extracting h264 video data.\0";
-	case 28:
-      return "Failure when extracting video data.\0";
-   default:
-      return "Unrecognized error value.\0";
-	}
-}
 
 
 /*************************************************************************/
@@ -3856,39 +2765,39 @@ void CPlayerDlg::OnButtonItem(UINT nID)
 		break;
 
 	case IDC_GOTOSTART:
-		GotoStart();
+		m_DVRPlayer.GotoStart();
 		break;
 
 	case IDC_SLOW:
 		Play();
-		Slow();
+		m_DVRPlayer.Slow();
 		break;
 
 	case IDC_FAST:
 		Play();
-		Fast();
+		m_DVRPlayer.Fast();
 		break;
 
 	case IDC_GOTOEND:
-		GotoEnd();
+		m_DVRPlayer.GotoEnd();
 		break;
 
 	case IDC_STEP:
 		StepForward();
 		break;
-		
+
 	case IDC_STEPBACK:
 		StepBackward();
 		break;
-		
+
 	case IDC_CAPPIC:
-		Cappic();
+		m_DVRPlayer.Cappic();
 		break;
-		
+
 	case IDC_SOUND:
-		Sound();
+		//m_DVRPlayer.Sound();
 		break;
-	
+
 	default:
 		break;
 	}
@@ -3900,14 +2809,13 @@ void CPlayerDlg::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	NAME(PlayM4_Stop)(m_lPort);
-	NAME(PlayM4_CloseFile)(m_lPort);
-	NAME(PlayM4_RealeseDDraw)();
+	GetPlayer()->Destory();
+
 
 #if (WINVER > 0x0400)
 	NAME(PlayM4_ReleaseDDrawDevice)();
 #endif
-	
+
 	if(m_pSeek != NULL)
 	{
 		m_pSeek->DestroyWindow();
@@ -3941,10 +2849,6 @@ void CPlayerDlg::OnDestroy()
 		delete m_pWatermarkDlg;
 		m_pWatermarkDlg = NULL;
 	}
-	
-	NAME(PlayM4_FreePort)(m_lPort);
-
-	PlayM4_ReleaseDDrawDevice();
 
 	if(m_pQcifTempBuf)
 	{
@@ -3956,7 +2860,7 @@ void CPlayerDlg::OnDestroy()
 LRESULT CPlayerDlg::WatermarkOk(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
 	m_pWatermarkDlg->DestroyWindow();
-	if(m_enumState == State_Pause || m_enumState == State_Play)
+	if(GetPlayer()->GetPlayState() == State_Pause || GetPlayer()->GetPlayState() == State_Play)
 	{
 		//m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_ENABLED);
 	}
@@ -3965,14 +2869,14 @@ LRESULT CPlayerDlg::WatermarkOk(WPARAM /*wParam*/, LPARAM /*lParam*/)
 
 BOOL CPlayerDlg::SetDiplayMode(int nID)
 {
-//	for (int i = IDM_BYRATE; i < IDM_BYTIME; i++)
-//	{
-//		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-//	}
-//	
-//	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-//
-//	return PlayM4_SetDisplayMode(m_lPort, nID - IDM_BYRATE);
+	//	for (int i = IDM_BYRATE; i < IDM_BYTIME; i++)
+	//	{
+	//		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
+	//	}
+	//	
+	//	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
+	//
+	//	return PlayM4_SetDisplayMode(m_lPort, nID - IDM_BYRATE);
 
 	return FALSE;
 }
@@ -3982,16 +2886,124 @@ void CPlayerDlg::OnBnClickedOpenfile()
 	OnMenuItem(IDM_FILE_OPEN);
 }
 
+void CPlayerDlg::Play()
+{
+	if (GetPlayer()->GetPlayState() != State_Play)
+	{
+		//if (m_bStreamType)
+		GetPlayer()->Play();
+		SetTimer(PLAY_TIMER, 500, NULL);
+		if (m_pDisplayRegion->m_bValid) 
+		{
+			m_pDisplayRegion->Enable(FALSE);
+ 		}
+	}
+}
+
+void CPlayerDlg::Pause()
+{
+	GetPlayer()->Pause();
+	if (m_pDisplayRegion->m_bValid) 
+	{
+		Sleep(50);	
+		m_pDisplayRegion->Enable(TRUE);
+		m_pDisplayRegion->DrawRectangle();
+	}
+}
+
+void CPlayerDlg::Stop()
+{
+	if (GetPlayer()->GetPlayState() != State_Stop)
+	{
+		KillTimer(PLAY_TIMER);
+		GetPlayer()->Stop();
+
+		if(m_bConvertAVI)
+		{
+			g_classAVI.ReleaseResource();
+
+			m_strSaveAVIPath = _T("");
+			m_bConvertAVI = FALSE;    
+		}
+
+		if(m_pWatermarkDlg->m_hWnd)
+		{
+			m_pWatermarkDlg->Clear();
+		}
+	}
+}
+
+void CPlayerDlg::StepBackward()
+{
+	if (GetPlayer()->CanStepBackword())
+	{
+		GetPlayer()->StepBackward();
+		if (m_pDisplayRegion->m_bValid) 
+		{
+			Sleep(50);	
+			m_pDisplayRegion->Enable(TRUE);
+			m_pDisplayRegion->DrawRectangle();
+		}
+	}
+}
+void CPlayerDlg::StepForward()
+{
+	GetPlayer()->StepForward();
+	if (m_pDisplayRegion->m_bValid) 
+	{
+		Sleep(50);	
+		m_pDisplayRegion->Enable(TRUE);
+		m_pDisplayRegion->DrawRectangle();
+	}
+}
+
+void CPlayerDlg::Open(LPCTSTR szFile)
+{
+	GetPlayer()->Open(szFile);
+	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
+	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
+	InitWindowSize(m_nWidth, m_nHeight);
+}
+
+void CPlayerDlg::Close()
+{
+	GetPlayer()->Close();
+	if(m_pWatermarkDlg)
+	{
+		m_pWatermarkDlg->DestroyWindow();
+	}
+
+	m_nWidth = 352;
+	m_nHeight = 288;
+	//		m_HikvisionBmp.LoadBitmap(IDB_HIKVISION);
+	// 		m_ctrlVideoPic.SetBitmap(m_HikvisionBmp);
+	// 		m_ctrlVideoPic.ShowWindow(SW_SHOW);
+	SetWindowText(_T("Player"));
+	m_ctrlVideoPic.Invalidate();
+}
+
 HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 {
 	HANDLE hFile = ::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		::CloseHandle(hFile);
-		m_strPlayFileName = szFile;
-		Open();
+		Open(szFile);
 		SetState();
 		return S_OK;
 	}
 	return E_FAIL;
+}
+
+void CPlayerDlg::CloseFile()
+{
+	if (m_pDisplayRegion->m_bValid) 
+	{
+		m_pDisplayRegion->DestroyWindow();
+		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
+
+	}
+
+	GetPlayer()->CloseFile();
 }

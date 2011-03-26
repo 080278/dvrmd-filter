@@ -13,13 +13,14 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CVideoCtrlDlg dialog
+class CDVRPlayer;
 
 class CVideoCtrlDlg : public CDialog
 {
 // Construction
 public:
 	CWnd* m_pParent;
-	CVideoCtrlDlg(CWnd* pParent = NULL);   // standard constructor
+	CVideoCtrlDlg(CDVRPlayer*, CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CVideoCtrlDlg)
@@ -55,6 +56,9 @@ protected:
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CDVRPlayer* m_pDVRPlayer;
 };
 
 //{{AFX_INSERT_LOCATION}}

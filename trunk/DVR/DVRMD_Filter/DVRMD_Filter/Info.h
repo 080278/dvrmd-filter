@@ -9,13 +9,14 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CInfo dialog
+class CDVRPlayer;
 
 class CInfo : public CDialog
 {
 // Construction
 public:
 	CString m_strInfo;
-	CInfo(CWnd* pParent = NULL);   // standard constructor
+	CInfo(CDVRPlayer* pPlayer, CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CInfo)
@@ -43,6 +44,10 @@ protected:
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CDVRPlayer* m_pDVRPlayer;
+
 };
 
 //{{AFX_INSERT_LOCATION}}

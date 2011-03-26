@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "player.h"
 #include "Info.h"
+#include "DVRPlayer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,12 +12,11 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern  LONG m_lPort;
 /////////////////////////////////////////////////////////////////////////////
 // CInfo dialog
 
 
-CInfo::CInfo(CWnd* pParent /*=NULL*/)
+CInfo::CInfo(CDVRPlayer* pPlayer, CWnd* pParent /*=NULL*/)
 	: CDialog(CInfo::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CInfo)
@@ -24,7 +24,8 @@ CInfo::CInfo(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	m_dwRows = 0;
 	m_bInit = FALSE;
-	m_strTemp  = _T(""); 
+	m_strTemp  = _T("");
+	m_pDVRPlayer = pPlayer;
 }
 
 
@@ -52,7 +53,7 @@ void CInfo::OnRefresh()
 	int nRows = m_dwRows;
 
 		//invalid after play()
-	BOOL bOverlay=NAME(PlayM4_GetOverlayMode)(m_lPort);
+	BOOL bOverlay=NAME(PlayM4_GetOverlayMode)(m_pDVRPlayer->GetPort());
 	if(!m_bInit)
 	{
 		m_strTemp.Format(_T("Is OVERLAY Surface"));
@@ -61,7 +62,7 @@ void CInfo::OnRefresh()
 
 	if(bOverlay)
 	{
-		m_strTemp.Format(_T("yes   The color key:0x%X"),NAME(PlayM4_GetColorKey)(m_lPort));
+		m_strTemp.Format(_T("yes   The color key:0x%X"),NAME(PlayM4_GetColorKey)(m_pDVRPlayer->GetPort()));
 	}
 	else
 	{
@@ -77,7 +78,7 @@ void CInfo::OnRefresh()
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 
-	m_strTemp.Format(_T("%d"),NAME(PlayM4_GetDisplayBuf)(m_lPort));
+	m_strTemp.Format(_T("%d"),NAME(PlayM4_GetDisplayBuf)(m_pDVRPlayer->GetPort()));
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
@@ -86,7 +87,7 @@ void CInfo::OnRefresh()
 		m_strTemp.Format(_T("Volume"));
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
-	m_strTemp.Format(_T("%x"),NAME(PlayM4_GetVolume)(m_lPort));
+	m_strTemp.Format(_T("%x"),NAME(PlayM4_GetVolume)(m_pDVRPlayer->GetPort()));
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
@@ -97,7 +98,7 @@ void CInfo::OnRefresh()
 	}
 
 	BOOL bHiQuality=FALSE;
-	NAME(PlayM4_GetPictureQuality)(m_lPort,&bHiQuality);
+	NAME(PlayM4_GetPictureQuality)(m_pDVRPlayer->GetPort(),&bHiQuality);
 	if(bHiQuality)
 	{
 		m_strTemp=_T("High");
@@ -115,7 +116,7 @@ void CInfo::OnRefresh()
 		m_ctrlListInfo.InsertItem(LVIF_TEXT|LVIF_STATE, nRows, m_strTemp, LVIS_SELECTED|LVIS_FOCUSED, LVIS_SELECTED|LVIS_FOCUSED, 0, 0);
 	}
 	DWORD nTimer;
-	NAME(PlayM4_GetTimerType)(m_lPort,&nTimer,NULL);
+	NAME(PlayM4_GetTimerType)(m_pDVRPlayer->GetPort(),&nTimer,NULL);
 	if(nTimer==TIMER_1)
 	{
 		m_strTemp=_T("TIMER_1");
@@ -127,10 +128,10 @@ void CInfo::OnRefresh()
 	m_ctrlListInfo.SetItemText(nRows,1,m_strTemp);
 	nRows ++;
 
-	DWORD nVideoRender =NAME(PlayM4_GetBufferValue)(m_lPort,BUF_VIDEO_RENDER);
-	DWORD nAudioRender =NAME(PlayM4_GetBufferValue)(m_lPort,BUF_AUDIO_RENDER);
-	DWORD nVideoSource =NAME(PlayM4_GetBufferValue)(m_lPort,BUF_VIDEO_SRC);
-	DWORD nAudioSource =NAME(PlayM4_GetBufferValue)(m_lPort,BUF_AUDIO_SRC);
+	DWORD nVideoRender =NAME(PlayM4_GetBufferValue)(m_pDVRPlayer->GetPort(),BUF_VIDEO_RENDER);
+	DWORD nAudioRender =NAME(PlayM4_GetBufferValue)(m_pDVRPlayer->GetPort(),BUF_AUDIO_RENDER);
+	DWORD nVideoSource =NAME(PlayM4_GetBufferValue)(m_pDVRPlayer->GetPort(),BUF_VIDEO_SRC);
+	DWORD nAudioSource =NAME(PlayM4_GetBufferValue)(m_pDVRPlayer->GetPort(),BUF_AUDIO_SRC);
 	
 	if(!m_bInit)
 	{

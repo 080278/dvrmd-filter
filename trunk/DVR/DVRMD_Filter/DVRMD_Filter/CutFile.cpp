@@ -5,6 +5,7 @@
 #include "player.h"
 #include "CutFile.h"
 #include <Shlwapi.h>
+#include "DVRPlayer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,12 +15,11 @@ static char THIS_FILE[] = __FILE__;
 
 #pragma comment(lib, "Shlwapi.lib")
 
-extern LONG m_lPort;
 /////////////////////////////////////////////////////////////////////////////
 // CCutFile dialog
 
 
-CCutFile::CCutFile(CWnd* pParent /*=NULL*/)
+CCutFile::CCutFile(CDVRPlayer* pPlayer, CWnd* pParent /*=NULL*/)
 	: CDialog(CCutFile::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCutFile)
@@ -28,6 +28,7 @@ CCutFile::CCutFile(CWnd* pParent /*=NULL*/)
 	m_nEnd			 = 0;
 	m_strSaveFileName = _T("D:\\Clip.mp4");
 	//}}AFX_DATA_INIT
+	m_pDVRPlayer = pPlayer;
 }
 
 
@@ -79,9 +80,9 @@ void CCutFile::OnView()
 	}
 	
 	//locate the I-Frame .
-	NAME(PlayM4_GetKeyFramePos)(m_lPort, m_nBegin, dwType, &m_stRealBegin);
+	NAME(PlayM4_GetKeyFramePos)(m_pDVRPlayer->GetPort(), m_nBegin, dwType, &m_stRealBegin);
 	
-	if(!NAME(PlayM4_GetNextKeyFramePos)(m_lPort, m_nEnd, dwType, &m_stRealEnd))
+	if(!NAME(PlayM4_GetNextKeyFramePos)(m_pDVRPlayer->GetPort(), m_nEnd, dwType, &m_stRealEnd))
 	{
 		m_stRealEnd.nFilePos   = SetFilePointer(m_hPlayFile, 0, 0, FILE_END);
 		m_stRealEnd.nFrameNum  = m_nEnd;
@@ -246,8 +247,8 @@ BOOL CCutFile::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 	// TODO: Add extra initialization here
-	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_lPort);
-	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_lPort);
+	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_pDVRPlayer->GetPort());
+	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_pDVRPlayer->GetPort());
 	CString strRange;
 	strRange.Format(_T("Frame number range:%d~%d\r\nTime range(seconds):%d~%d\r\n"), 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
 	GetDlgItem(IDC_RANGE)->SetWindowText(strRange);

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "player.h"
 #include "VideoCtrlDlg.h"
+#include "DVRPlayer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,15 +12,13 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern LONG m_lPort;
-
 #define COLOR_DEFAULT		64				// brightness, contrast, saturation, hue default value(0~128);
 
 /////////////////////////////////////////////////////////////////////////////
 // CVideoCtrlDlg dialog
 
 
-CVideoCtrlDlg::CVideoCtrlDlg(CWnd* pParent /*=NULL*/)
+CVideoCtrlDlg::CVideoCtrlDlg(CDVRPlayer* pPlayer, CWnd* pParent /*=NULL*/)
 	: CDialog(CVideoCtrlDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CVideoCtrlDlg)
@@ -27,6 +26,7 @@ CVideoCtrlDlg::CVideoCtrlDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	m_hIcon	     =	AfxGetApp()->LoadIcon(IDI_VIDEOCTRL);
 	m_pParent	 =  pParent;
+	m_pDVRPlayer = pPlayer;
 }
 
 
@@ -98,7 +98,7 @@ void CVideoCtrlDlg::OnVcReset()
 	m_SliderS.SetPos(COLOR_DEFAULT);
 	m_SliderH.SetPos(COLOR_DEFAULT);
 	
-	NAME(PlayM4_SetColor)(m_lPort, 0, COLOR_DEFAULT, COLOR_DEFAULT, COLOR_DEFAULT, COLOR_DEFAULT);
+	NAME(PlayM4_SetColor)(m_pDVRPlayer->GetPort(), 0, COLOR_DEFAULT, COLOR_DEFAULT, COLOR_DEFAULT, COLOR_DEFAULT);
 }
 
 
@@ -131,7 +131,7 @@ void CVideoCtrlDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		nSaturation = m_SliderS.GetPos();
 		nHue		= m_SliderH.GetPos();
 		
-		NAME(PlayM4_SetColor)(m_lPort, 0, nBrightness, nContrast, nSaturation, nHue);
+		NAME(PlayM4_SetColor)(m_pDVRPlayer->GetPort(), 0, nBrightness, nContrast, nSaturation, nHue);
 		// NAME(PlayM4_GetColor)(m_lPort, 0, &nBrightness, &nContrast, &nSaturation, &nHue);
 		// TRACE("Get color(B,C,S,V):%d, %d, %d, %d\n", nBrightness, nContrast, nSaturation, nHue);
 		break;
