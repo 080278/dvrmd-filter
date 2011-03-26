@@ -124,8 +124,9 @@
 #define IDC_MEDIASERVER_PORT            1088
 #define IDC_CHANNEL1                    1089
 #define IDC_START_TIME                  1090
-#define IDC_START_TIME2                 1091
 #define IDC_END_TIME                    1091
+#define IDC_BUTTON2                     1092
+#define IDC_SHOWHIDE_SETTINGS           1092
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -207,7 +208,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        245
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1092
+#define _APS_NEXT_CONTROL_VALUE         1093
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

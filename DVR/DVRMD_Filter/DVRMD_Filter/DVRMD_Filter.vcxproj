@@ -157,6 +157,7 @@
     <ClCompile Include="DVRMD_FilterPropPage.cpp" />
     <ClCompile Include="DVRMetaDataHandler.cpp" />
     <ClCompile Include="DVRPlayer.cpp" />
+    <ClCompile Include="DVRSettings.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
     <ClCompile Include="FontSize.cpp" />
     <ClCompile Include="HelpDlg.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="DVRMD_FilterPropPage.h" />
     <ClInclude Include="DVRMetaDataHandler.h" />
     <ClInclude Include="DVRPlayer.h" />
+    <ClInclude Include="DVRSettings.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
     <ClInclude Include="HelpDlg.h" />

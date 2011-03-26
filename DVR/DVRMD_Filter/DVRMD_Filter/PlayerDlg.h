@@ -239,6 +239,7 @@ protected:
 	afx_msg void OnMenuItem(UINT nID);
 	afx_msg void OnButtonItem(UINT nID);
 	afx_msg void OnBnClickedOpenfile();
+	afx_msg void OnBnClickedShowHideSettings();
 	DECLARE_MESSAGE_MAP()
 };
 
