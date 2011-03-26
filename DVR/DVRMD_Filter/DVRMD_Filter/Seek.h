@@ -9,6 +9,7 @@
 #define WM_SEEKOK WM_USER+34
 /////////////////////////////////////////////////////////////////////////////
 // CSeek dialog
+class CDVRPlayer;
 
 class CSeek : public CDialog
 {
@@ -17,7 +18,7 @@ public:
 	CWnd* m_pParent;
 	DWORD m_dwMaxFrameNum;
 	DWORD m_dwMaxTime;
-	CSeek(CWnd* pParent = NULL);   // standard constructor
+	CSeek(CDVRPlayer* pPlayer, CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CSeek)
@@ -44,6 +45,9 @@ protected:
 	virtual void OnOK();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CDVRPlayer* m_pDVRPlayer;
 };
 
 //{{AFX_INSERT_LOCATION}}

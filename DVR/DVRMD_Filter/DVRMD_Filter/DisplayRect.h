@@ -11,13 +11,15 @@ class CPlayerDlg;
 // CDisplayRect dialog
 #define WM_DISPLAY_OK WM_USER+35
 #define WM_DISPLAY_RECT WM_USER+36
+class CDVRPlayer;
+
 class CDisplayRect : public CDialog
 {
 // Construction
    friend class CPlayerDlg;
 public:
 	CWnd* m_pParent;
-	CDisplayRect(CWnd* pParent = NULL);   // standard constructor
+	CDisplayRect(CDVRPlayer*, CWnd* pParent = NULL);   // standard constructor
 	RECT		m_rcRect;
 	RECT		m_rcWindow;				  // window rect
 	DWORD		m_dwOldDeviceNum;		  // old display device sequence
@@ -25,7 +27,7 @@ public:
 	DWORD		m_dwScreenWidth;          // screen width	
 
 public:
-	BOOL  SetDevice(UINT nSeq);
+	//BOOL  SetDevice(UINT nSeq);
 	BOOL  SetResolution(int nHei, int nWid);
 	void  InitShow();
 	void  Enable(BOOL);
@@ -90,6 +92,8 @@ protected:
 		State_Play,
 		State_Set
 	}m_state;
+
+	CDVRPlayer*	m_pDVRPlayer;
 };
 
 //{{AFX_INSERT_LOCATION}}

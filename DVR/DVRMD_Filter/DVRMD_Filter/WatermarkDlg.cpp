@@ -16,7 +16,6 @@ static char THIS_FILE[] = __FILE__;
 #define WATERMARK_TIMER 10
 HBRUSH hBrush = CreateSolidBrush(COLORREF(0x000000));
 
-extern WATERMARK_VER1_INFO m_strWaterMark;
 /////////////////////////////////////////////////////////////////////////////
 // CWatermarkDlg dialog
 
@@ -101,28 +100,28 @@ void CWatermarkDlg::OnTimer(UINT nIDEvent)
 		TCHAR cstr[256];
 		int nOsdYear, nOsdMonth, nOsdDay, nOsdHour, nOsdMin, nOsdSec;		
 	
-		if(m_strWaterMark.global_time > 0)
+		if(CDVRPlayer::m_strWaterMark.global_time > 0)
 		{
-			nOsdYear	= GET_FILE_YEAR(m_strWaterMark.global_time);
-			nOsdMonth	= GET_FILE_MONTH(m_strWaterMark.global_time);
-			nOsdDay		= GET_FILE_DAY(m_strWaterMark.global_time);
-			nOsdHour	= GET_FILE_HOUR(m_strWaterMark.global_time);
-			nOsdMin		= GET_FILE_MINUTE(m_strWaterMark.global_time);
-			nOsdSec		= GET_FILE_SECOND(m_strWaterMark.global_time);
+			nOsdYear	= GET_FILE_YEAR(CDVRPlayer::m_strWaterMark.global_time);
+			nOsdMonth	= GET_FILE_MONTH(CDVRPlayer::m_strWaterMark.global_time);
+			nOsdDay		= GET_FILE_DAY(CDVRPlayer::m_strWaterMark.global_time);
+			nOsdHour	= GET_FILE_HOUR(CDVRPlayer::m_strWaterMark.global_time);
+			nOsdMin		= GET_FILE_MINUTE(CDVRPlayer::m_strWaterMark.global_time);
+			nOsdSec		= GET_FILE_SECOND(CDVRPlayer::m_strWaterMark.global_time);
 			_stprintf(cstr, _T("%04d-%02d-%-02d %02d:%02d:%02d"), nOsdYear, nOsdMonth, nOsdDay, nOsdHour, nOsdMin, nOsdSec);
 			GetDlgItem(IDC_GLOBALTIME)->SetWindowText(cstr);
 			_stprintf(cstr,_T("%02x:%02x:%02x:%02x:%02x:%02x"), 
-					m_strWaterMark.mac_addr[0], m_strWaterMark.mac_addr[1], 
-					m_strWaterMark.mac_addr[2], m_strWaterMark.mac_addr[3],
-					m_strWaterMark.mac_addr[4], m_strWaterMark.mac_addr[5]);
+					CDVRPlayer::m_strWaterMark.mac_addr[0], CDVRPlayer::m_strWaterMark.mac_addr[1], 
+					CDVRPlayer::m_strWaterMark.mac_addr[2], CDVRPlayer::m_strWaterMark.mac_addr[3],
+					CDVRPlayer::m_strWaterMark.mac_addr[4], CDVRPlayer::m_strWaterMark.mac_addr[5]);
 			GetDlgItem(IDC_MAC)->SetWindowText(cstr);
-			_stprintf(cstr,_T("%d"), m_strWaterMark.device_sn);
+			_stprintf(cstr,_T("%d"), CDVRPlayer::m_strWaterMark.device_sn);
 			GetDlgItem(IDC_DEVICESN)->SetWindowText(cstr);
-			_stprintf(cstr,_T("%d"), m_strWaterMark.device_info);
+			_stprintf(cstr,_T("%d"), CDVRPlayer::m_strWaterMark.device_info);
 			GetDlgItem(IDC_DEVICEINFO)->SetWindowText(cstr);
-			_stprintf(cstr,_T("%d"), m_strWaterMark.channel_num);
+			_stprintf(cstr,_T("%d"), CDVRPlayer::m_strWaterMark.channel_num);
 			GetDlgItem(IDC_CHAN)->SetWindowText(cstr);
-			_stprintf(cstr,_T("%d"), m_strWaterMark.device_type);
+			_stprintf(cstr,_T("%d"), CDVRPlayer::m_strWaterMark.device_type);
 			GetDlgItem(IDC_DEVICETYPE)->SetWindowText(cstr);
 		}
 	}

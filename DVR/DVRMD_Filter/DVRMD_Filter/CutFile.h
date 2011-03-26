@@ -9,6 +9,7 @@
 #include "player.h"
 /////////////////////////////////////////////////////////////////////////////
 // CCutFile dialog
+class CDVRPlayer;
 
 class CCutFile : public CDialog
 {
@@ -24,7 +25,7 @@ public:
 	BOOL SetFileName(CString csName);
 	BOOL CheckValue();
 
-	CCutFile(CWnd* pParent = NULL);   // standard constructor
+	CCutFile(CDVRPlayer*, CWnd* pParent = NULL);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CCutFile)
@@ -54,6 +55,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
+private:
+	CDVRPlayer* m_pDVRPlayer;
 };
 
 //{{AFX_INSERT_LOCATION}}

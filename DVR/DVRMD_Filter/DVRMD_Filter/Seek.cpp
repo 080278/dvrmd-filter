@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "player.h"
 #include "Seek.h"
+#include "DVRPlayer.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -11,12 +12,11 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-extern LONG m_lPort;
 /////////////////////////////////////////////////////////////////////////////
 // CSeek dialog
 
 
-CSeek::CSeek(CWnd* pParent /*=NULL*/)
+CSeek::CSeek(CDVRPlayer* pPlayer, CWnd* pParent /*=NULL*/)
 	: CDialog(CSeek::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CSeek)
@@ -24,6 +24,7 @@ CSeek::CSeek(CWnd* pParent /*=NULL*/)
 	m_nValue	= 0;
 	//}}AFX_DATA_INIT
 	m_pParent	= pParent;
+	m_pDVRPlayer = pPlayer;
 }
 
 
@@ -58,7 +59,7 @@ void CSeek::OnSeek()
 			MessageBox(_T("Input frame number is over!"));
 			return;
 		}
-		NAME(PlayM4_SetCurrentFrameNum)(m_lPort, m_nValue);
+		NAME(PlayM4_SetCurrentFrameNum)(m_pDVRPlayer->GetPort(), m_nValue);
 	}
 	else if(m_nSeekType == 1)
 	{
@@ -67,7 +68,7 @@ void CSeek::OnSeek()
 			MessageBox(_T("Input time is over!"));
 			return;
 		}
-		NAME(PlayM4_SetPlayedTimeEx)(m_lPort, m_nValue*1000);
+		NAME(PlayM4_SetPlayedTimeEx)(m_pDVRPlayer->GetPort(), m_nValue*1000);
 	}
 		
 }
@@ -77,8 +78,8 @@ BOOL CSeek::OnInitDialog()
 	CDialog::OnInitDialog();
 	
 	// TODO: Add extra initialization here
-	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_lPort);
-	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_lPort);
+	m_dwMaxTime     = NAME(PlayM4_GetFileTime)(m_pDVRPlayer->GetPort());
+	m_dwMaxFrameNum = NAME(PlayM4_GetFileTotalFrames)(m_pDVRPlayer->GetPort());
 	CString csRange;
 	csRange.Format(_T("Frame number range:%d~%d\r\nTime range(Seconds)£º%d~%d\r\n"), 0, m_dwMaxFrameNum, 0, m_dwMaxTime);
 	GetDlgItem(IDC_RANGE)->SetWindowText(csRange);

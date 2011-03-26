@@ -6,6 +6,7 @@
 #include "PlayerDlg.h"
 #include "DisplayRect.h"
 #include <stdio.h>
+#include "DVRPlayer.h"
 
 void RunInfo111(TCHAR *szFormat, ...)
 {	
@@ -18,8 +19,6 @@ void RunInfo111(TCHAR *szFormat, ...)
 	OutputDebugString(szInfo);
 }
 
-extern LONG m_lPort;
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -30,7 +29,7 @@ static char THIS_FILE[] = __FILE__;
 // CDisplayRect dialog
 
 
-CDisplayRect::CDisplayRect(CWnd* pParent /*=NULL*/)
+CDisplayRect::CDisplayRect(CDVRPlayer* pPlayer, CWnd* pParent /*=NULL*/)
 	: CDialog(CDisplayRect::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDisplayRect)
@@ -48,6 +47,7 @@ CDisplayRect::CDisplayRect(CWnd* pParent /*=NULL*/)
 	m_rcRect.top	= 0;
 	m_bValid = FALSE;
 	m_state = State_Set;
+	m_pDVRPlayer = pPlayer;
 }
 
 
@@ -217,8 +217,8 @@ void CDisplayRect::InitShow()
 {
 	SortCtrls();
 
-    NAME(PlayM4_SetDisplayRegion)(m_lPort, 1, &m_rcRect, GetDlgItem(IDC_DISWND)->m_hWnd, TRUE);
-	NAME(PlayM4_RefreshPlayEx)(m_lPort, 1);
+    NAME(PlayM4_SetDisplayRegion)(m_pDVRPlayer->GetPort(), 1, &m_rcRect, GetDlgItem(IDC_DISWND)->m_hWnd, TRUE);
+	NAME(PlayM4_RefreshPlayEx)(m_pDVRPlayer->GetPort(), 1);
 }
 
 BOOL CDisplayRect::OnInitDialog() 
@@ -240,23 +240,23 @@ BOOL CDisplayRect::OnInitDialog()
 }
 
 
-BOOL CDisplayRect::SetDevice(UINT nSeq)
-{
-	BOOL bFunctionOK = FALSE;
-
-#if (WINVER > 0x0400)
-	DWORD nVal = NAME(PlayM4_GetDDrawDeviceTotalNums)();
-	if(nVal >= 1)
-	{
-		if(NAME(PlayM4_SetDDrawDeviceEx)(m_lPort, 1, nSeq + 1))
-		{
-			bFunctionOK = TRUE;
-		}
-	}
-#endif
-
-	return bFunctionOK;
-}
+//BOOL CDisplayRect::SetDevice(UINT nSeq)
+//{
+//	BOOL bFunctionOK = FALSE;
+//
+//#if (WINVER > 0x0400)
+//	DWORD nVal = NAME(PlayM4_GetDDrawDeviceTotalNums)();
+//	if(nVal >= 1)
+//	{
+//		if(NAME(PlayM4_SetDDrawDeviceEx)(m_lPort, 1, nSeq + 1))
+//		{
+//			bFunctionOK = TRUE;
+//		}
+//	}
+//#endif
+//
+//	return bFunctionOK;
+//}
 
 BOOL CDisplayRect::SetResolution(int nHei, int nWid)
 {
@@ -313,13 +313,13 @@ void CDisplayRect::OnMove(int x, int y)
 		}
 	}
 	
-	if(dwNewDeviceNum != m_dwOldDeviceNum)
-	{
-		if(SetDevice(dwNewDeviceNum))
-		{
-			m_dwOldDeviceNum = dwNewDeviceNum;
-		}
-	}
+	//if(dwNewDeviceNum != m_dwOldDeviceNum)
+	//{
+	//	//if(SetDevice(dwNewDeviceNum))
+	//	{
+	//		m_dwOldDeviceNum = dwNewDeviceNum;
+	//	}
+	//}
 }
 
 
@@ -329,7 +329,7 @@ void CDisplayRect::OnPaint()
 	
 	// TODO: Add your message handler code here
 	UpdateWindow();
-	NAME(PlayM4_RefreshPlayEx)(m_lPort, 1);	
+	NAME(PlayM4_RefreshPlayEx)(m_pDVRPlayer->GetPort(), 1);	
 
 	DrawRectangle();
 	// Do not call CDialog::OnPaint() for painting messages
@@ -572,7 +572,7 @@ void CDisplayRect::SetDisplayRegion()
 {
 
 	UpdateWindow();
-	NAME(PlayM4_RefreshPlayEx)(m_lPort, 1);	
+	NAME(PlayM4_RefreshPlayEx)(m_pDVRPlayer->GetPort(), 1);	
 
 	DrawRectangle();
 
@@ -610,7 +610,7 @@ void CDisplayRect::OnDestroy()
 	CDialog::OnDestroy();
 	
 	// TODO: Add your message handler code here
-	NAME(PlayM4_SetDisplayRegion)(m_lPort, 1, &m_rcRect, NULL, FALSE);
+	NAME(PlayM4_SetDisplayRegion)(m_pDVRPlayer->GetPort(), 1, &m_rcRect, NULL, FALSE);
 	m_bValid = FALSE;	
 
 }
