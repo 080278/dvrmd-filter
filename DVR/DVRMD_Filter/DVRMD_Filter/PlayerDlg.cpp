@@ -419,12 +419,8 @@ BOOL CPlayerDlg::PreTranslateMessage(MSG* lpmsg)
 //////////////////////////////////////////////////////////////////////////////
 void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
-	// TODO: Add your message handler code here and/or call default
-	UINT  nMenuState;
-
 	if(nChar == VK_F2) 
 		ViewFullScreen();
-
 
 	if(GetKeyState(VK_CONTROL) & 0xFF00)
 	{
@@ -638,6 +634,8 @@ void CPlayerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
+
+	this->GetParent()->SendMessage(WM_LBUTTONDBLCLK, MK_LBUTTON, MAKELPARAM(point.x, point.y));
 	CPoint dpoint;
 	CRect  vwrect;
 	GetCursorPos(&dpoint);	
@@ -1778,13 +1776,14 @@ void CPlayerDlg::SetWindowSize()
 // Funtion: sort the controls
 void CPlayerDlg::SortControl()
 {
+	return;
 	TRACE("init SORT\n");
 
 	// if the dialog doesn't support resizing, return;
-	if( !(GetStyle() & WS_SIZEBOX) )
-	{
-		return;
-	}
+	//if( !(GetStyle() & WS_SIZEBOX) )
+	//{
+	//	return;
+	//}
 
 	CRect rcClient, rcVideo;
 
@@ -1792,70 +1791,69 @@ void CPlayerDlg::SortControl()
 	DWORD x=LEFT_EDGE+10,y=rcClient.bottom-STATE_HEIGHT;
 
 	//STATE 
-	m_ctrlPlayText.MoveWindow(0,y,rcClient.Width()+1,STATE_HEIGHT,TRUE);
+	//m_ctrlPlayText.MoveWindow(0,y,rcClient.Width()+1,STATE_HEIGHT,TRUE);
 
 
 	x=LEFT_EDGE;
 	y-=BUTTON_SIZE+STATE_UP;
 
 	//BUTTON
-	m_ctrlBtnPlay.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	m_ctrlBtnSlow.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
+	m_ctrlBtnPlay.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	m_ctrlBtnPause.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
 	m_ctrlBtnStop.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
-
+	m_ctrlBtnFast.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	x+=BUTTON_SIZE;
 	x+=INTERVAL;
 	GetDlgItem(IDC_INTER1)->MoveWindow(x,y,INTERVAL_SIZE,BUTTON_SIZE,TRUE);
 	x+=INTERVAL_SIZE;
 	x+=INTERVAL;
-
-	m_ctrlBtnGStart.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
-	m_ctrlBtnSlow.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
-	m_ctrlBtnFast.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
-	m_ctrlBtnGEnd.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	m_ctrlBtnCapPic.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
 
-	x+=INTERVAL;
-	GetDlgItem(IDC_INTER2)->MoveWindow(x,y,INTERVAL_SIZE,BUTTON_SIZE,TRUE);
-	x+=INTERVAL_SIZE;
-	x+=INTERVAL;
 
-	m_ctrlStepBackward.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
+	//m_ctrlBtnGStart.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	//x+=BUTTON_SIZE;
+	//m_ctrlBtnGEnd.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	//x+=BUTTON_SIZE;
 
-	m_ctrlStepForward.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
+	//x+=INTERVAL;
+	//GetDlgItem(IDC_INTER2)->MoveWindow(x,y,INTERVAL_SIZE,BUTTON_SIZE,TRUE);
+	//x+=INTERVAL_SIZE;
+	//x+=INTERVAL;
+
+	//m_ctrlStepBackward.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	//x+=BUTTON_SIZE;
+
+	//m_ctrlStepForward.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	//x+=BUTTON_SIZE;
 
 	x+=INTERVAL;
 	GetDlgItem(IDC_INTER3)->MoveWindow(x,y,INTERVAL_SIZE,BUTTON_SIZE,TRUE);
 	x+=INTERVAL_SIZE;
 	x+=INTERVAL;
 
-	m_ctrlBtnCapPic.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
-	x+=BUTTON_SIZE;
 
 
-	//SOUND
-	x=rcClient.right-SOUND_SLIDER_WIDTH;
-	m_SoundSlider.MoveWindow(x,y+BUTTON_SIZE-SOUND_SLIDER_HEIGHT,SOUND_SLIDER_WIDTH,SOUND_SLIDER_HEIGHT,TRUE);
-	x-=BUTTON_SIZE;
+	////SOUND
+	//x=rcClient.right-SOUND_SLIDER_WIDTH;
+	//m_SoundSlider.MoveWindow(x,y+BUTTON_SIZE-SOUND_SLIDER_HEIGHT,SOUND_SLIDER_WIDTH,SOUND_SLIDER_HEIGHT,TRUE);
+	//x-=BUTTON_SIZE;
 
-	m_ctrlBtnSound.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	//m_ctrlBtnSound.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 
-	y-=BUTTON_SIZE+BUTTON_UP;
-	//PLAY SLIDER
-	x=0;
+	//y-=BUTTON_SIZE+BUTTON_UP;
+	////PLAY SLIDER
+	//x=0;
 	GetDlgItem(IDC_PLAY_RECT_SLIDER)->MoveWindow(x,y,rcClient.Width(),PLAY_SLIDER_HEIGHT,TRUE);
 	m_PlaySlider.MoveWindowEx(x,y,rcClient.Width(),PLAY_SLIDER_HEIGHT,TRUE);
 	y-=PLAY_SLIDER_UP;
 
 	//pic show
-	m_ctrlVideoPic.MoveWindow(0,0,rcClient.Width(),y,TRUE);
+	//m_ctrlVideoPic.MoveWindow(0,0,rcClient.Width(),y,TRUE);
 
 	GetPlayer()->RefreshPlay();
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
@@ -2026,6 +2024,7 @@ void CPlayerDlg::ViewFullScreen()
 		//Move the view winow to full-screen.
 		RECT rc;
 		GetClientRect(&rc);
+		m_ctrlVideoPic.GetClientRect(&m_rcOldPicPos);
 		m_ctrlVideoPic.MoveWindow(&rc,TRUE);
 
 		//Remove WS_VISIBLE window style.
@@ -2048,8 +2047,7 @@ void CPlayerDlg::ViewFullScreen()
 		m_SoundSlider.ModifyStyle(WS_VISIBLE,0,0);
 		m_PlaySlider.ModifyStyle(WS_VISIBLE,0,0);
 
-		m_ctrlPlayText.ModifyStyle(WS_VISIBLE,0,0);
-
+		//m_ctrlPlayText.ModifyStyle(WS_VISIBLE,0,0);
 	}
 	else
 	{
@@ -2073,15 +2071,18 @@ void CPlayerDlg::ViewFullScreen()
 		m_PlaySlider.ModifyStyle(0,WS_VISIBLE,0);
 		m_SoundSlider.ModifyStyle(0,WS_VISIBLE,0);
 
-		m_ctrlPlayText.ModifyStyle(0,WS_VISIBLE,0);
+		//m_ctrlPlayText.ModifyStyle(0,WS_VISIBLE,0);
 
 		//make the window can be resize.
-		ModifyStyle(0, WS_SIZEBOX, 0);
+		//ModifyStyle(0, WS_SIZEBOX, 0);
 		//change the window pos to pre rect.
 		SetWindowPlacement(&m_OldWndpl);
+		m_ctrlVideoPic.MoveWindow(&m_rcOldPicPos,TRUE);
 
 	}
-	this->RedrawWindow();
+	SetState();
+
+	RedrawWindow();
 
 	GetPlayer()->RefreshPlay();
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
@@ -2329,12 +2330,7 @@ void CPlayerDlg::Quality()
 
 void CPlayerDlg::DisplayType(UINT nID)
 {
-	//m_pMainMenu->CheckMenuItem(IDM_DISNORMAL,  MF_UNCHECKED);
-	//m_pMainMenu->CheckMenuItem(IDM_DISQUARTER, MF_UNCHECKED);
-	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-
 	GetPlayer()->SetDisplayType(nID == IDM_DISNORMAL ? DISPLAY_NORMAL : DISPLAY_QUARTER);
-
 }
 
 void CPlayerDlg::SelectTimer(UINT nID)
@@ -2837,10 +2833,6 @@ void CPlayerDlg::OnBnClickedOpenfile()
 	OnMenuItem(IDM_FILE_OPEN);
 }
 
-void CPlayerDlg::OnBnClickedShowHideSettings()
-{
-
-}
 void CPlayerDlg::Play()
 {
 	if (GetPlayer()->GetPlayState() != State_Play)
@@ -2961,4 +2953,9 @@ void CPlayerDlg::CloseFile()
 	}
 
 	GetPlayer()->CloseFile();
+}
+
+void CPlayerDlg::OnBnClickedShowHideSettings()
+{
+
 }

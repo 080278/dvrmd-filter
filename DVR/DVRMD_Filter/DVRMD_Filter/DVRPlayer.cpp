@@ -14,11 +14,11 @@ CDVRPlayer::~CDVRPlayer(void)
 {
 }
 
-bool CDVRPlayer::Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd)
+bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd)
 {
 	m_enumState = State_Close;
 	m_lPort = -1;
-	m_hPlayWnd = hPlayWnd;
+	m_hRenderWnd = hRenderWnd;
 	m_rcDisplayRegion = *rcDisplayRegion;
 	m_dwMaxFileTime = 0;
 	m_bFileRefCreated = false;
@@ -26,9 +26,9 @@ bool CDVRPlayer::Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd)
 	m_npic_jpeg = 0;
 	m_npic_bmp = 0;
 	m_hParentWnd = hParentWnd;
-	m_bPicQuality = false;
-	m_bDeflash = false;
-	m_bOpen = false;
+	m_bPicQuality = FALSE;
+	m_bDeflash = FALSE;
+	m_bOpen = FALSE;
 	m_dwDisplayHour = 0;
 	m_dwDisplayMinute = 0;
 	m_dwDisplaySecond = 0;
@@ -132,7 +132,7 @@ void CDVRPlayer::Play()
 	}
 	else if(m_enumState == State_Step)
 	{
-		NAME(PlayM4_Play)(m_lPort, m_hPlayWnd);
+		NAME(PlayM4_Play)(m_lPort, m_hRenderWnd);
 		m_nSpeed = 0;
 		ThrowB(IDM_THROW0);
 
@@ -158,7 +158,7 @@ void CDVRPlayer::Play()
 			SetEvent(m_hEventInput);
 		}
 
-		if(NAME(PlayM4_Play)(m_lPort, m_hPlayWnd))
+		if(NAME(PlayM4_Play)(m_lPort, m_hRenderWnd))
 		{
 			m_enumState = State_Play;
 
@@ -225,7 +225,7 @@ void CDVRPlayer::GotoStart()
 	}
 }
 
-bool CDVRPlayer::SetPosition(DWORD dwTime)
+BOOL CDVRPlayer::SetPosition(DWORD dwTime)
 {
 	return NAME(PlayM4_SetPlayedTimeEx)(m_lPort, dwTime);
 }
@@ -902,18 +902,18 @@ void CDVRPlayer::CloseStream()
 	m_bFileRefCreated =	FALSE;		
 }
 
-bool CDVRPlayer::SetDisplayRegion(HWND hPlayWnd, RECT* rcDisplayRegion)
+bool CDVRPlayer::SetDisplayRegion(HWND hRenderWnd, RECT* rcDisplayRegion)
 {
 	if (GetPlayState() != State_Step && GetPlayState() != State_Pause) 
 	{
 		return false;
 	}
 
-	NAME(PlayM4_SetDisplayRegion)(m_lPort, 0, rcDisplayRegion, hPlayWnd, TRUE);
+	NAME(PlayM4_SetDisplayRegion)(m_lPort, 0, rcDisplayRegion, hRenderWnd, TRUE);
 
 	NAME(PlayM4_RefreshPlayEx)(m_lPort, 0);
 
-	m_hPlayWnd = hPlayWnd;
+	m_hRenderWnd = hRenderWnd;
 	m_rcDisplayRegion = *rcDisplayRegion;
 	return true;
 }

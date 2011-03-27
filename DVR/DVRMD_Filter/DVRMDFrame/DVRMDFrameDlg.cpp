@@ -160,3 +160,14 @@ void CDVRMDFrameDlg::OnDestroy()
 
 	m_DVRPlayer.DestroyWindow();
 }
+BEGIN_EVENTSINK_MAP(CDVRMDFrameDlg, CDialog)
+	ON_EVENT(CDVRMDFrameDlg, IDC_DVRMD_FILTERCTRL1, DISPID_DBLCLICK, CDVRMDFrameDlg::DblClickDvrmdFilterctrl1, VTS_NONE)
+END_EVENTSINK_MAP()
+
+
+
+void CDVRMDFrameDlg::DblClickDvrmdFilterctrl1()
+{
+	// TODO: Add your message handler code here
+	int n = 0;
+}

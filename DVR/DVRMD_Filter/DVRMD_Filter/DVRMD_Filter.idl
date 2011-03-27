@@ -38,6 +38,8 @@ library DVRMD_FilterLib
 			//  Event interface has no properties
 
 		methods:
+			[id(DISPID_DOCLICK)] void DoClick(void);
+			[id(DISPID_DBLCLICK)] void DblClick(void);
 	};
 
 	//  Class information for CDVRMD_FilterCtrl

@@ -33,4 +33,6 @@ protected:
 public:
 	CDvrmd_filterctrl1 m_DVRPlayer;
 	afx_msg void OnDestroy();
+	DECLARE_EVENTSINK_MAP()
+	void DblClickDvrmdFilterctrl1();
 };

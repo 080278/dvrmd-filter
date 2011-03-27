@@ -108,7 +108,7 @@ public:
 	void  Play();
 	void  Pause();
 	void  Stop();
-	bool  SetPosition(DWORD dwTime);	// Set play position: microsecond
+	BOOL  SetPosition(DWORD dwTime);	// Set play position: microsecond
 	DWORD GetCurrentPosition();			// Get play position: microsecond.
 	DWORD GetCurrentFrameNum();		
 	DWORD GetDuration(){return m_dwMaxFileTime;}
@@ -126,7 +126,7 @@ public:
 	void  CanStepBackword(bool canStepBack){m_bFileRefCreated = canStepBack;}
 	void  StepBackward();
 	void  StepForward();
-	void  SetPictureQuality(bool bHighQuality)
+	void  SetPictureQuality(BOOL bHighQuality)
 	{
 		m_bPicQuality = bHighQuality;
 	}
@@ -185,7 +185,7 @@ private:
 
 	BOOL		m_bStreamType;							//Stream or File
 
-	HWND		m_hPlayWnd;						//Play window
+	HWND		m_hRenderWnd;						//Play Area window
 	HWND		m_hParentWnd;					//Main Frame Window
 	RECT		m_rcDisplayRegion;				//Play Area.
 	LONG		m_nSpeed;                       // video play speed
@@ -199,9 +199,9 @@ private:
 	CString		m_strCapPicPath;				//Capture path;
 	UINT		m_npic_bmp;						// capped bmp  pic number
 	UINT		m_npic_jpeg;					// capped jpeg pic number
-	bool		m_bPicQuality;
-	bool		m_bDeflash;
-	bool		m_bOpen; 
+	BOOL		m_bPicQuality;
+	BOOL		m_bDeflash;
+	BOOL		m_bOpen; 
 
 	DWORD		m_dwDisplayHour;
 	DWORD		m_dwDisplayMinute;
