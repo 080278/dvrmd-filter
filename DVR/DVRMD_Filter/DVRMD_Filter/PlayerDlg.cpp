@@ -172,8 +172,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_COMMAND_RANGE(IDC_PLAY, IDC_SOUND, OnButtonItem)
 	ON_MESSAGE(WM_FILE_END, PlayMessage)
 	ON_MESSAGE(WM_ENC_CHANGE,EncChangeMessage)
-	ON_MESSAGE(WM_SEEKOK, SeekOk)
-	ON_MESSAGE(WM_DISPLAY_OK, DisplayOk)
+//	ON_MESSAGE(WM_DISPLAY_OK, DisplayOk)
 	ON_MESSAGE(WM_VIDEOCTRL_OK, VideoCtrlOK)
 	ON_MESSAGE(WM_WATERMARK_OK, WatermarkOk)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
@@ -188,6 +187,7 @@ BOOL CPlayerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	m_pParentWnd = NULL;
 	// Add "About..." menu item to system menu.
 
 	// IDM_ABOUTBOX must be in the system command range.
@@ -281,11 +281,11 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_ctrlVideoPic.GetWindowRect(&rcPos);
 	rcPos.right = rcPos.left + m_nWidth;
 	rcPos.bottom = rcPos.top + m_nHeight;
-	GetPlayer()->Init(m_ctrlVideoPic.GetSafeHwnd(), &rcPos, m_hWnd); 
+	GetPlayer()->Init(m_ctrlVideoPic.GetSafeHwnd(), &rcPos, m_hWnd, 1); 
 	// init the sub dialogs
-	m_pSeek				 =	new CSeek(GetPlayer(), this);
-	m_pDisplayRegion	 =	new CDisplayRect(GetPlayer(), this);
-	m_pVideoControl		 =  new CVideoCtrlDlg(GetPlayer(), this);
+//	m_pSeek				 =	new CSeek(GetPlayer(), this);
+//	m_pDisplayRegion	 =	new CDisplayRect(GetPlayer(), this);
+	//m_pVideoControl		 =  new CVideoCtrlDlg(GetPlayer(), this);
 
 	// bitmap
 	m_BlackBmp.LoadBitmap(IDB_BLACK);
@@ -419,8 +419,13 @@ BOOL CPlayerDlg::PreTranslateMessage(MSG* lpmsg)
 //////////////////////////////////////////////////////////////////////////////
 void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
+	TRACE("OnKeyDown");
 	if(nChar == VK_F2) 
 		ViewFullScreen();
+	else if (nChar == VK_ESCAPE && this->m_bFullScreen)
+	{
+		ViewFullScreen();
+	}
 
 	if(GetKeyState(VK_CONTROL) & 0xFF00)
 	{
@@ -634,8 +639,6 @@ void CPlayerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
 	// TODO: Add your message handler code here and/or call default
-
-	this->GetParent()->SendMessage(WM_LBUTTONDBLCLK, MK_LBUTTON, MAKELPARAM(point.x, point.y));
 	CPoint dpoint;
 	CRect  vwrect;
 	GetCursorPos(&dpoint);	
@@ -643,6 +646,7 @@ void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	m_ctrlVideoPic.GetWindowRect(&vwrect);
 	if( ( m_DVRPlayer.GetPlayState() == State_Play || m_DVRPlayer.GetPlayState() == State_Pause) && vwrect.PtInRect(dpoint))
 	{
+		TRACE("DoubleClick");
 		ViewFullScreen();
 	}
 
@@ -658,7 +662,7 @@ void CPlayerDlg::OnTimer(UINT nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	if(nIDEvent==PLAY_TIMER)
 	{
-		DrawStatus();
+		//DrawStatus();
 	}
 	CDialog::OnTimer(nIDEvent);
 }
@@ -673,10 +677,10 @@ void CPlayerDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 	// TODO: Add your message handler code here
-
+	TRACE("OnSize");
 	if(m_ctrlVideoPic.GetSafeHwnd())
 	{
-		SortControl();
+		//SortControl();
 	}
 }
 
@@ -687,8 +691,8 @@ void CPlayerDlg::OnSize(UINT nType, int cx, int cy)
 void CPlayerDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI) 
 {
 	// TODO: Add your message handler code here and/or call default
-	lpMMI->ptMinTrackSize.x = WIDTH/2 + m_dwDlgEdge * 2;				// width
-	lpMMI->ptMinTrackSize.y = PANNEL_HEIGHT + m_dwDlgTopSize ;			// height
+	//lpMMI->ptMinTrackSize.x = WIDTH/2 + m_dwDlgEdge * 2;				// width
+	//lpMMI->ptMinTrackSize.y = PANNEL_HEIGHT + m_dwDlgTopSize ;			// height
 
 	CDialog::OnGetMinMaxInfo(lpMMI);
 }
@@ -705,6 +709,7 @@ void CPlayerDlg::OnMove(int x, int y)
 	{
 		return;
 	}
+	TRACE("OnMove");
 	// TODO: Add your message handler code here
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
 	GetPlayer()->RefreshPlay();
@@ -884,20 +889,20 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 
 	SetWindowSize();
 
-	if(m_pDisplayRegion)
-	{
-		if(m_pDisplayRegion->m_bValid)
-		{
-			m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
-			m_pDisplayRegion->InitShow();
+//	if(m_pDisplayRegion)
+	//{
+	//	if(m_pDisplayRegion->m_bValid)
+	//	{
+	//		m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
+	//		m_pDisplayRegion->InitShow();
 
-			if(GetPlayer()->GetPlayState() == State_Pause)
-			{
-				StepForward();
-				//NAME(PlayM4_OneByOne)(m_lPort);
-			}
-		}
-	}
+	//		if(GetPlayer()->GetPlayState() == State_Pause)
+	//		{
+	//			StepForward();
+	//			//NAME(PlayM4_OneByOne)(m_lPort);
+	//		}
+	//	}
+	//}
 
 	Sleep(1);
 	return 0;
@@ -905,7 +910,7 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 
 LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
-	m_pVideoControl->DestroyWindow();
+	//m_pVideoControl->DestroyWindow();
 	if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Play)
 	{
 		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
@@ -913,44 +918,34 @@ LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 	return 0;
 }
 
-// when u click the OK button on the seeking dialog, got this message
-LRESULT CPlayerDlg::SeekOk(WPARAM /*wParam*/, LPARAM /*lParam*/)
-{
-	m_pSeek->DestroyWindow();
-	if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Play)
-	{
-		////m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_ENABLED);
-	}
-	return 0;
-}
-
-// when u click the OK button on the display dialog, got this message
-LRESULT CPlayerDlg::DisplayOk(WPARAM wParam, LPARAM /*lParam*/)
-{
-	if (wParam == 0) 
-	{
-		m_ctrlBtnCapPic.EnableWindow(TRUE);
-		m_ctrlBtnSound.EnableWindow(TRUE);	
-		m_ctrlBtnSlow.EnableWindow(TRUE);
-		m_ctrlBtnFast.EnableWindow(TRUE);
-		m_ctrlBtnGStart.EnableWindow(TRUE);
-		m_ctrlBtnGEnd.EnableWindow(TRUE);
-		m_ctrlBtnStop.EnableWindow(TRUE);
-		m_ctrlBtnPlay.EnableWindow(TRUE);
-		m_ctrlBtnPause.EnableWindow(TRUE);	
-		m_ctrlStepBackward.EnableWindow(TRUE);
-		m_ctrlStepForward.EnableWindow(TRUE);
-		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
-		Play();
-		SetState();
-	}
-	if (wParam == 1) 
-	{
-		Pause();
-		SetState();
-	}
-	return 0;
-}
+//
+//// when u click the OK button on the display dialog, got this message
+//LRESULT CPlayerDlg::DisplayOk(WPARAM wParam, LPARAM /*lParam*/)
+//{
+//	if (wParam == 0) 
+//	{
+//		m_ctrlBtnCapPic.EnableWindow(TRUE);
+//		m_ctrlBtnSound.EnableWindow(TRUE);	
+//		m_ctrlBtnSlow.EnableWindow(TRUE);
+//		m_ctrlBtnFast.EnableWindow(TRUE);
+//		m_ctrlBtnGStart.EnableWindow(TRUE);
+//		m_ctrlBtnGEnd.EnableWindow(TRUE);
+//		m_ctrlBtnStop.EnableWindow(TRUE);
+//		m_ctrlBtnPlay.EnableWindow(TRUE);
+//		m_ctrlBtnPause.EnableWindow(TRUE);	
+//		m_ctrlStepBackward.EnableWindow(TRUE);
+//		m_ctrlStepForward.EnableWindow(TRUE);
+//		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+//		Play();
+//		SetState();
+//	}
+//	if (wParam == 1) 
+//	{
+//		Pause();
+//		SetState();
+//	}
+//	return 0;
+//}
 /*************************************************************************/
 /*************************************************************************/
 /*************************************************************************/
@@ -1397,8 +1392,6 @@ void CPlayerDlg::SetState()
 		m_ctrlBtnStop.EnableWindow(FALSE);
 		m_ctrlBtnStop.SetCheck(0);
 
-		m_ctrlBtnGStart.SetIcon(IDI_GOTOSTART_DISABLE);
-		m_ctrlBtnGStart.EnableWindow(FALSE);
 
 		m_ctrlBtnSlow.SetIcon(IDI_FASTBACKWARD_DISABLE);
 		m_ctrlBtnSlow.EnableWindow(FALSE);
@@ -1409,28 +1402,21 @@ void CPlayerDlg::SetState()
 		m_ctrlBtnGEnd.SetIcon(IDI_GOTOEND_DISABLE);
 		m_ctrlBtnGEnd.EnableWindow(FALSE);
 
+		m_ctrlBtnGStart.SetIcon(IDI_GOTOSTART_DISABLE);
+		m_ctrlBtnGStart.EnableWindow(FALSE);
+
 		m_ctrlStepBackward.SetIcon(IDI_STEPBACKWARD_DISABLE);
 		m_ctrlStepBackward.EnableWindow(FALSE);
 
 		m_ctrlStepForward.SetIcon(IDI_STEPFORWARD_DISABLE);
 		m_ctrlStepForward.EnableWindow(FALSE);
 
-		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_DISABLE);
-		m_ctrlBtnCapPic.EnableWindow(FALSE);
-
 		m_ctrlBtnSound.SetIcon(IDI_SOUND_DISABLE);
 		m_ctrlBtnSound.EnableWindow(FALSE);
 
-		for(i = 0; i < 3; i++)
-		{
-			////m_pMainMenu->CheckMenuItem(IDM_VIEW_ZOOM_50 + i, MF_UNCHECKED);
-		}
+		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_DISABLE);
+		m_ctrlBtnCapPic.EnableWindow(FALSE);
 
-
-		for(i=0; i<2; i++)
-		{
-			////m_pMainMenu->CheckMenuItem(IDM_TIMER1 + i, MF_UNCHECKED);
-		}
 
 		// scroll state	
 		m_PlaySlider.SetScrollPos(0);
@@ -1522,6 +1508,7 @@ void CPlayerDlg::SetState()
 		{
 			m_PlaySlider.EnableWindow(TRUE);
 		}
+		m_PlaySlider.RedrawWindow();
 		m_SoundSlider.EnableWindow(TRUE);
 
 		if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
@@ -1642,6 +1629,22 @@ void CPlayerDlg::SetState()
 		break;
 	}
 
+		m_ctrlBtnGEnd.ShowWindow(SW_HIDE);
+
+		m_ctrlBtnGStart.ShowWindow(SW_HIDE);
+
+		m_ctrlStepBackward.ShowWindow(SW_HIDE);
+
+		m_ctrlStepForward.ShowWindow(SW_HIDE);
+
+		m_ctrlBtnSound.ShowWindow(SW_HIDE);
+
+		GetDlgItem(IDC_INTER2)->ShowWindow(SW_HIDE);
+
+		GetDlgItem(IDC_INTER3)->ShowWindow(SW_HIDE);
+
+		GetDlgItem(IDC_SOUND_SLIDER)->ShowWindow(SW_HIDE);
+		
 	SortControl();
 
 	UpdateData(FALSE);
@@ -1746,7 +1749,7 @@ void CPlayerDlg::SetWindowSize()
 
 	TRACE("init window size!\n");
 	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
-	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
+//	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 	TRACE("get window size ok\n");
 
 	if (m_nWidth == 704 && (m_nHeight == 288 || m_nHeight == 240))
@@ -1959,8 +1962,6 @@ CRect CPlayerDlg::GetOnPicRect(CRect rcWnd, CRect rcOnWnd, LONG nPicWidth, LONG 
 	return rcOnPic;
 }
 
-
-
 void CPlayerDlg::SetDisplayRegion(RECT Rect)
 {
 	GetPlayer()->SetDisplayRegion(GetDlgItem(IDC_SHOW)->m_hWnd, &Rect);
@@ -1992,6 +1993,11 @@ void CPlayerDlg::ViewFullScreen()
 
 	if(m_bFullScreen)
 	{
+		if (m_pParentWnd == NULL)
+		{
+			m_pParentWnd = GetParent();
+			SetParent(NULL);
+		}
 		//Save the pre info;
 		GetWindowPlacement(&m_OldWndpl);
 		//Remove WS_SIZEBOX windows style. or not the window can't be full-creen.
@@ -1999,11 +2005,6 @@ void CPlayerDlg::ViewFullScreen()
 
 		CRect WindowRect, ClientRect;
 		RECT  m_FullScreenRect;
-		//ReDraw the window. Get the correct edge value.
-		//		GetWindowRect(&WindowRect);
-		//		WindowRect.left  += 1;
-		//		WindowRect.right += 1;
-		//		MoveWindow(CRect(0, 0, 352, 288), TRUE);
 
 		GetWindowRect(&WindowRect);
 		GetClientRect(&ClientRect);
@@ -2021,6 +2022,7 @@ void CPlayerDlg::ViewFullScreen()
 		wndpl.showCmd = SW_SHOWNORMAL;
 		wndpl.rcNormalPosition = m_FullScreenRect;
 		SetWindowPlacement(&wndpl);
+		::SetWindowPos(m_hWnd, HWND_TOPMOST, 0, 0,  m_FullScreenRect.right-m_FullScreenRect.left , m_FullScreenRect.bottom-m_FullScreenRect.top, SWP_SHOWWINDOW);
 		//Move the view winow to full-screen.
 		RECT rc;
 		GetClientRect(&rc);
@@ -2051,6 +2053,11 @@ void CPlayerDlg::ViewFullScreen()
 	}
 	else
 	{
+		if (m_pParentWnd != NULL)
+		{
+			SetParent(m_pParentWnd);
+			m_pParentWnd = NULL;
+		}
 		//Visible the control.
 		m_ctrlBtnPlay.ModifyStyle(0, WS_VISIBLE, 0);
 		m_ctrlBtnPause.ModifyStyle(0, WS_VISIBLE, 0);
@@ -2134,78 +2141,78 @@ void CPlayerDlg::SetDisplay()
 {
 	// TODO: Add your command handler code here
 
-	RECT RectP;
-	RECT RectS;
+	//RECT RectP;
+	//RECT RectS;
 
-	if (!m_pDisplayRegion->m_bValid) 
-	{	
-		if(GetPlayer()->GetPlayState() == State_Play)
-		{
-			//NAME(PlayM4_Pause)(m_lPort, TRUE);
-			Pause();//GetPlayState() = State_Pause;
-			SetState();
-		}
+	//if (!m_pDisplayRegion->m_bValid) 
+	//{	
+	//	if(GetPlayer()->GetPlayState() == State_Play)
+	//	{
+	//		//NAME(PlayM4_Pause)(m_lPort, TRUE);
+	//		Pause();//GetPlayState() = State_Pause;
+	//		SetState();
+	//	}
 
-		//		m_ctrlBtnCapPic.EnableWindow(FALSE);
-		//		m_ctrlBtnSound.EnableWindow(FALSE);	
-		//		m_ctrlBtnSlow.EnableWindow(FALSE);
-		//		m_ctrlBtnFast.EnableWindow(FALSE);
-		//		m_ctrlBtnGStart.EnableWindow(FALSE);
-		//		m_ctrlBtnGEnd.EnableWindow(FALSE);
-		//		m_ctrlBtnStop.EnableWindow(FALSE);
-		//		m_ctrlBtnPlay.EnableWindow(FALSE);
-		//		m_ctrlBtnPause.EnableWindow(FALSE);	
-		//		m_ctrlStepBackward.EnableWindow(FALSE);
-		//		m_ctrlStepForward.EnableWindow(FALSE);
-		// 		//m_pMainMenu->EnableMenuItem(2, MF_GRAYED|MF_BYPOSITION|MF_DISABLED);
-		////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Cancel Multi Display");
+	//	//		m_ctrlBtnCapPic.EnableWindow(FALSE);
+	//	//		m_ctrlBtnSound.EnableWindow(FALSE);	
+	//	//		m_ctrlBtnSlow.EnableWindow(FALSE);
+	//	//		m_ctrlBtnFast.EnableWindow(FALSE);
+	//	//		m_ctrlBtnGStart.EnableWindow(FALSE);
+	//	//		m_ctrlBtnGEnd.EnableWindow(FALSE);
+	//	//		m_ctrlBtnStop.EnableWindow(FALSE);
+	//	//		m_ctrlBtnPlay.EnableWindow(FALSE);
+	//	//		m_ctrlBtnPause.EnableWindow(FALSE);	
+	//	//		m_ctrlStepBackward.EnableWindow(FALSE);
+	//	//		m_ctrlStepForward.EnableWindow(FALSE);
+	//	// 		//m_pMainMenu->EnableMenuItem(2, MF_GRAYED|MF_BYPOSITION|MF_DISABLED);
+	//	////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Cancel Multi Display");
 
-		m_pDisplayRegion->Create(IDD_RANGE);
-		GetWindowRect(&RectP);
+	//	m_pDisplayRegion->Create(IDD_RANGE);
+	//	GetWindowRect(&RectP);
 
-		m_pDisplayRegion->GetWindowRect(&RectS);
+	//	m_pDisplayRegion->GetWindowRect(&RectS);
 
-		RectS.right = RectS.right - RectS.left + RectP.right;
-		RectS.left = RectP.right;
-		RectS.bottom = RectS.bottom - RectS.top + RectP.top;
-		RectS.top = RectP.top; 
-		if (RectP.right + 10 > (int)m_dwScreenWidth) 
-		{
-			RectS.left = RectP.left - (RectS.right - RectS.left);
-			RectS.right = RectP.left;
-		}
-		m_pDisplayRegion->MoveWindow(&RectS);
+	//	RectS.right = RectS.right - RectS.left + RectP.right;
+	//	RectS.left = RectP.right;
+	//	RectS.bottom = RectS.bottom - RectS.top + RectP.top;
+	//	RectS.top = RectP.top; 
+	//	if (RectP.right + 10 > (int)m_dwScreenWidth) 
+	//	{
+	//		RectS.left = RectP.left - (RectS.right - RectS.left);
+	//		RectS.right = RectP.left;
+	//	}
+	//	m_pDisplayRegion->MoveWindow(&RectS);
 
 
-		m_pDisplayRegion->InitShow();
-		GetPlayer()->ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
-		//		NAME(PlayM4_OneByOne)(m_lPort);
-		//		m_enumState = State_Step;
+	//	m_pDisplayRegion->InitShow();
+	//	GetPlayer()->ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
+	//	//		NAME(PlayM4_OneByOne)(m_lPort);
+	//	//		m_enumState = State_Step;
 
-		Sleep(50);
-		m_pDisplayRegion->DrawRectangle();
-	}
-	else
-	{
-		//		m_ctrlBtnCapPic.EnableWindow(TRUE);
-		//		m_ctrlBtnSound.EnableWindow(TRUE);	
-		//		m_ctrlBtnSlow.EnableWindow(TRUE);
-		//		m_ctrlBtnFast.EnableWindow(TRUE);
-		//		m_ctrlBtnGStart.EnableWindow(TRUE);
-		//		m_ctrlBtnGEnd.EnableWindow(TRUE);
-		//		m_ctrlBtnStop.EnableWindow(TRUE);
-		//		m_ctrlBtnPlay.EnableWindow(TRUE);
-		//		m_ctrlBtnPause.EnableWindow(TRUE);	
-		//		m_ctrlStepBackward.EnableWindow(TRUE);
-		//		m_ctrlStepForward.EnableWindow(TRUE);
-		// 		//m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
-		////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Multi Display"); 
-		Play();
-		if (GetPlayer()->GetPlayState() == State_Play)
-			SetTimer(PLAY_TIMER, 500, NULL);
-		SetState();
-		m_pDisplayRegion->DestroyWindow();
-	}
+	//	Sleep(50);
+	//	m_pDisplayRegion->DrawRectangle();
+	//}
+	//else
+	//{
+	//	//		m_ctrlBtnCapPic.EnableWindow(TRUE);
+	//	//		m_ctrlBtnSound.EnableWindow(TRUE);	
+	//	//		m_ctrlBtnSlow.EnableWindow(TRUE);
+	//	//		m_ctrlBtnFast.EnableWindow(TRUE);
+	//	//		m_ctrlBtnGStart.EnableWindow(TRUE);
+	//	//		m_ctrlBtnGEnd.EnableWindow(TRUE);
+	//	//		m_ctrlBtnStop.EnableWindow(TRUE);
+	//	//		m_ctrlBtnPlay.EnableWindow(TRUE);
+	//	//		m_ctrlBtnPause.EnableWindow(TRUE);	
+	//	//		m_ctrlStepBackward.EnableWindow(TRUE);
+	//	//		m_ctrlStepForward.EnableWindow(TRUE);
+	//	// 		//m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+	//	////m_pMainMenu->ModifyMenu(IDM_SETDISPLAY, MF_BYCOMMAND, IDM_SETDISPLAY, "Multi Display"); 
+	//	Play();
+	//	if (GetPlayer()->GetPlayState() == State_Play)
+	//		SetTimer(PLAY_TIMER, 500, NULL);
+	//	SetState();
+	//	m_pDisplayRegion->DestroyWindow();
+	//}
 }
 
 //BOOL CPlayerDlg::SetDevice(UINT nID)
@@ -2236,14 +2243,14 @@ void CPlayerDlg::SetDisplay()
 //}
 
 // control operation:
-void CPlayerDlg::VideoControl()
-{
-	// TODO: Add your command handler code here
-
-	m_pVideoControl->Create(IDD_VIDEOCTRL);
-	m_pVideoControl->ShowWindow(SW_SHOW);
-	////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
-}
+//void CPlayerDlg::VideoControl()
+//{
+//	// TODO: Add your command handler code here
+//
+//	m_pVideoControl->Create(IDD_VIDEOCTRL);
+//	m_pVideoControl->ShowWindow(SW_SHOW);
+//	////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
+//}
 
 void CPlayerDlg::Repeat() 
 {
@@ -2258,7 +2265,7 @@ void CPlayerDlg::Locate()
 {
 	// TODO: Add your command handler code here
 
-	m_pSeek->Create(IDD_SEEK);
+	//m_pSeek->Create(IDD_SEEK);
 	////m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_GRAYED | MF_DISABLED);
 }
 
@@ -2487,6 +2494,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	case IDM_FILE_OPEN:
 		if(BrowseFile(&csFile)) 
 		{
+			Close();
 			Open(csFile);
 			SetState();
 		}
@@ -2524,7 +2532,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_SETDISPLAY:
-		SetDisplay();
+		//SetDisplay();
 		break;
 
 	case IDM_DEVICE0:
@@ -2588,7 +2596,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_VIDEO_CONTROL:
-		VideoControl();
+//		VideoControl();
 		break;
 
 	case IDM_REPEAT:
@@ -2759,30 +2767,27 @@ void CPlayerDlg::OnDestroy()
 	GetPlayer()->Destory();
 
 
-#if (WINVER > 0x0400)
-	NAME(PlayM4_ReleaseDDrawDevice)();
-#endif
 
-	if(m_pSeek != NULL)
-	{
-		m_pSeek->DestroyWindow();
-		delete m_pSeek;
-		m_pSeek = NULL;
-	}
+	//if(m_pSeek != NULL)
+	//{
+	//	m_pSeek->DestroyWindow();
+	//	delete m_pSeek;
+	//	m_pSeek = NULL;
+	//}
 
-	if(m_pDisplayRegion != NULL)
-	{
-		m_pDisplayRegion->DestroyWindow();
-		delete m_pDisplayRegion;
-		m_pDisplayRegion = NULL;
-	}
+	//if(m_pDisplayRegion != NULL)
+	//{
+	//	m_pDisplayRegion->DestroyWindow();
+	//	delete m_pDisplayRegion;
+	//	m_pDisplayRegion = NULL;
+	//}
 
-	if(m_pVideoControl != NULL)
-	{
-		m_pVideoControl->DestroyWindow();
-		delete m_pVideoControl;
-		m_pVideoControl = NULL;
-	}
+	//if(m_pVideoControl != NULL)
+	//{
+	//	m_pVideoControl->DestroyWindow();
+	//	delete m_pVideoControl;
+	//	m_pVideoControl = NULL;
+	//}
 
 	if(m_bConvertAVI)
 	{
@@ -2840,22 +2845,22 @@ void CPlayerDlg::Play()
 		//if (m_bStreamType)
 		GetPlayer()->Play();
 		SetTimer(PLAY_TIMER, 500, NULL);
-		if (m_pDisplayRegion->m_bValid) 
-		{
-			m_pDisplayRegion->Enable(FALSE);
- 		}
+		//if (m_pDisplayRegion->m_bValid) 
+		//{
+		//	m_pDisplayRegion->Enable(FALSE);
+ 	//	}
 	}
 }
 
 void CPlayerDlg::Pause()
 {
 	GetPlayer()->Pause();
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		Sleep(50);	
-		m_pDisplayRegion->Enable(TRUE);
-		m_pDisplayRegion->DrawRectangle();
-	}
+	//if (m_pDisplayRegion->m_bValid) 
+	//{
+	//	Sleep(50);	
+	//	m_pDisplayRegion->Enable(TRUE);
+	//	m_pDisplayRegion->DrawRectangle();
+	//}
 }
 
 void CPlayerDlg::Stop()
@@ -2885,30 +2890,30 @@ void CPlayerDlg::StepBackward()
 	if (GetPlayer()->CanStepBackword())
 	{
 		GetPlayer()->StepBackward();
-		if (m_pDisplayRegion->m_bValid) 
-		{
-			Sleep(50);	
-			m_pDisplayRegion->Enable(TRUE);
-			m_pDisplayRegion->DrawRectangle();
-		}
+		//if (m_pDisplayRegion->m_bValid) 
+		//{
+		//	Sleep(50);	
+		//	m_pDisplayRegion->Enable(TRUE);
+		//	m_pDisplayRegion->DrawRectangle();
+		//}
 	}
 }
 void CPlayerDlg::StepForward()
 {
 	GetPlayer()->StepForward();
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		Sleep(50);	
-		m_pDisplayRegion->Enable(TRUE);
-		m_pDisplayRegion->DrawRectangle();
-	}
+	//if (m_pDisplayRegion->m_bValid) 
+	//{
+	//	Sleep(50);	
+	//	m_pDisplayRegion->Enable(TRUE);
+	//	m_pDisplayRegion->DrawRectangle();
+	//}
 }
 
 void CPlayerDlg::Open(LPCTSTR szFile)
 {
 	GetPlayer()->Open(szFile);
 	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
-	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
+//	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 	InitWindowSize(m_nWidth, m_nHeight);
 }
 
@@ -2935,6 +2940,7 @@ HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		::CloseHandle(hFile);
+		Close();
 		Open(szFile);
 		SetState();
 		return S_OK;
@@ -2944,13 +2950,13 @@ HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 
 void CPlayerDlg::CloseFile()
 {
-	if (m_pDisplayRegion->m_bValid) 
-	{
-		m_pDisplayRegion->DestroyWindow();
-		////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
-		////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
+	//if (m_pDisplayRegion->m_bValid) 
+	//{
+	//	m_pDisplayRegion->DestroyWindow();
+	//	////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
+	//	////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
 
-	}
+	//}
 
 	GetPlayer()->CloseFile();
 }

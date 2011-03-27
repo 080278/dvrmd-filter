@@ -54,5 +54,7 @@ public:
 	afx_msg void OnDestroy();
 protected:
 	LONG OpenFile(LPCTSTR bstrFile);
+public:
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 };
 

@@ -14,10 +14,10 @@ CDVRPlayer::~CDVRPlayer(void)
 {
 }
 
-bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd)
+bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort)
 {
 	m_enumState = State_Close;
-	m_lPort = -1;
+	m_lPort = lPort;
 	m_hRenderWnd = hRenderWnd;
 	m_rcDisplayRegion = *rcDisplayRegion;
 	m_dwMaxFileTime = 0;
@@ -71,7 +71,8 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd)
 	TestCapability(0);
 #endif
 
-	NAME(PlayM4_GetPort)(&m_lPort);
+	if (m_lPort == -1)
+		NAME(PlayM4_GetPort)(&m_lPort);
 
 	// set the capture picture call back function;
 	//	NAME(PlayM4_SetDisplayCallBack)(m_lPort, DisplayCBFun);
@@ -82,7 +83,14 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd)
 	// Test adapter Capability;
 	NAME(PlayM4_SetVolume)(m_lPort, 0);
 
+	NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
 	return true;
+}
+
+void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
+{
+	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
+	
 }
 
 void CDVRPlayer::RefreshPlay()
@@ -99,7 +107,7 @@ void CDVRPlayer::Destory()
 
 	NAME(PlayM4_FreePort)(m_lPort);
 
-	PlayM4_ReleaseDDrawDevice();
+	NAME(PlayM4_ReleaseDDrawDevice)();
 
 	m_enumState = State_Close;
 }
@@ -742,7 +750,7 @@ void CDVRPlayer::CloseFile()
 	NAME(PlayM4_CloseFile)(m_lPort);
 	//	NAME(PlayM4_FreePort)(m_lPort);
 	////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_ENABLED|MF_BYPOSITION);
-	Destory();
+	//Destory();
 	m_bOpen = FALSE;
 	m_bFileRefCreated =	FALSE;	
 }
