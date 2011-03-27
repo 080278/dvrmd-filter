@@ -13,8 +13,6 @@
 #include "XColorStatic.h"
 #include "XScrollBar.h"
 #include "VolumeCtrl.h"
-#include "seek.h"
-#include "displayRect.h"
 #include "VideoCtrlDlg.h"
 #include "WatermarkDlg.h"
 #include "DVRPlayer.h"
@@ -95,16 +93,21 @@ public:
 	CBitmap		m_BlackBmp;                     // black bmp
 	CBitmap		m_OverlayBmp;                   // overlay bmp
 	
-	CMenu*		      m_pMainMenu;              // pointer to the menu
-	CSeek*			  m_pSeek;                  // seek dialog
-	CDisplayRect*     m_pDisplayRegion;         // display region dialog
-	CVideoCtrlDlg*    m_pVideoControl;			// video control dialog
+//	CMenu*		      m_pMainMenu;              // pointer to the menu
+//	CSeek*			  m_pSeek;                  // seek dialog
+//	CDisplayRect*     m_pDisplayRegion;         // display region dialog
+//	CVideoCtrlDlg*    m_pVideoControl;			// video control dialog
 	WINDOWPLACEMENT   m_OldWndpl;               // save dialog window pos
 	CWatermarkDlg*     m_pWatermarkDlg;			// watermark dialog
 	PBYTE			  m_pQcifTempBuf;			// convert qcif to avi
 
 public:
 	BOOL SetDiplayMode(int nID);
+
+	BOOL IsFullScreen()
+	{
+		return m_bFullScreen;
+	}
 	
 	HANDLE	m_hTestFile;
 	//¥ÌŒÛ–≈œ¢
@@ -114,6 +117,7 @@ public:
 	void  CutFile();
 	void  SetSecretKey();
 
+	CWnd* m_pParentWnd;
 	// view operation:
 	void  ViewFullScreen();
 	void  ViewZoom(UINT nID);
@@ -123,7 +127,7 @@ public:
 	void  GetWatermark();
 	
 	// control operation:
-	void  VideoControl();
+	//void  VideoControl();
 	void  Repeat();
 	void  Locate();
   
@@ -232,9 +236,7 @@ protected:
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
 	afx_msg void OnDestroy();
 	//}}AFX_MSG
-	afx_msg LRESULT DisplayOk(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT WatermarkOk(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT SeekOk(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT VideoCtrlOK(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT PlayMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT EncChangeMessage(WPARAM wParam, LPARAM lParam);

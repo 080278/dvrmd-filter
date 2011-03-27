@@ -95,7 +95,7 @@ public:
 	~CDVRPlayer(void);
 
 public:
-	bool Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd);	//Init method of the Player.
+	bool Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort = -1);	//Init method of the Player.
 	void Destory();
 
 	bool SetDisplayRegion(HWND hPlayWnd, RECT* rcDisplayRegion);
@@ -178,6 +178,12 @@ public:
 	HANDLE		m_hThread;                      // inputstream thread handle
 	HANDLE		m_hStreamFile;                  // input file
 
+private:
+	// callback function
+
+	//OnDrawFun
+	// Draw the meta data on the screen.
+	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 private:
 	_VIDEO_PLAY_STATE m_enumState;              // now the play state
 	LONG	m_lPort;
