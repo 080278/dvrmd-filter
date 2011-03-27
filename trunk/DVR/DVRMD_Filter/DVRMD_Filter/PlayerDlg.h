@@ -200,6 +200,8 @@ public:
 	//}}AFX_DATA
 	CVolumeCtrl		m_SoundSlider;
 	CXScrollBar		m_PlaySlider;
+
+	RECT			m_rcOldPicPos;
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CPlayerDlg)
 	protected:
