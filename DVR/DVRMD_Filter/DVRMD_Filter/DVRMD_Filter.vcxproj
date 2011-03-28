@@ -150,22 +150,28 @@
     <ClCompile Include="BtnST.cpp" />
     <ClCompile Include="CConvertAVI.cpp" />
     <ClCompile Include="Color.cpp" />
-    <ClCompile Include="CutFile.cpp" />
+    <ClCompile Include="CommClass.cpp" />
+    <ClCompile Include="ComSocket.cpp" />
     <ClCompile Include="DVRMD_Filter.cpp" />
     <ClCompile Include="DVRMD_FilterCtrl.cpp" />
     <ClCompile Include="DVRMD_FilterPropPage.cpp" />
     <ClCompile Include="DVRMetaDataHandler.cpp" />
     <ClCompile Include="DVRPlayer.cpp" />
     <ClCompile Include="DVRSettings.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
     <ClCompile Include="FontSize.cpp" />
-    <ClCompile Include="Info.cpp" />
     <ClCompile Include="PlayerDlg.cpp" />
+    <ClCompile Include="PlayStreamParser.cpp" />
+    <ClCompile Include="RealStreamParser.cpp" />
     <ClCompile Include="SetKeyDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="StreamParser.cpp" />
+    <ClCompile Include="Sync_Locks.cpp" />
+    <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="VolumeCtrl.cpp" />
     <ClCompile Include="WatermarkDlg.cpp" />
     <ClCompile Include="WRIFF.CPP" />
@@ -237,7 +243,9 @@
     <ClInclude Include="BtnST.h" />
     <ClInclude Include="CConvertAVI.h" />
     <ClInclude Include="Color.h" />
-    <ClInclude Include="CutFile.h" />
+    <ClInclude Include="CommClass.h" />
+    <ClInclude Include="commdef.h" />
+    <ClInclude Include="ComSocket.h" />
     <ClInclude Include="DVRMD_Filter.h" />
     <ClInclude Include="DVRMD_FilterCtrl.h" />
     <ClInclude Include="DVRMD_FilterPropPage.h" />
@@ -246,14 +254,18 @@
     <ClInclude Include="DVRSettings.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
-    <ClInclude Include="Info.h" />
     <ClInclude Include="memdc.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerDlg.h" />
+    <ClInclude Include="PlayStreamParser.h" />
+    <ClInclude Include="RealStreamParser.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SetKeyDlg.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StreamParser.h" />
+    <ClInclude Include="Sync_Locks.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utilities.h" />
     <ClInclude Include="vkey.h" />
     <ClInclude Include="VolumeCtrl.h" />
     <ClInclude Include="WatermarkDlg.h" />

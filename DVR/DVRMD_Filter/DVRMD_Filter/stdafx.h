@@ -38,3 +38,4 @@
 #include <afxwin.h>
 
 #include "Resource.h"
+#include <vector>
