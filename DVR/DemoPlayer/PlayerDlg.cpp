@@ -914,12 +914,12 @@ void CPlayerDlg::OnClose()
 		m_pDisplayRegion = NULL;
 	}
 
-	if(m_pVideoControl != NULL)
-	{
-		m_pVideoControl->DestroyWindow();
-		delete m_pVideoControl;
-		m_pVideoControl = NULL;
-	}
+	//if(m_pVideoControl != NULL)
+	//{
+	//	m_pVideoControl->DestroyWindow();
+	//	delete m_pVideoControl;
+	//	m_pVideoControl = NULL;
+	//}
 
 	if(m_bConvertAVI)
 	{
@@ -1006,11 +1006,11 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 
 LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
-	m_pVideoControl->DestroyWindow();
-	if(m_enumState == State_Pause || m_enumState == State_Play)
-	{
-		m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
-	}
+	//m_pVideoControl->DestroyWindow();
+	//if(m_enumState == State_Pause || m_enumState == State_Play)
+	//{
+	//	m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
+	//}
 	return 0;
 }
 
@@ -3323,14 +3323,14 @@ BOOL CPlayerDlg::SetDevice(UINT nID)
 }
 
 // control operation:
-void CPlayerDlg::VideoControl()
-{
-	// TODO: Add your command handler code here
-
-	m_pVideoControl->Create(IDD_VIDEOCTRL);
-	m_pVideoControl->ShowWindow(SW_SHOW);
-	m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
-}
+//void CPlayerDlg::VideoControl()
+//{
+//	// TODO: Add your command handler code here
+//
+//	m_pVideoControl->Create(IDD_VIDEOCTRL);
+//	m_pVideoControl->ShowWindow(SW_SHOW);
+//	m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_GRAYED | MF_DISABLED);
+//}
 
 void CPlayerDlg::Repeat() 
 {
