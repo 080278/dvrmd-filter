@@ -13,9 +13,9 @@
 #include "XColorStatic.h"
 #include "XScrollBar.h"
 #include "VolumeCtrl.h"
-#include "VideoCtrlDlg.h"
 #include "WatermarkDlg.h"
 #include "DVRPlayer.h"
+#include "BtnST.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CPlayerDlg dialog
@@ -93,10 +93,6 @@ public:
 	CBitmap		m_BlackBmp;                     // black bmp
 	CBitmap		m_OverlayBmp;                   // overlay bmp
 	
-//	CMenu*		      m_pMainMenu;              // pointer to the menu
-//	CSeek*			  m_pSeek;                  // seek dialog
-//	CDisplayRect*     m_pDisplayRegion;         // display region dialog
-//	CVideoCtrlDlg*    m_pVideoControl;			// video control dialog
 	WINDOWPLACEMENT   m_OldWndpl;               // save dialog window pos
 	CWatermarkDlg*     m_pWatermarkDlg;			// watermark dialog
 	PBYTE			  m_pQcifTempBuf;			// convert qcif to avi
