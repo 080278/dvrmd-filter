@@ -6,7 +6,6 @@
 #include "vkey.h"
 #include "info.h"
 #include "cutfile.h"
-#include "HelpDlg.h"
 #include "CConvertAVI.h"
 #include "watermarkinfo.h"
 #include "SetKeyDlg.h"
@@ -173,7 +172,6 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_MESSAGE(WM_FILE_END, PlayMessage)
 	ON_MESSAGE(WM_ENC_CHANGE,EncChangeMessage)
 //	ON_MESSAGE(WM_DISPLAY_OK, DisplayOk)
-	ON_MESSAGE(WM_VIDEOCTRL_OK, VideoCtrlOK)
 	ON_MESSAGE(WM_WATERMARK_OK, WatermarkOk)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
@@ -283,9 +281,6 @@ BOOL CPlayerDlg::OnInitDialog()
 	rcPos.bottom = rcPos.top + m_nHeight;
 	GetPlayer()->Init(m_ctrlVideoPic.GetSafeHwnd(), &rcPos, m_hWnd, 1); 
 	// init the sub dialogs
-//	m_pSeek				 =	new CSeek(GetPlayer(), this);
-//	m_pDisplayRegion	 =	new CDisplayRect(GetPlayer(), this);
-	//m_pVideoControl		 =  new CVideoCtrlDlg(GetPlayer(), this);
 
 	// bitmap
 	m_BlackBmp.LoadBitmap(IDB_BLACK);
@@ -2466,8 +2461,8 @@ void CPlayerDlg::AppAbout()
 
 void CPlayerDlg::AppHelp()
 {
-	CHelpDlg HelpDlg;
-	HelpDlg.DoModal();
+	//CHelpDlg HelpDlg;
+	//HelpDlg.DoModal();
 }
 /*************************************************************************/
 /*************************************************************************/
