@@ -98,6 +98,15 @@ public:
 	bool Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort = -1);	//Init method of the Player.
 	void Destory();
 
+	void SetStreamType(BOOL bStream)	//TRUE: Stream; FALSE: File
+	{
+		m_bStreamType = bStream;
+	}
+	BOOL GetStreamType()
+	{
+		return m_bStreamType;
+	}
+
 	bool SetDisplayRegion(HWND hPlayWnd, RECT* rcDisplayRegion);
 	bool SetDisplayType(LONG lType);//ISPLAY_NORMAL, DISPLAY_QUARTER (1/4)
 	LONG GetDisplayType();

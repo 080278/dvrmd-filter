@@ -2,6 +2,24 @@
 
 #include <map>
 
+//连接DVR信息
+struct HHV_CONN_INFO
+{
+	HHV_CONN_INFO(){ memset( this, 0x00, sizeof(HHV_CONN_INFO) );	}
+	CHAR	ip[48];
+	INT		port;
+	CHAR	userName[32];	
+	CHAR	pwd[32];
+};
+
+struct HHV_CLIENT_INFO
+{
+	HHV_CLIENT_INFO(){ memset( this, 0x00, sizeof(HHV_CLIENT_INFO) );	}
+	HHV_CONN_INFO connInfo;
+	int channel;//通道号，从0开始	
+	int childstream;	//0-主码流；1-次码流
+};
+
 class CDVRSettings
 {
 public:
@@ -17,10 +35,9 @@ public:
 	RECT		m_rcRenderArea;
 	
 	//Media Server Settings.
-	TCHAR		m_MediaServerIP[16];
-	int			m_Port;
-	CTime		m_StartTime;
-	CTime		m_EndTime;
+	HHV_CLIENT_INFO		m_HHVClientInfo;
+	CTime				m_StartTime;
+	CTime				m_EndTime;
 
 	//Player Settings
 	BOOL		m_bHighPictureQuality;

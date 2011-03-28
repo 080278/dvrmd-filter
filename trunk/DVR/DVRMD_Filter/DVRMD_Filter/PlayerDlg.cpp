@@ -3,9 +3,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "PlayerDlg.h"
+#include "Player.h"
 #include "vkey.h"
-#include "info.h"
-#include "cutfile.h"
 #include "CConvertAVI.h"
 #include "watermarkinfo.h"
 #include "SetKeyDlg.h"
@@ -1366,7 +1365,6 @@ void CPlayerDlg::DrawStatus()
 // set state
 void CPlayerDlg::SetState()
 {
-	int i;
 	switch(m_DVRPlayer.GetPlayState())
 	{
 	case State_Close:
@@ -1966,11 +1964,11 @@ void CPlayerDlg::SetDisplayRegion(RECT Rect)
 void CPlayerDlg::CutFile() 
 {
 	// TODO: Add your command handler code here
-	CCutFile cutDlg(GetPlayer());
-	//if(cutDlg.SetFileName(m_strPlayFileName))
-	{
-		cutDlg.DoModal();
-	}
+	//CCutFile cutDlg(GetPlayer());
+	////if(cutDlg.SetFileName(m_strPlayFileName))
+	//{
+	//	cutDlg.DoModal();
+	//}
 }
 
 void CPlayerDlg::SetSecretKey()
@@ -2128,8 +2126,6 @@ void CPlayerDlg::Infomation()
 {
 	// TODO: Add your command handler code here
 
-	CInfo infoDlg(GetPlayer());
-	infoDlg.DoModal();
 }
 
 void CPlayerDlg::SetDisplay() 
