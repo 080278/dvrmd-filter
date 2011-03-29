@@ -21,7 +21,7 @@ struct TIME_INFO;
 class CCommClass  
 {
 public:
-	static BOOL ExtractFilePath( CHAR* chPath );
+	static BOOL ExtractFilePath( LPTSTR chPath );
 	
 	static BOOL SetLocalComputerTime(LPSYSTEMTIME lpSystemTime);
 	static VOID LongToTime( ULONG dat , DATE_INFO * date , TIME_INFO *time );
@@ -30,10 +30,10 @@ public:
 	static UINT	GetCurrentTime();
 	static unsigned long CTimeToULong(CTime time);
 
-	static BOOL GetLocalIP( CHAR* chIP, CHAR* chHostName = NULL );	
+	static BOOL GetLocalIP( LPTSTR chIP, LPTSTR chHostName = NULL );	
 
-	static BOOL CreateDirectory(char* path);
-	static BOOL CreateFullDirectory(char* path);
+	static BOOL CreateDirectory(LPTSTR path);
+	static BOOL CreateFullDirectory(LPTSTR path);
 	static BOOL CheckIP( std::string ip );
 };
 

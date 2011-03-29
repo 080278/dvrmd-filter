@@ -121,7 +121,7 @@ public:
 	DWORD GetCurrentPosition();			// Get play position: microsecond.
 	DWORD GetCurrentFrameNum();		
 	DWORD GetDuration(){return m_dwMaxFileTime;}
-	bool  SetVolume(WORD wVolume);
+	BOOL  SetVolume(WORD wVolume);
 
 	// gotostart / slow / fast / gotoend
 	void  GotoStart();

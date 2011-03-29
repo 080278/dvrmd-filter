@@ -19,7 +19,7 @@
 CPlayer::CPlayer()
 {
 	m_PlayHandle = -1;
-	m_hExitEvent	=  CreateEvent( NULL, TRUE, FALSE, "" );
+	m_hExitEvent	=  CreateEvent( NULL, TRUE, FALSE, _T("") );
 	memset( m_meta, 0x00, sizeof(m_meta) );
 
 	m_playbacklen = 0;
@@ -483,7 +483,7 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		//SetBkColor(hdc, RGB(0 ,0 ,255));
 		SetTextColor( hDc, RGB(255 , 0 , 0 ) );
 
-		::TextOut(hDc, 0, 0, "Meta", 4);
+		::TextOut(hDc, 0, 0, _T("Meta"), 4);
 	}
 }
 

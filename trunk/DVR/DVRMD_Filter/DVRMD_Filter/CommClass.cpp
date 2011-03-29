@@ -19,18 +19,18 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-BOOL CCommClass::ExtractFilePath( CHAR* chPath )
+BOOL CCommClass::ExtractFilePath( LPTSTR chPath )
 {
-	CHAR path[_MAX_PATH] = {0X00};
-	::GetModuleFileName(NULL,(CHAR*)path,sizeof(path));
+	TCHAR path[_MAX_PATH] = {0X00};
+	::GetModuleFileName(NULL,path,sizeof(path));
 	CString strPath = path;
 	INT nPos = strPath.ReverseFind( '\\' );
-	strncpy( chPath, strPath, nPos );
+	_tcsncpy( chPath, strPath, nPos );
 	return TRUE;
 }
 
 
-BOOL CCommClass::GetLocalIP( CHAR* chIP, CHAR* chHostName )
+BOOL CCommClass::GetLocalIP( LPTSTR chIP, LPTSTR chHostName )
 {
 	BOOL bRet = FALSE;
 	WORD wVersionRequested; 
@@ -45,9 +45,9 @@ BOOL CCommClass::GetLocalIP( CHAR* chIP, CHAR* chHostName )
 			if((hostinfo = gethostbyname(chName)) != NULL ) 
 			{
 				LPCSTR ip=inet_ntoa(*(struct in_addr*)*hostinfo->h_addr_list); 
-				strcpy( chIP, ip );
+				_tcscpy( chIP, CA2T(ip) );
 				if( chHostName != NULL )
-					strcpy( chHostName, hostinfo->h_name );
+					_tcscpy( chHostName, CA2T(hostinfo->h_name) );
 				bRet = TRUE;
 			} 
 		} 
@@ -75,7 +75,7 @@ BOOL CCommClass::SetLocalComputerTime(LPSYSTEMTIME	lpSystemTime)
 		return FALSE;
 	}
 	
-    if( !LookupPrivilegeValue("", "SeSystemtimePrivilege", &tmpLuid) )
+    if( !LookupPrivilegeValue(_T(""), _T("SeSystemtimePrivilege"), &tmpLuid) )
 	{
 		return FALSE;
 	}
@@ -322,7 +322,7 @@ int	Recv( SOCKET sk, char* buf, int nLength, int flag)
 	return DataRead ;
 }
 
-BOOL CCommClass::CreateFullDirectory(char* path)
+BOOL CCommClass::CreateFullDirectory(LPTSTR path)
 {
 	if( NULL == path )
 	{
@@ -368,7 +368,7 @@ BOOL CCommClass::CreateFullDirectory(char* path)
 	return TRUE;
 }
 
-BOOL CCommClass::CreateDirectory(char* path)
+BOOL CCommClass::CreateDirectory(LPTSTR path)
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength              = sizeof(sa);
@@ -385,11 +385,11 @@ UINT CCommClass::GetCurrentTime()
 	DATE_INFO di;
 	TIME_INFO ti;
 	di.year		= st.wYear;
-	di.month	= st.wMonth;
-	di.date		= st.wDay;
-	ti.hour		= st.wHour;
-	ti.minute	= st.wMinute;
-	ti.second	= st.wSecond;
+	di.month	= (U8)st.wMonth;
+	di.date		= (U8)st.wDay;
+	ti.hour		= (U8)st.wHour;
+	ti.minute	= (U8)st.wMinute;
+	ti.second	= (U8)st.wSecond;
 	return TimeToLong(&di, &ti);
 }
 
