@@ -34,20 +34,20 @@ HMODULE GetCurrentModule()
 #endif
 }
 
-bool CUtilities::ExtractAppPath( char* chPath )
+bool CUtilities::ExtractAppPath( LPTSTR chPath )
 {
-	char path[256] = {0X00};
-	GetModuleFileName(GetCurrentModule(),(char*)path,sizeof(path));
+	TCHAR path[MAX_PATH] = {0X00};
+	GetModuleFileName(GetCurrentModule(),path,sizeof(path));
 	//CString strPath = path;
-	char* pos = strrchr( path, '\\' );
+	TCHAR* pos = _tcsrchr( path, '\\' );
 	if( pos == NULL)
 		return FALSE;
 	*(pos + 1) = 0;
-	strncpy( chPath, path, (pos + 1) - path );
+	_tcsncpy( chPath, path, (pos + 1) - path );
 	return true;
 }
 
-BOOL CUtilities::CreateDirectory(char* path)
+BOOL CUtilities::CreateDirectory(LPTSTR path)
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength              = sizeof(sa);
@@ -57,21 +57,21 @@ BOOL CUtilities::CreateDirectory(char* path)
 	return ::CreateDirectory( path, &sa );
 }
 
-DWORD CUtilities::PowerGetFileSize(const char *file)
+DWORD CUtilities::PowerGetFileSize(LPCTSTR szFile)
 {
 	struct _stat buf;
 	int result = 0;
-	result = _stat( file, &buf );
+	result = _tstat ( szFile, &buf );
 	if( result != 0 )
 		return 0;
 	else
 		return buf.st_size;	
 }
 
-BOOL CUtilities::Trim(char* buf)
+BOOL CUtilities::Trim(LPTSTR buf)
 {
-	int size = strlen( buf );
-	char* tempbuf = new char[size + 1];
+	int size = _tcslen( buf );
+	TCHAR* tempbuf = new TCHAR[size + 1];
 	memset( tempbuf, 0x00, size + 1 );
 	int i = 0;
 	int j = 0;
@@ -81,7 +81,7 @@ BOOL CUtilities::Trim(char* buf)
 			tempbuf[j++] = buf[i];
 		i++;
 	}
-	strcpy( buf, tempbuf );
+	_tcscpy( buf, tempbuf );
 	delete[] tempbuf;
 	return TRUE;
 }
@@ -163,10 +163,10 @@ int CUtilities::TimeToLong(  SYSTEMTIME* sysTime  )
 void OutputDebugString_DL(LPCTSTR fmt , ... )
 {
 	va_list argPtr   ;	
-	CHAR  msg[1024] = {0x00}  ;
+	TCHAR  msg[1024] = {0x00}  ;
 	
 	va_start( argPtr, fmt );   
-	vsprintf( msg, fmt, argPtr );  
+	_vstprintf( msg, fmt, argPtr );  
 	va_end  ( argPtr ); 
 	OutputDebugString( msg );
 }

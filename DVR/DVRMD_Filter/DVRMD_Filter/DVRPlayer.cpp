@@ -252,7 +252,7 @@ DWORD CDVRPlayer::GetCurrentFrameNum()
 	return NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
 }
 
-bool CDVRPlayer::SetVolume(WORD wVolume)
+BOOL CDVRPlayer::SetVolume(WORD wVolume)
 {
 #ifdef _WAVE_ADJ
 	NAME(PlayM4_AdjustWaveAudio)(m_lPort, wVolume);
