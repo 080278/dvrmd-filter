@@ -29,7 +29,7 @@
 #include "./StreamParser.h"
 #include "./RealStreamParser.h"
 #include "./PlayStreamParser.h"
-#include "./struct_TCPServ.h"
+#include "./NetDef.h"
 #include "DVRSettings.h"
 
 #define SYN_READ_STREAM
@@ -39,8 +39,6 @@
 #define SDK_ERROR       1
 #define CLIENT_ERROR    2
 #define SERVER_ERROR    3
-
-
 
 class CPlayer  
 {

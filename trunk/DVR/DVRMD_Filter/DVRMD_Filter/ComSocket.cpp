@@ -37,7 +37,7 @@ INT CComSocket::Create( )
     if(m_hSocket == INVALID_SOCKET)
     {
         DWORD dwError = WSAGetLastError();
-        //TRACE_LOG("!%s! CComSocket::Create socket返回INVALID_SOCKET, lasterror: %d \r\n", m_skDescription, dwError);
+        //TRACE("!%s! CComSocket::Create socket返回INVALID_SOCKET, lasterror: %d \r\n", m_skDescription, dwError);
         return HHV_ERROR_CREATESOCKET;
     }
 	
@@ -121,13 +121,13 @@ INT CComSocket::Connect( CHAR* strRemote, UINT nPort )
 	m_sockaddr.sin_family = AF_INET;   //ip地址家族
 	m_sockaddr.sin_port = htons( nPort ); //端口
 
-	//TRACE_LOG("!%s! CComSocket::Connect(): before API connect \r\n", m_skDescription);
+	//TRACE("!%s! CComSocket::Connect(): before API connect \r\n", m_skDescription);
 	if ( connect( m_hSocket, (SOCKADDR*)&m_sockaddr, sizeof( m_sockaddr ) ) == SOCKET_ERROR )
 	{
 		DWORD dwError = WSAGetLastError();
 		if ( dwError != WSAEWOULDBLOCK )
 		{
-            //TRACE_LOG("!%s! CComSocket::Connect(): connect failed LastError: %d\r\n", m_skDescription, dwError);
+            //TRACE("!%s! CComSocket::Connect(): connect failed LastError: %d\r\n", m_skDescription, dwError);
         	return HHV_ERROR_CONNECT;
         } 
 	}
@@ -138,12 +138,12 @@ INT CComSocket::Connect( CHAR* strRemote, UINT nPort )
 	FD_SET(m_hSocket, &fdconn);  
 	tv.tv_sec = m_nTimeOut;   // 秒
 	tv.tv_usec = 0;     //毫秒
-    //TRACE_LOG("!%s! CComSocket::Connect(): before API select %ds \r\n", m_skDescription, nTimeOut);
+    //TRACE("!%s! CComSocket::Connect(): before API select %ds \r\n", m_skDescription, nTimeOut);
 	ret = select(0, 0, &fdconn, 0, &tv);
 	if ( ret <= 0 )
 	{
         DWORD dwError = WSAGetLastError();
-        //TRACE_LOG("!%s! CComSocket::Connect(): select failed LastError: %d, ret_select = %d\r\n",
+        //TRACE("!%s! CComSocket::Connect(): select failed LastError: %d, ret_select = %d\r\n",
          //           m_skDescription, dwError, ret);
 		closesocket(m_hSocket);
 		return HHV_ERROR_SOCKET_SELECT;
@@ -195,7 +195,7 @@ BOOL CComSocket::Receive( char* strData, int iLen )
 		if ( nret <= 0)
 		{
 			DWORD dwError = WSAGetLastError();
-            //TRACE_LOG("!%s! CComSocket::Receive(): recv LastError: %d, nret: %d\r\n",
+            //TRACE("!%s! CComSocket::Receive(): recv LastError: %d, nret: %d\r\n",
             //        m_skDescription, dwError, nret);
             Close();
             m_bConnected  = false;

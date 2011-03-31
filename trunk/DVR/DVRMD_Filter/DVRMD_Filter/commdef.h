@@ -28,6 +28,12 @@ typedef unsigned int VPOINT;
 #define SAFE_CLOSESOCKET(pObj) { if( INVALID_SOCKET != (pObj) ) { closesocket(pObj); (pObj) = INVALID_SOCKET; } }
 #define SAFE_CLOSEHANDLE(pObj) { if( NULL != (pObj) ) { CloseHandle(pObj); (pObj) = NULL; } }
 
+#define SAFE_DELETE_ARRAY(p)	{ if(p) { delete[] (p);     (p)=NULL;	} }
+#define SAFE_RELEASE(p)			{ if(p) { (p)->Release();	(p)=NULL;	} }           
+#define SAFE_CLOSE(p)			{ if(p) { CloseHandle((p));	(p)=NULL;	} }
+
+#define ARRAY_LENGTH(a)			(sizeof(a)/sizeof(a[0]))
+
 #define _ClassNameLen 256
 class CClassType 
 {

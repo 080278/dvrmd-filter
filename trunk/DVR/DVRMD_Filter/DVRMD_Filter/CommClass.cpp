@@ -5,9 +5,10 @@
 #include "stdafx.h"
 #include "CommClass.h" 
 
-//#include "./SSCommStruct.h"
 #include "commdef.h"
-#include "struct_TCPServ.h"
+#include "./NetDef.h"
+#include "ComSocket.h"
+#include "DvrSDKErr.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -19,10 +20,10 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-BOOL CCommClass::ExtractFilePath( LPTSTR chPath )
+BOOL CCommClass::ExtractFilePath( TCHAR* chPath )
 {
 	TCHAR path[_MAX_PATH] = {0X00};
-	::GetModuleFileName(NULL,path,sizeof(path));
+	::GetModuleFileName(NULL,(TCHAR*)path,sizeof(path));
 	CString strPath = path;
 	INT nPos = strPath.ReverseFind( '\\' );
 	_tcsncpy( chPath, strPath, nPos );
@@ -30,12 +31,12 @@ BOOL CCommClass::ExtractFilePath( LPTSTR chPath )
 }
 
 
-BOOL CCommClass::GetLocalIP( LPTSTR chIP, LPTSTR chHostName )
+BOOL CCommClass::GetLocalIP( TCHAR* chIP, TCHAR* chHostName )
 {
 	BOOL bRet = FALSE;
 	WORD wVersionRequested; 
 	WSADATA wsaData; 
-	CHAR chName[255]; 
+	char chName[255]; 
 	PHOSTENT hostinfo; 
 	wVersionRequested =MAKEWORD(2,0); 
 	if( WSAStartup( wVersionRequested, &wsaData ) == 0 ) 
@@ -47,7 +48,7 @@ BOOL CCommClass::GetLocalIP( LPTSTR chIP, LPTSTR chHostName )
 				LPCSTR ip=inet_ntoa(*(struct in_addr*)*hostinfo->h_addr_list); 
 				_tcscpy( chIP, CA2T(ip) );
 				if( chHostName != NULL )
-					_tcscpy( chHostName, CA2T(hostinfo->h_name) );
+					_tcscpy( chHostName, CA2T(hostinfo->h_name));
 				bRet = TRUE;
 			} 
 		} 
@@ -322,7 +323,116 @@ int	Recv( SOCKET sk, char* buf, int nLength, int flag)
 	return DataRead ;
 }
 
-BOOL CCommClass::CreateFullDirectory(LPTSTR path)
+SOCKET CreateSocket( int type, INT nTimeOut )
+{
+	SOCKET s;
+	if( type == 0 )
+		s=  socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	else
+		s= socket(AF_INET, SOCK_DGRAM, 0);	
+	
+	setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, (char*)&nTimeOut, sizeof(nTimeOut));
+	setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (char*)&nTimeOut, sizeof(nTimeOut));
+	
+	DWORD size = MAX_RECV_BUFFER ;	//设置接收缓存大小
+	setsockopt( s , SOL_SOCKET , SO_RCVBUF , ( CHAR*)&size , sizeof(size) );
+	
+	return s;
+}
+
+//nTimeOut 单位S
+int Connect( SOCKET sk, char* remote, int port, int nTimeOut )
+{	
+	//设置非阻塞方式连接
+	unsigned long ul = 1;  //“无符号长整形“非零值， 启用非锁定模式
+	
+	//ioctlsocket 控制套接口的模式。  FIONBIO：允许或禁止套接口的非阻塞模式。
+	if ( ioctlsocket(sk, FIONBIO, (unsigned long*)&ul) == SOCKET_ERROR )
+		return SOCKET_ERROR;
+	
+	//SOCKADDR_IN dvr;
+	//dvr.sin_family		= AF_INET;
+	//dvr.sin_port		= htons((unsigned short)port);
+	
+	//dvr.sin_addr.s_addr	= inet_addr(addr);
+	
+	SOCKADDR_IN saServer;
+	memset( &saServer, 0x00, sizeof(saServer) );
+	saServer.sin_family		= AF_INET;
+	LONG lIPAddress = 0;
+	if( isalpha(remote[0]) )
+	{
+		hostent *hostEnt = gethostbyname( remote );	
+		if( hostEnt != NULL )
+		{
+			lIPAddress = ((in_addr*)hostEnt->h_addr)->s_addr;
+			saServer.sin_addr.s_addr = lIPAddress;
+		}
+	}	
+    else
+    {
+		saServer.sin_addr.s_addr = inet_addr( remote );
+    }
+	saServer.sin_port		= htons((unsigned short)port);
+	
+	if ( connect( sk, (SOCKADDR*)&saServer, sizeof( saServer ) ) == SOCKET_ERROR )
+	{
+		DWORD dwError = WSAGetLastError();
+		
+		if ( dwError != WSAEWOULDBLOCK )
+			return SOCKET_ERROR;
+	}
+	
+	//检索套接字是否接受到数据.若无,则ret<=0,即自动在fdconn中删除了该套接字
+	
+	struct timeval tv ;	
+	fd_set fdconn;	
+	FD_ZERO(&fdconn);  //初始化为空集合	
+	FD_SET(sk, &fdconn);  //将套接字句柄传入fdconn	
+	tv.tv_sec = nTimeOut;   //等待时间， 秒	
+	tv.tv_usec = 0;     //毫秒
+	
+	int ret = select(0, 0, &fdconn, 0, &tv);	
+	if ( ret <= 0 )
+	{
+		//closesocket(sk);
+		return SOCKET_ERROR;
+	}
+	
+	//设回阻塞模式
+	ul = 0 ; //0为阻塞模式
+	
+	ret = ioctlsocket( sk, FIONBIO, (unsigned long*) & ul );
+	
+	if ( ret == SOCKET_ERROR )
+	{
+		closesocket(sk);
+		return SOCKET_ERROR;
+	}
+	return 0;
+}
+
+int SendAndRecv(SOCKET sk, char *msg, int msgSize, char *rsp, int rspSize)
+{
+	int ret = 0;
+	if( (ret = send(sk, (char*)msg, msgSize, 0)) <= 0 )
+	{	
+		int err = WSAGetLastError();
+		if( err == WSAETIMEDOUT )
+			return HHV_ERROR_TIMEOUT;
+		return HHV_ERROR_SEND;
+	}
+	if( (ret = recv(sk, (char*)rsp, rspSize, 0 )) <= 0 )
+	{
+		int err = WSAGetLastError();
+		if( err == WSAETIMEDOUT )
+			return HHV_ERROR_TIMEOUT;
+		return HHV_ERROR_RECV;
+	}
+	return 0;
+}
+
+BOOL CCommClass::CreateFullDirectory(TCHAR* path)
 {
 	if( NULL == path )
 	{
@@ -368,7 +478,7 @@ BOOL CCommClass::CreateFullDirectory(LPTSTR path)
 	return TRUE;
 }
 
-BOOL CCommClass::CreateDirectory(LPTSTR path)
+BOOL CCommClass::CreateDirectory(TCHAR* path)
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength              = sizeof(sa);
@@ -385,11 +495,11 @@ UINT CCommClass::GetCurrentTime()
 	DATE_INFO di;
 	TIME_INFO ti;
 	di.year		= st.wYear;
-	di.month	= (U8)st.wMonth;
-	di.date		= (U8)st.wDay;
-	ti.hour		= (U8)st.wHour;
-	ti.minute	= (U8)st.wMinute;
-	ti.second	= (U8)st.wSecond;
+	di.month	= st.wMonth;
+	di.date		= st.wDay;
+	ti.hour		= st.wHour;
+	ti.minute	= st.wMinute;
+	ti.second	= st.wSecond;
 	return TimeToLong(&di, &ti);
 }
 
@@ -427,4 +537,15 @@ BOOL CCommClass::CheckIP( std::string ip )
 		}
 	}
 	return true;
+}
+
+DWORD CCommClass::PowerGetFileSize(const TCHAR *file)
+{
+	struct _stat buf;
+	int result = 0;
+	result = _tstat( file, &buf );
+	if( result != 0 )
+		return 0;
+	else
+		return buf.st_size;	
 }

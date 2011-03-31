@@ -3,13 +3,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-//#include "HHVClient.h"
 #include "Player.h"
 #include <process.h>
-//#include "./TraceLog.h"
 #include "./DvrSDKErr.h"
 #include "./CommClass.h"
-#include "./struct_TCPServ.h"
+#include "./NetDef.h"
 #include "./PlayMp4H_fFunDef.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -389,7 +387,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
     ZeroMemory(&response, sizeof(response));
 
     request.header.command = SYSTEM_MONITOR_START_DIRECT;
-    request.header.size = sizeof(request) - sizeof(COMMAND_HEADER);
+    request.header.length = sizeof(request) - sizeof(COMMAND_HEADER);
     strncpy((char*)request.dvrIP, clientInfo->connInfo.ip, sizeof(request.dvrIP)-1 );
 	request.dvrPort	= clientInfo->connInfo.port;
     strcpy(request.userName, clientInfo->connInfo.userName);
@@ -398,7 +396,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
     request.childstream = clientInfo->childstream;
     //request.dvrtype = clientInfo->connInfo;
     //request.subtype = clientInfo->connInfo.subType;
-    //request.modelID = clientInfo->connInfo.modelID;  //2009-04-10 ma
+    //request.modelID = clientInfo->connInfo.modelID; 
     //request.transType = 0;//tcp方式
     
     request.u32DVRMaxLinkNum = 60;
@@ -442,7 +440,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
     }
 
     response.n2h();
-	if( response.header.command == SYSTEM_VS_REQUEST_ACCEPT )
+	if( response.header.command == SYSTEM_REQUEST_ACCEPT )
 	{
         TRACE("(MonitorStartCmdMT) Accept:%d n:%d\r\n",
             response.header.command, htonl(response.header.command));
@@ -576,7 +574,7 @@ int CPlayer::PlayStartCmdByTime( SOCKET sk, SYSTEM_VIDEO_FILE* recdFile, char* s
     memset( &msg, 0x00, sizeof(msg));
     //msg.header.CmdType = 0x05;          //CMD_SYSTEMPLAYBACK   0x05     CMD_DVRPLAYBACK      0x06   
     msg.header.command = SYSTEM_VIDEO_Playback_ByTime_REQUEST;
-    msg.header.size = sizeof(msg) - sizeof(COMMAND_HEADER);
+    msg.header.length = sizeof(msg) - sizeof(COMMAND_HEADER);
     msg.channel = recdFile->channel;
     //msg.data = recdFile->video;  //文件标签
     msg.StartDate = recdFile->start_date;
@@ -597,7 +595,7 @@ int CPlayer::PlayStartCmdByTime( SOCKET sk, SYSTEM_VIDEO_FILE* recdFile, char* s
         return HHV_ERROR_RECV;
     }
 	
-    if( htonl(msgresp.command) != SYSTEM_SS_UPDATE_OK )
+    if( htonl(msgresp.command) != SYSTEM_REQUEST_ACCEPT )
     {
        return -1;
     }

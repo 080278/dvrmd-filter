@@ -65,7 +65,7 @@ class CMutex
 	
 public:
     CMutex() {
-		m_hMutex	 =  ::CreateMutex( NULL, FALSE, _T("") );
+		m_hMutex	 =  ::CreateMutex( NULL, FALSE, _T(""));
     };
 	
     ~CMutex() {
