@@ -164,6 +164,8 @@
     <ClCompile Include="DVRMetaDataHandler.cpp" />
     <ClCompile Include="DVRPlayer.cpp" />
     <ClCompile Include="DVRSettings.cpp" />
+    <ClCompile Include="LoginDvr.cpp" />
+    <ClCompile Include="LoginDvrMgr.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
     <ClCompile Include="FontSize.cpp" />
@@ -177,9 +179,11 @@
     </ClCompile>
     <ClCompile Include="StreamParser.cpp" />
     <ClCompile Include="Sync_Locks.cpp" />
+    <ClCompile Include="UploadFile.cpp" />
+    <ClCompile Include="UploadFileMgr.cpp" />
+    <ClCompile Include="UploadFile_PV.cpp" />
     <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="VolumeCtrl.cpp" />
-    <ClCompile Include="WatermarkDlg.cpp" />
     <ClCompile Include="WRIFF.CPP" />
     <ClCompile Include="XColorStatic.cpp" />
     <ClCompile Include="XScrollBar.cpp" />
@@ -258,6 +262,8 @@
     <ClInclude Include="DVRMetaDataHandler.h" />
     <ClInclude Include="DVRPlayer.h" />
     <ClInclude Include="DVRSettings.h" />
+    <ClInclude Include="LoginDvr.h" />
+    <ClInclude Include="LoginDvrMgr.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
     <ClInclude Include="memdc.h" />
@@ -271,10 +277,11 @@
     <ClInclude Include="StreamParser.h" />
     <ClInclude Include="Sync_Locks.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="UploadFile.h" />
+    <ClInclude Include="UploadFileMgr.h" />
     <ClInclude Include="Utilities.h" />
     <ClInclude Include="vkey.h" />
     <ClInclude Include="VolumeCtrl.h" />
-    <ClInclude Include="WatermarkDlg.h" />
     <ClInclude Include="watermarkinfo.h" />
     <ClInclude Include="WRIFF.H" />
     <ClInclude Include="XColorStatic.h" />

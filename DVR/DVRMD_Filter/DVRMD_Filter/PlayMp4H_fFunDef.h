@@ -1,6 +1,6 @@
 #ifndef __PLAYMP4H_FFUNDEF_H
 #define __PLAYMP4H_FFUNDEF_H
-#include "PlayM4.h"
+#include "playm4.h"
 
 typedef  BOOL    (__stdcall *fPlayM4_Play)(LONG nPort, HWND hWnd);
 typedef  BOOL    (__stdcall *fPlayM4_OpenStream)(LONG nPort,PBYTE pFileHeadBuf,DWORD nSize,DWORD nBufPoolSize);

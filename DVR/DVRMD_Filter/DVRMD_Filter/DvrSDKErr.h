@@ -4,6 +4,7 @@
 //错误定义
 
 #define HHV_ERROR_CREATESOCKET	-10		//创建socket失败
+#define HHV_ERROR_TIMEOUT		-30
 #define HHV_ERROR_CONNECT		-40		//建立连接失败
 #define HHV_ERROR_SEND			-49		//发送数据失败
 #define HHV_ERROR_RECV			-50		//接收数据失败
@@ -27,5 +28,23 @@
 #define HHV_ERROR_RECORDCHAN_GETSTATE		-109			//获取录像通道状态失败
 #define HHV_ERROR_USERID_INVALID			-110				//用户ID失效
 #define HHV_ERROR_NoFilePlayBack			-120				//无录像文件
+
+#define HHV_ERROR_NOLOGIN					-130		//没有登录
+
+#define HHV_ERROR_INVALID_USERNAMEORPWD		-140		
+#define HHV_ERROR_GROUP_NOTALLOCATE			-141
+#define HHV_ERROR_ADMINI_ONLINE				-142
+#define HHV_ERROR_DataBase_ERROR			-143  //数据库出错, 无法验证用户
+#define HHV_ERROR_USER_NORESON				-144  //未知原因
+
+#define HHV_ERROR_STOP_STATUS				-150
+#define HHV_ERROR_LOCALLOGINMAX			-151
+#define HHV_ERROR_INVALIDPARA				-152
+
+#define HHV_ERROR_OPENFILE			-160
+#define HHV_ERROR_UPDATEBEGIN		-170//开始更新失败
+#define HHV_ERROR_READFILE			-171//读文件失败
+#define HHV_ERROR_UPDATEDATA		-172
+#define HHV_ERROR_UPDATEND			-173
 
 #endif

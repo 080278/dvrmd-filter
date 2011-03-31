@@ -13,7 +13,6 @@
 #include "XColorStatic.h"
 #include "XScrollBar.h"
 #include "VolumeCtrl.h"
-#include "WatermarkDlg.h"
 #include "DVRPlayer.h"
 #include "BtnST.h"
 
@@ -94,7 +93,6 @@ public:
 	CBitmap		m_OverlayBmp;                   // overlay bmp
 	
 	WINDOWPLACEMENT   m_OldWndpl;               // save dialog window pos
-	CWatermarkDlg*     m_pWatermarkDlg;			// watermark dialog
 	PBYTE			  m_pQcifTempBuf;			// convert qcif to avi
 
 public:
@@ -232,7 +230,6 @@ protected:
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
 	afx_msg void OnDestroy();
 	//}}AFX_MSG
-	afx_msg LRESULT WatermarkOk(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT VideoCtrlOK(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT PlayMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT EncChangeMessage(WPARAM wParam, LPARAM lParam);

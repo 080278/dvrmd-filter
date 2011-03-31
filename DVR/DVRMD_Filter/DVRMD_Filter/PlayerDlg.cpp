@@ -170,8 +170,6 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_COMMAND_RANGE(IDC_PLAY, IDC_SOUND, OnButtonItem)
 	ON_MESSAGE(WM_FILE_END, PlayMessage)
 	ON_MESSAGE(WM_ENC_CHANGE,EncChangeMessage)
-//	ON_MESSAGE(WM_DISPLAY_OK, DisplayOk)
-	ON_MESSAGE(WM_WATERMARK_OK, WatermarkOk)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
 
@@ -292,15 +290,9 @@ BOOL CPlayerDlg::OnInitDialog()
 	SetWindowText(_T("Player"));
 #endif
 
-	// init sub dlg
-	m_pWatermarkDlg	     =  new CWatermarkDlg(this);
-
 	// init state
 	//m_enumState = State_Close;
 	SetState();
-
-
-
 
 	//// used for command line
 	//if(m_strPlayFileName.Compare(_T("")))
@@ -2681,7 +2673,7 @@ void CPlayerDlg::GetWatermark()
 	// TODO: Add your command handler code here
 	//	WaterMarkDlg dlg;
 	//	dlg.DoModal();
-	m_pWatermarkDlg->Create(IDD_WATERMARK);
+//	m_pWatermarkDlg->Create(IDD_WATERMARK);
 	//m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED);
 }
 
@@ -2757,40 +2749,10 @@ void CPlayerDlg::OnDestroy()
 
 	GetPlayer()->Destory();
 
-
-
-	//if(m_pSeek != NULL)
-	//{
-	//	m_pSeek->DestroyWindow();
-	//	delete m_pSeek;
-	//	m_pSeek = NULL;
-	//}
-
-	//if(m_pDisplayRegion != NULL)
-	//{
-	//	m_pDisplayRegion->DestroyWindow();
-	//	delete m_pDisplayRegion;
-	//	m_pDisplayRegion = NULL;
-	//}
-
-	//if(m_pVideoControl != NULL)
-	//{
-	//	m_pVideoControl->DestroyWindow();
-	//	delete m_pVideoControl;
-	//	m_pVideoControl = NULL;
-	//}
-
 	if(m_bConvertAVI)
 	{
 		g_classAVI.ReleaseResource();
 		m_bConvertAVI = FALSE;
-	}
-
-	if(m_pWatermarkDlg != NULL)
-	{
-		m_pWatermarkDlg->DestroyWindow();
-		delete m_pWatermarkDlg;
-		m_pWatermarkDlg = NULL;
 	}
 
 	if(m_pQcifTempBuf)
@@ -2798,16 +2760,6 @@ void CPlayerDlg::OnDestroy()
 		delete []m_pQcifTempBuf;
 		m_pQcifTempBuf = NULL;
 	}
-}
-
-LRESULT CPlayerDlg::WatermarkOk(WPARAM /*wParam*/, LPARAM /*lParam*/)
-{
-	m_pWatermarkDlg->DestroyWindow();
-	if(GetPlayer()->GetPlayState() == State_Pause || GetPlayer()->GetPlayState() == State_Play)
-	{
-		//m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_ENABLED);
-	}
-	return 0;
 }
 
 BOOL CPlayerDlg::SetDiplayMode(int nID)
@@ -2869,10 +2821,10 @@ void CPlayerDlg::Stop()
 			m_bConvertAVI = FALSE;    
 		}
 
-		if(m_pWatermarkDlg->m_hWnd)
-		{
-			m_pWatermarkDlg->Clear();
-		}
+		//if(m_pWatermarkDlg->m_hWnd)
+		//{
+		//	m_pWatermarkDlg->Clear();
+		//}
 	}
 }
 
@@ -2911,10 +2863,10 @@ void CPlayerDlg::Open(LPCTSTR szFile)
 void CPlayerDlg::Close()
 {
 	GetPlayer()->Close();
-	if(m_pWatermarkDlg)
-	{
-		m_pWatermarkDlg->DestroyWindow();
-	}
+	//if(m_pWatermarkDlg)
+	//{
+	//	m_pWatermarkDlg->DestroyWindow();
+	//}
 
 	m_nWidth = 352;
 	m_nHeight = 288;

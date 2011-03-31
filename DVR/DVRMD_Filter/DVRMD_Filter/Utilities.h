@@ -16,13 +16,13 @@ class CUtilities
 {
 public:
 	//取出exe程序所在的路径
-	static bool ExtractAppPath( LPTSTR chPath );
-	static BOOL CreateDirectory(LPTSTR path);
+	static bool ExtractAppPath( TCHAR* chPath );
+	static BOOL CreateDirectory(TCHAR* path);
 	//根据文件名获得文件大小
-	static DWORD PowerGetFileSize(LPCTSTR file);
+	static DWORD PowerGetFileSize(const TCHAR *file);
 	
 	//压缩buf中的空格
-	static BOOL Trim(LPTSTR buf);
+	static BOOL Trim(TCHAR* buf);
 	
 	//时间转化函数
 	static int LongToTime( unsigned long dat , SYSTEMTIME* sysTime ) ;

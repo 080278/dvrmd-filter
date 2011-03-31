@@ -58,7 +58,7 @@ public:
     int         m_videoWindowNum;   //当前画面分割数
     void        SetOsdTextEx(int index, int line, char* text, COLORREF osdcolor);
 private:
-     BOOL       CheckHwndFree_NoMutex(HWND hWnd, int& index);//检查一个窗口是否空闲. 空闲则返回为true; 占用则返回false 2008-07-11 ma
+     BOOL       CheckHwndFree_NoMutex(HWND hWnd, int& index);//检查一个窗口是否空闲. 空闲则返回为true; 占用则返回
     
 };
 
@@ -86,7 +86,7 @@ extern fHWnd_SetPaintBG         HWnd_SetPaintBG        ;
 extern fHWnd_GetIndex           HWnd_GetIndex          ;
 extern fHWnd_SetSplitMode_WithOrder HWnd_SetSplitMode_WithOrder;
 extern fHWnd_SetOsdTextEx       HWnd_SetOsdTextEx;
-extern fHWnd_GetVisible         HWnd_GetVisible; //2008-08-25
+extern fHWnd_GetVisible         HWnd_GetVisible; 
 
 extern HMODULE ghWndDLL ;
 

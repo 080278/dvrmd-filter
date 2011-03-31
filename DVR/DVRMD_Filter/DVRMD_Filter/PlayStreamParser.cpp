@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "PlayStreamParser.h"
 #include "ComSocket.h"
-#include "struct_TCPServ.h"
+#include "./NetDef.h"
 #include "DvrSDkErr.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ int CPlayStreamParser::GetData_Vs(CComSocket * comSocket, char* buf, int len )
     if( !comSocket->Receive((char*)&cmd64, sizeof(cmd64)) )
         return HHV_ERROR_RECV;
 	
-	if(SYSTEM_SS_REQUEST_ACCEPT != ntohl(cmd64.command))
+	if(SYSTEM_REQUEST_ACCEPT != ntohl(cmd64.command))
 	{
 		return 0;
 	}
@@ -109,7 +109,7 @@ bool CPlayStreamParser::MpegCacheSeek_Vs(CComSocket * comSocket, __int64 positio
     comSocket->Send((char*)&cmd64, sizeof(cmd64));
     comSocket->Receive((char*)&cmd64, sizeof(cmd64)- 2 * sizeof(int));
 	
-	if ( ntohl( cmd64.command ) == SYSTEM_SS_UPDATE_OK )
+	if ( ntohl( cmd64.command ) == SYSTEM_REQUEST_ACCEPT )
 	{
 		return true;
 	}

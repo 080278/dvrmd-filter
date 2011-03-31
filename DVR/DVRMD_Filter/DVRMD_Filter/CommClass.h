@@ -21,7 +21,7 @@ struct TIME_INFO;
 class CCommClass  
 {
 public:
-	static BOOL ExtractFilePath( LPTSTR chPath );
+	static BOOL ExtractFilePath( TCHAR* chPath );
 	
 	static BOOL SetLocalComputerTime(LPSYSTEMTIME lpSystemTime);
 	static VOID LongToTime( ULONG dat , DATE_INFO * date , TIME_INFO *time );
@@ -30,11 +30,13 @@ public:
 	static UINT	GetCurrentTime();
 	static unsigned long CTimeToULong(CTime time);
 
-	static BOOL GetLocalIP( LPTSTR chIP, LPTSTR chHostName = NULL );	
+	static BOOL GetLocalIP( TCHAR* chIP, TCHAR* chHostName = NULL );	
 
-	static BOOL CreateDirectory(LPTSTR path);
-	static BOOL CreateFullDirectory(LPTSTR path);
+	static BOOL CreateDirectory(TCHAR* path);
+	static BOOL CreateFullDirectory(TCHAR* path);
 	static BOOL CheckIP( std::string ip );
+
+	static DWORD PowerGetFileSize(const TCHAR *file);
 };
 
 
@@ -44,8 +46,11 @@ public:
 	BOOL	DoTimeSynch(DATE_INFO& di, TIME_INFO& ti);
 };
 
-int				Send( SOCKET sk, char* buf, int size, int flag);
-int				Recv( SOCKET sk, char* buf, int size, int flag);
+int Send( SOCKET sk, char* buf, int size, int flag);
+int	Recv( SOCKET sk, char* buf, int size, int flag);
 
+SOCKET CreateSocket( int type, INT nTimeOut );
+int Connect( SOCKET sk, char* remote, int port, int nTimeOut );
+int SendAndRecv(SOCKET sk, char *msg, int msgSize, char *rsp, int rspSize);
 
 #endif // !defined(AFX_COMMCLASS_H__991C364C_5B5F_47B9_9B6E_B899E2152F95__INCLUDED_)

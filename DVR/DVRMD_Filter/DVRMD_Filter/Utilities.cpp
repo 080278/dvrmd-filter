@@ -34,10 +34,10 @@ HMODULE GetCurrentModule()
 #endif
 }
 
-bool CUtilities::ExtractAppPath( LPTSTR chPath )
+bool CUtilities::ExtractAppPath( TCHAR* chPath )
 {
-	TCHAR path[MAX_PATH] = {0X00};
-	GetModuleFileName(GetCurrentModule(),path,sizeof(path));
+	TCHAR path[256] = {0X00};
+	GetModuleFileName(GetCurrentModule(),(TCHAR*)path,sizeof(path));
 	//CString strPath = path;
 	TCHAR* pos = _tcsrchr( path, '\\' );
 	if( pos == NULL)
@@ -47,7 +47,7 @@ bool CUtilities::ExtractAppPath( LPTSTR chPath )
 	return true;
 }
 
-BOOL CUtilities::CreateDirectory(LPTSTR path)
+BOOL CUtilities::CreateDirectory(TCHAR* path)
 {
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength              = sizeof(sa);
@@ -57,22 +57,22 @@ BOOL CUtilities::CreateDirectory(LPTSTR path)
 	return ::CreateDirectory( path, &sa );
 }
 
-DWORD CUtilities::PowerGetFileSize(LPCTSTR szFile)
+DWORD CUtilities::PowerGetFileSize(const TCHAR *file)
 {
 	struct _stat buf;
 	int result = 0;
-	result = _tstat ( szFile, &buf );
+	result = _tstat( file, &buf );
 	if( result != 0 )
 		return 0;
 	else
 		return buf.st_size;	
 }
 
-BOOL CUtilities::Trim(LPTSTR buf)
+BOOL CUtilities::Trim(TCHAR* buf)
 {
 	int size = _tcslen( buf );
 	TCHAR* tempbuf = new TCHAR[size + 1];
-	memset( tempbuf, 0x00, size + 1 );
+	memset( tempbuf, 0x00, (size + 1)*sizeof(TCHAR) );
 	int i = 0;
 	int j = 0;
 	while( buf[i] != '\0' ) 
