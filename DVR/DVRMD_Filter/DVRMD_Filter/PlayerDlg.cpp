@@ -452,14 +452,6 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 			break;
 
-			/*		case VK_T:
-			nMenuState = //m_pMainMenu->GetMenuState(IDM_CUT_FILE, MF_BYCOMMAND);
-			if(nMenuState != MF_GRAYED)
-			{
-			CutFile();
-			}
-			break;
-			*/
 		case VK_L:
 			Locate();
 			break;
@@ -1953,16 +1945,6 @@ void CPlayerDlg::SetDisplayRegion(RECT Rect)
 	UpdateWindow();
 }
 
-void CPlayerDlg::CutFile() 
-{
-	// TODO: Add your command handler code here
-	//CCutFile cutDlg(GetPlayer());
-	////if(cutDlg.SetFileName(m_strPlayFileName))
-	//{
-	//	cutDlg.DoModal();
-	//}
-}
-
 void CPlayerDlg::SetSecretKey()
 {
 	CSetKeyDlg keyDlg(GetPlayer()->GetPort());
@@ -2488,10 +2470,6 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		SetState();
 		break;
 
-		/*	case IDM_CUT_FILE:
-		CutFile();
-		break;
-		*/
 	case IDM_SET_KEY:
 		SetSecretKey();
 		break;

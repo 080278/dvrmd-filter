@@ -36,12 +36,12 @@ fPlayM4_GetSourceBufferRemain	HK_PlayM4_GetSourceBufferRemain = NULL;
 HMODULE ghMP4SDK = NULL;
 int  LoadPlayMp4Dll()
 {
-	char path[MAX_PATH] = {0x00};
+	TCHAR path[MAX_PATH] = {0x00};
 	CUtilities::ExtractAppPath( path );
 
-	strcat( path, "/PlayCtrl/");
+	_tcscat( path, _T("/PlayCtrl/"));
 	
-	strcat( path, "PlayCtrl.dll");
+	_tcscat( path, _T("PlayCtrl.dll"));
 	
 	ghMP4SDK = LoadLibraryEx(path, NULL, LOAD_WITH_ALTERED_SEARCH_PATH );
 	
@@ -51,7 +51,7 @@ int  LoadPlayMp4Dll()
 		
 		char buf[128] = {0x00};
 		sprintf( buf , "加载动态库HikPlayM4.dll失败 error:%d  Path:%s\r\n" ,dwError, path ) ;
-		MessageBox( NULL , buf , "Error" , MB_OK ) ;		
+		MessageBoxA( NULL , buf , "Error" , MB_OK ) ;		
 		return HHV_ERROR_LOADDLL_SDK;
 	}
 	
@@ -112,7 +112,7 @@ int  LoadPlayMp4Dll()
 	{
 		FreeLibrary(ghMP4SDK);
 		ghMP4SDK = NULL;
-		MessageBox( NULL, "获取PlayMP4接口函数地址出错", "Error", MB_OK );
+		MessageBox( NULL, _T("获取PlayMP4接口函数地址出错"), _T("Error"), MB_OK );
 		return HHV_ERROR_LOADDLL_FUNCTION;
 	}
 	

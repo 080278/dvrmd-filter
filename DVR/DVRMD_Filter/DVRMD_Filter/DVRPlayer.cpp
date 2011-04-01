@@ -22,7 +22,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_rcDisplayRegion = *rcDisplayRegion;
 	m_dwMaxFileTime = 0;
 	m_bFileRefCreated = false;
-	m_nCapPicType = eBMP;
+	m_nCapPicType = CDVRSettings::eBMP;
 	m_npic_jpeg = 0;
 	m_npic_bmp = 0;
 	m_hParentWnd = hParentWnd;

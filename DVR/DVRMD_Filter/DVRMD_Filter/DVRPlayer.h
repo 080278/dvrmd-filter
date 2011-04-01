@@ -2,6 +2,7 @@
 
 #include "PlayM4.h"
 #include "watermarkinfo.h"
+#include "DVRSettings.h"
 
 static UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the file is end.
 static UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
@@ -146,8 +147,7 @@ public:
 	bool  GetPictureSize(LONG* plWidth, LONG* plHeight);
 	void  GetPic(PBYTE pImage, DWORD nBufSize);
 	void  Cappic();
-	enum eCapPicType{eJPEG, eBMP};
-	void  SetCapturePicType(eCapPicType eType)
+	void  SetCapturePicType(CDVRSettings::eCapPicType eType)
 	{
 		m_nCapPicType = eType;
 	}
@@ -210,7 +210,7 @@ private:
 	BOOL		m_bHighFluid;					// hight fluid motion
 	DWORD		m_dwMaxFileTime;				// Media File duration.
 	bool		m_bFileRefCreated;				// Back seek Index is created.
-	eCapPicType m_nCapPicType;
+	CDVRSettings::eCapPicType m_nCapPicType;
 	CString		m_strCapPicPath;				//Capture path;
 	UINT		m_npic_bmp;						// capped bmp  pic number
 	UINT		m_npic_jpeg;					// capped jpeg pic number

@@ -3,9 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-#include "HHVClient.h"
 #include "PlayerMgr.h"
-#include "TraceLog.h"
 #include "DvrSDKErr.h"
 #include "PlayMp4H_fFunDef.h"
 
@@ -42,7 +40,7 @@ VOID CPlayerMgr::Clearup()
 {
 	if( m_status == STOP_STATUS )
 	{
-		TRACE_LOG("m_status == STOP_STATUS, 退出CPlayerMgr::UnInit  \r\n\r\n");
+		TRACE("m_status == STOP_STATUS, 退出CPlayerMgr::UnInit  \r\n\r\n");
 		return ;
 	}
 	for(int i = 0; i < MAX_PLAYER; i++)
@@ -59,14 +57,14 @@ VOID CPlayerMgr::Clearup()
 
 INT CPlayerMgr::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 {
-	//TRACE_LOG("进入CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d, transType = %d\r\n", userID, channel, transType);
+	//TRACE("进入CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d, transType = %d\r\n", userID, channel, transType);
 	
 	CPlayer* player = NULL;
 	
 	DWORD dwLock = m_csLock.Lock(90*1000);
 	if( dwLock != WAIT_OBJECT_0 )//不能获得锁
 	{
-		//TRACE_LOG("CPlayerMgr::OpenMonitor中dwLock != WAIT_OBJECT_0 ，退出, userID = %d, chanNo =%d\r\n", userID, channel);
+		//TRACE("CPlayerMgr::OpenMonitor中dwLock != WAIT_OBJECT_0 ，退出, userID = %d, chanNo =%d\r\n", userID, channel);
 		return HHV_ERROR_ENTER_CSLOCK;
 	}
 	int index = 0;
@@ -94,13 +92,13 @@ INT CPlayerMgr::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 		m_player[index] = NULL;
 		return ret;
 	}	
-	//TRACE_LOG("退出CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d， realHandle = %d\r\n", userID, channel, index);
+	//TRACE("退出CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d， realHandle = %d\r\n", userID, channel, index);
 	
 	return index;	
 }
 INT CPlayerMgr::StopMonitor( int handle )
 {	
-	TRACE_LOG("关闭监视 CPlayerMgr::CloseMonitor 进入 handle = %d\r\n\r\n",handle);
+	TRACE("关闭监视 CPlayerMgr::CloseMonitor 进入 handle = %d\r\n\r\n",handle);
 	if( handle >= MAX_PLAYER || handle < 0 )
 		return HHV_ERROR_INVALID_PARA;
 
@@ -119,7 +117,7 @@ INT CPlayerMgr::StopMonitor( int handle )
 		player->Clearup();
 		delete player;		
 	}
-	TRACE_LOG("成功退出CPlayerMgr::StopMonitor\r\n\r\n");
+	TRACE("成功退出CPlayerMgr::StopMonitor\r\n\r\n");
 	return 0;
 }
 
@@ -141,7 +139,7 @@ int CPlayerMgr::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 	DWORD dwLock = m_csLock.Lock(90*1000);
 	if( dwLock != WAIT_OBJECT_0 )//不能获得锁
 	{
-		//TRACE_LOG("CPlayerMgr::OpenMonitor中dwLock != WAIT_OBJECT_0 ，退出, userID = %d, chanNo =%d\r\n", userID, channel);
+		//TRACE("CPlayerMgr::OpenMonitor中dwLock != WAIT_OBJECT_0 ，退出, userID = %d, chanNo =%d\r\n", userID, channel);
 		return HHV_ERROR_ENTER_CSLOCK;
 	}
 	int index = 0;
@@ -169,13 +167,13 @@ int CPlayerMgr::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 		m_player[index] = NULL;
 		return ret;
 	}	
-	//TRACE_LOG("退出CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d， realHandle = %d\r\n", userID, channel, index);
+	//TRACE("退出CPlayerMgr::OpenMonitor, userID = %d, chanNo =%d， realHandle = %d\r\n", userID, channel, index);
 	
 	return index;	
 }
 int CPlayerMgr::StopPlayBackByTime(int handle)
 {
-	TRACE_LOG("关闭回放 CPlayerMgr::StopPlayBackByTime 进入 handle = %d\r\n\r\n",handle);
+	TRACE("关闭回放 CPlayerMgr::StopPlayBackByTime 进入 handle = %d\r\n\r\n",handle);
 	if( handle >= MAX_PLAYER || handle < 0 )
 		return HHV_ERROR_INVALID_PARA;
 	
@@ -194,6 +192,6 @@ int CPlayerMgr::StopPlayBackByTime(int handle)
 		player->Clearup();
 		delete player;		
 	}
-	TRACE_LOG("成功退出CPlayerMgr::StopPlayBackByTime\r\n\r\n");
+	TRACE("成功退出CPlayerMgr::StopPlayBackByTime\r\n\r\n");
 	return 0;
 }
