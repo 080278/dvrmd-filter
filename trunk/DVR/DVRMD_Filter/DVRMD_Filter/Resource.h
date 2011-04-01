@@ -145,7 +145,6 @@
 #define IDC_PLAY_SLIDER                 1216
 #define IDC_PLAY_RECT_SLIDER            1217
 #define IDC_SOUND_SLIDER                1218
-#define IDC_PLAYSTATETEXT               1222
 #define IDM_VIEW_FULLSCREEN             32775
 #define IDM_VIEW_ZOOM_50                32777
 #define IDM_VIEW_ZOOM_100               32778

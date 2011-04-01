@@ -105,7 +105,31 @@ public:
 	void StopMonitor();
 
 	// Play file interfaces
+	void  Open(LPCTSTR szFile = NULL);
+	void  Close();
+	DWORD GetDuration(){return m_dwMaxFileTime;}	// Get Media File duration.
 
+	// Play operation interfaces
+	void  Play();
+	void  Pause();
+	void  Stop();
+	BOOL  SetPosition(DWORD dwTime);	// Set play position: microsecond
+	DWORD GetCurrentPosition();			// Get play position: microsecond.
+	DWORD GetCurrentFrameNum();		
+	BOOL  SetVolume(WORD wVolume);
+
+	// goto start / slow / fast / goto end
+	void  GotoStart();
+	void  Slow();
+	void  Fast();
+	void  AdjustSpeed(int nSpeed);
+	void  GotoEnd();
+
+	// step back / step fore / cap picture
+	bool  CanStepBackword(){return m_bFileRefCreated;}
+	void  CanStepBackword(bool canStepBack){m_bFileRefCreated = canStepBack;}
+	void  StepBackward();
+	void  StepForward();
 public:
 	//Setting Interfaces.
 	CDVRSettings&	GetDVRSettings(){
@@ -131,28 +155,7 @@ public:
 	bool SetTimerType(DWORD dwTimerType = TIMER_1);	//TIMER_1: When playing file
 											//TIMER_2: When preview 
 	DWORD GetTimerType();
-	// play / pause / stop
-	void  Play();
-	void  Pause();
-	void  Stop();
-	BOOL  SetPosition(DWORD dwTime);	// Set play position: microsecond
-	DWORD GetCurrentPosition();			// Get play position: microsecond.
-	DWORD GetCurrentFrameNum();		
-	DWORD GetDuration(){return m_dwMaxFileTime;}
-	BOOL  SetVolume(WORD wVolume);
 
-	// goto start / slow / fast / goto end
-	void  GotoStart();
-	void  Slow();
-	void  Fast();
-	void  AdjustSpeed(int nSpeed);
-	void  GotoEnd();
-
-	// step back / step fore / cap picture
-	bool  CanStepBackword(){return m_bFileRefCreated;}
-	void  CanStepBackword(bool canStepBack){m_bFileRefCreated = canStepBack;}
-	void  StepBackward();
-	void  StepForward();
 	void  SetPictureQuality(BOOL bHighQuality)
 	{
 		m_bPicQuality = bHighQuality;
@@ -162,11 +165,10 @@ public:
 		m_bDeflash = bDeflash;
 	}
 	bool  GetPictureSize(LONG* plWidth, LONG* plHeight);
-	void  GetPic(PBYTE pImage, DWORD nBufSize);
 	void  Cappic();
 	void  SetCapturePicType(CDVRSettings::eCapPicType eType)
 	{
-		m_nCapPicType = eType;
+		m_DVRSettings.m_eCapturePicType = eType;
 	}
 	void SetCapturePath(LPCTSTR szFolder)
 	{
@@ -200,8 +202,6 @@ public:
 	LPCTSTR MyErrorToString(DWORD error);
 public:
 	// file operation:
-	void  Open(LPCTSTR szFile = NULL);
-	void  Close();
 	void  OpenStream();
 	void  CloseStream();
 	static WATERMARK_VER1_INFO m_strWaterMark;
@@ -214,15 +214,17 @@ public:
 private:
 	void  OpenFile();
 	void  CloseFile();
+	void  GetPic(PBYTE pImage, DWORD nBufSize);
+
 	// callback function
 
 	//OnDrawFun
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 private:
-	ePlayState m_enumState;              // now the play state
-	LONG	m_lPort;
-	CString m_strPlayFileName;
+	ePlayState	m_enumState;              // now the play state
+	LONG		m_lPort;
+	CString		m_strPlayFileName;
 
 	BOOL		m_bStreamType;							//Stream or File
 
@@ -236,7 +238,7 @@ private:
 	BOOL		m_bHighFluid;					// hight fluid motion
 	DWORD		m_dwMaxFileTime;				// Media File duration.
 	bool		m_bFileRefCreated;				// Back seek Index is created.
-	CDVRSettings::eCapPicType m_nCapPicType;
+	//CDVRSettings::eCapPicType m_nCapPicType;
 	CString		m_strCapPicPath;				//Capture path;
 	UINT		m_npic_bmp;						// capped bmp  pic number
 	UINT		m_npic_jpeg;					// capped jpeg pic number
@@ -254,8 +256,8 @@ private:
 
 private:
 	CDVRSettings	m_DVRSettings;
-	//CLoginDvrMgr	m_DVRLoginMgr;
-	//CHWndManager	m_HWndMgr;
-	//CPlayerMgr		m_PlayerMgr;
+	CLoginDvrMgr	m_DVRLoginMgr;
+	CHWndManager	m_HWndMgr;
+	CPlayerMgr		m_PlayerMgr;
 	int				m_UserID;
 };

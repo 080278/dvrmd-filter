@@ -81,14 +81,6 @@ public:
 	CRect		m_rcDisplay;                    // mutli display rect
 	CPoint		m_StartPoint;                   // start point
 
-	//HANDLE		m_hEventKill;                   // kill inputstream thread event
-	//HANDLE		m_hEventInput;                  // inputstream thread event
-	//HANDLE		m_hThread;                      // inputstream thread handle
-	//HANDLE		m_hStreamFile;                  // input file
-
-	CString     m_strSaveAVIPath;               // saveing avi  file path
-	
-	CBitmap		m_HikvisionBmp;                 // hikvision bmp
 	CBitmap		m_BlackBmp;                     // black bmp
 	CBitmap		m_OverlayBmp;                   // overlay bmp
 	
@@ -103,19 +95,13 @@ public:
 	
 	BOOL PreTranslateMessage(MSG* lpmsg);       // overload to handle keydown message
 	
-	void  SetSecretKey();
-
 	// view operation:
 	void  ViewFullScreen();
 	void  ViewZoom(UINT nID);
-	void  Infomation();
-	void  SetDisplay();
-	//BOOL  SetDevice(UINT nID);
 	
 	// control operation:
 	void  Repeat();
-	void  Locate();
-  
+ 
 	// option operation:
 	void  StreamType();
 	
@@ -123,7 +109,6 @@ public:
 	void  Quality();
 	void  HighFluid();
 	void  ImageSharpenLevel(UINT nID);
-	//void  SetDecodeType(UINT nID);
 	
 	void  DisplayType(UINT nID);
 	void  SelectTimer(UINT nID);
@@ -180,8 +165,7 @@ public:
 	CButtonST		m_ctrlBtnPlay;
 	CButtonST		m_ctrlBtnPause;
 	CStatic			m_ctrlVideoPic;
-	CString			m_strPlayStateText;
-	CXColorStatic	m_ctrlPlayText;
+	//CXColorStatic	m_ctrlPlayText;
 	//}}AFX_DATA
 	CVolumeCtrl		m_SoundSlider;
 	CXScrollBar		m_PlaySlider;

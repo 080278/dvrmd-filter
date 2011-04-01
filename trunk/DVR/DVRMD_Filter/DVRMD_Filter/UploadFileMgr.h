@@ -10,7 +10,6 @@
 #endif // _MSC_VER > 1000
 #include "UploadFile.h"
 
-#include "Sync_Locks.h"
 #include "Utilities.h"
 
 #define MAX_UPLOADFILE_NUM	36

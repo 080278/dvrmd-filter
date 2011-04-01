@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 //#include "HHVClient.h"
+#include "Sync_Locks.h"
 #include "UploadFileMgr.h"
 
 #ifdef _DEBUG

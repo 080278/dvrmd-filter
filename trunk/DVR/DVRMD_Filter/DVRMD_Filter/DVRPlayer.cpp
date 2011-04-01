@@ -23,7 +23,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_rcDisplayRegion = *rcDisplayRegion;
 	m_dwMaxFileTime = 0;
 	m_bFileRefCreated = false;
-	m_nCapPicType = CDVRSettings::eBMP;
+	//m_DVRSettings.m_eCapturePicType = CDVRSettings::eBMP;
 	m_npic_jpeg = 0;
 	m_npic_bmp = 0;
 	m_hParentWnd = hParentWnd;
@@ -103,13 +103,12 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 
 void CDVRPlayer::Destory()
 {
-	NAME(PlayM4_Stop)(m_lPort);
-	NAME(PlayM4_CloseFile)(m_lPort);
+	Close();
+	//NAME(PlayM4_Stop)(m_lPort);
+	//NAME(PlayM4_CloseFile)(m_lPort);
 	NAME(PlayM4_RealeseDDraw)();
-
-	NAME(PlayM4_FreePort)(m_lPort);
-
 	NAME(PlayM4_ReleaseDDrawDevice)();
+	NAME(PlayM4_FreePort)(m_lPort);
 
 	m_lPort = -1;
 	m_enumState = CDVRPlayer::eState_Close;
@@ -421,7 +420,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 	DWORD   pImageSize	= 0;
 	
-	if(m_nCapPicType == 1)
+	if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eBMP)
 	{
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
@@ -464,7 +463,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		clsFile.Write(pImage, pImageSize);
 		clsFile.Close();
 
-		if(m_nCapPicType == 0)
+		if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
 		{
 			m_npic_bmp++;
 		}
