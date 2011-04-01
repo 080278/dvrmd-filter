@@ -164,11 +164,11 @@
     <ClCompile Include="DVRMetaDataHandler.cpp" />
     <ClCompile Include="DVRPlayer.cpp" />
     <ClCompile Include="DVRSettings.cpp" />
+    <ClCompile Include="HWndManager.cpp" />
     <ClCompile Include="LoginDvr.cpp" />
     <ClCompile Include="LoginDvrMgr.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
-    <ClCompile Include="PlayMp4H_fFunDef.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
     <ClCompile Include="FontSize.cpp" />
     <ClCompile Include="PlayerDlg.cpp" />
@@ -264,10 +264,10 @@
     <ClInclude Include="DVRMetaDataHandler.h" />
     <ClInclude Include="DVRPlayer.h" />
     <ClInclude Include="DVRSettings.h" />
+    <ClInclude Include="HWndManager.h" />
     <ClInclude Include="LoginDvr.h" />
     <ClInclude Include="LoginDvrMgr.h" />
     <ClInclude Include="PlayerMgr.h" />
-    <ClInclude Include="PlayMp4H_fFunDef.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
     <ClInclude Include="memdc.h" />

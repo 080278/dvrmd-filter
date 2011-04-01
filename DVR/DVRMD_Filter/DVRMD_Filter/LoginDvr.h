@@ -45,13 +45,13 @@ struct LOGIN_STRUCT
 class CLoginDvr
 {
 public:
-	CLoginDvr(TCHAR* dvrIP, int dvrPort, TCHAR* userName, TCHAR* userPwd, int index );
+	CLoginDvr(LPCTSTR dvrIP, int dvrPort, LPCTSTR userName, LPCTSTR userPwd, int index );
 	virtual ~CLoginDvr();
 
 	void	Startup();
 	void	Clearup();
 
-	int		Login(TCHAR* userName,  TCHAR* pwd, TCHAR* addr, int port );
+	int		Login(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port );
 	int		Logout( );
 
 	int		ReLogin( int index );
@@ -67,20 +67,20 @@ public:
 	int StartDVRRecord( int userID, int channel );
 	int StopDVRRecord( int userID, int channel );	
 	
-	int GetDvrVersion(long lUserID, char *buf);
+	int GetDvrVersion(long lUserID, LPTSTR buf);
 
-	bool IsSame( TCHAR* dvrIP, int dvrPort );
+	bool IsSame(LPCTSTR dvrIP, int dvrPort);
 	
 	int FindFileByTime(int userID, int channel, UINT startTime, UINT stopTime, WORD MaxCount, char *buf);
 
-	INT UploadCfgFile(const TCHAR* imageName );
+	INT UploadCfgFile(LPCTSTR imageName );
 private:
 	int				CheckUserID_T(int handle);
 	int				GetFreeIndex_T();	
-	int				LoginDvr_T(TCHAR* userName,  TCHAR* pwd, TCHAR* addr, int port,LOGIN_STRUCT* login);
+	int				LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port, LOGIN_STRUCT* login);
 	void			OnNetDisconnected_T(int retvalue );
 
-	int				LoginDvrCmd(SOCKET sk, TCHAR* strUser,TCHAR* strPass, LOGIN_STRUCT* login);
+	int				LoginDvrCmd(SOCKET sk, LPCTSTR strUser, LPCTSTR strPass, LOGIN_STRUCT* login);
 private:
 	bool			m_bExit;
 	HANDLE			m_hEventThreadExit;

@@ -16,10 +16,9 @@
 
 int g_connectTimeOut = 10*1000;
 
-extern HWND			g_hWnd;
 VOID __stdcall TimerProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime);
 
-CLoginDvr::CLoginDvr(TCHAR* pdvrIP, int pdvrPort, TCHAR* puserName, TCHAR* puserPwd, int nIndex)
+CLoginDvr::CLoginDvr(LPCTSTR pdvrIP, int pdvrPort, LPCTSTR puserName, LPCTSTR puserPwd, int nIndex)
 {
 	strcpy( m_loginInfo.dvrIP, CT2A(pdvrIP));
 	m_loginInfo.dvrPort = pdvrPort;
@@ -47,7 +46,7 @@ void CLoginDvr::Clearup()
 }
 
 //return the index handle
-int	CLoginDvr::Login(TCHAR* userName, TCHAR* pwd, TCHAR* addr, int port)
+int	CLoginDvr::Login(LPCTSTR userName, LPCTSTR pwd, LPCTSTR addr, int port)
 {
 	LOGIN_STRUCT* login = &m_loginInfo;
 	int index = m_index;
@@ -119,7 +118,7 @@ int CLoginDvr::CheckOnlineStatus( int index)
 	return ret;
 }
 
-int	CLoginDvr::LoginDvr_T(TCHAR* userName,  TCHAR* pwd, TCHAR* addr, int port,LOGIN_STRUCT* login )
+int	CLoginDvr::LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port, LOGIN_STRUCT* login )
 {
 	SOCKET sk = CreateSocket( 0, 30 );
 
@@ -289,7 +288,7 @@ int CLoginDvr::StopDVRRecord( int userID, int channel )
 //	return 0;
 //}
 
-int CLoginDvr::GetDvrVersion(long userID, char *buf)
+int CLoginDvr::GetDvrVersion(long userID, LPTSTR buf)
 {
 	//int ret = 0;
 	//	LOGIN_STRUCT* login = &m_loginInfo;	
@@ -333,7 +332,7 @@ int CLoginDvr::FindFileByTime(int userID, int channel, UINT startTime, UINT stop
 	
 }
 
-int CLoginDvr::LoginDvrCmd( SOCKET sk, TCHAR* strUser,TCHAR* strPass, LOGIN_STRUCT* login )
+int CLoginDvr::LoginDvrCmd( SOCKET sk, LPCTSTR strUser, LPCTSTR strPass, LOGIN_STRUCT* login )
 {
     NET_LOGIN_MESSAGE			msg ;
 	NET_LOGIN_RESPONSE			res;
@@ -401,7 +400,7 @@ int CLoginDvr::LoginDvrCmd( SOCKET sk, TCHAR* strUser,TCHAR* strPass, LOGIN_STRU
 	return 0;
 }  
 
-bool CLoginDvr::IsSame( TCHAR* dvrIP, int dvrPort )
+bool CLoginDvr::IsSame( LPCTSTR dvrIP, int dvrPort )
 {
 	if( strcmp(m_loginInfo.dvrIP, CT2A(dvrIP)) == 0 && 
 		m_loginInfo.dvrPort == dvrPort )
@@ -410,13 +409,13 @@ bool CLoginDvr::IsSame( TCHAR* dvrIP, int dvrPort )
 }
 
 
-INT CLoginDvr::UploadCfgFile(const TCHAR* imageName )
+INT CLoginDvr::UploadCfgFile(LPCTSTR imageName )
 {
 	int ret = 0;
 	LOGIN_STRUCT* login = &m_loginInfo;	
 	CAutoLock_CS lc(&m_csLock);
 
-	return g_UploadFileMgr.UploadCfgFile(login->loginID, CA2T(login->dvrIP), login->dvrPort,
+	return CUploadFileMgr::GetInstance()->UploadCfgFile(login->loginID, CA2T(login->dvrIP), login->dvrPort,
 										imageName);
 }
 

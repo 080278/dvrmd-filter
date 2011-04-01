@@ -3,6 +3,9 @@
 #include "PlayM4.h"
 #include "watermarkinfo.h"
 #include "DVRSettings.h"
+#include "LoginDvrMgr.h"
+#include "PlayerMgr.h"
+#include "HWndManager.h"
 
 static UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the file is end.
 static UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
@@ -80,15 +83,6 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
 #define HIK_STD_STREAM_TYPE_MPG2_TS		7    	/* TSÁ÷           */
 #define HIK_STD_STREAM_TYPE_MPG2_PS     8       /* PSÁ÷           */
 
-enum _VIDEO_PLAY_STATE 
-{ 
-	State_Close  = 0,
-	State_Play   = 1,
-	State_Pause  = 2,
-	State_Stop   = 3,
-	State_Step   = 4
-};
-
 class CDVRPlayer
 {
 public:
@@ -96,8 +90,31 @@ public:
 	~CDVRPlayer(void);
 
 public:
+	// Work flow Interfaces
 	bool Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort = -1);	//Init method of the Player.
 	void Destory();
+
+	// Media Server Interfaces
+	BOOL Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPort);
+	BOOL Login();
+	void Logout();
+	BOOL IsLogined(){return m_UserID >= 0;}
+
+	// Realtime watching interfaces
+	BOOL StartMonitor();
+	void StopMonitor();
+
+	// Play file interfaces
+
+public:
+	//Setting Interfaces.
+	CDVRSettings&	GetDVRSettings(){
+		return m_DVRSettings;
+	}
+	void SetDVRSettings(CDVRSettings& settings)
+	{
+		m_DVRSettings = settings;
+	}
 
 	void SetStreamType(BOOL bStream)	//TRUE: Stream; FALSE: File
 	{
@@ -108,7 +125,7 @@ public:
 		return m_bStreamType;
 	}
 
-	bool SetDisplayRegion(HWND hPlayWnd, RECT* rcDisplayRegion);
+	bool SetDisplayRegion(HWND hRenderWnd, RECT* rcDisplayRegion);
 	bool SetDisplayType(LONG lType);//ISPLAY_NORMAL, DISPLAY_QUARTER (1/4)
 	LONG GetDisplayType();
 	bool SetTimerType(DWORD dwTimerType = TIMER_1);	//TIMER_1: When playing file
@@ -124,14 +141,14 @@ public:
 	DWORD GetDuration(){return m_dwMaxFileTime;}
 	BOOL  SetVolume(WORD wVolume);
 
-	// gotostart / slow / fast / gotoend
+	// goto start / slow / fast / goto end
 	void  GotoStart();
 	void  Slow();
 	void  Fast();
 	void  AdjustSpeed(int nSpeed);
 	void  GotoEnd();
 
-	// stepback / stepfore / cap picture
+	// step back / step fore / cap picture
 	bool  CanStepBackword(){return m_bFileRefCreated;}
 	void  CanStepBackword(bool canStepBack){m_bFileRefCreated = canStepBack;}
 	void  StepBackward();
@@ -161,7 +178,16 @@ public:
 	// adjust sound
 	//void  AdjustSound(BOOL bFlag);
 
-	_VIDEO_PLAY_STATE GetPlayState()
+	enum ePlayState 
+	{ 
+		eState_Close  = 0,
+		eState_Play   = 1,
+		eState_Pause  = 2,
+		eState_Stop   = 3,
+		eState_Step   = 4
+	};
+
+	ePlayState GetPlayState()
 	{
 		return m_enumState;
 	}
@@ -171,13 +197,11 @@ public:
 	void RefreshPlay();
 	LONG GetPort(){return m_lPort;}
 	void ResetBuf();
-	char* MyErrorToString(DWORD error);
+	LPCTSTR MyErrorToString(DWORD error);
 public:
 	// file operation:
 	void  Open(LPCTSTR szFile = NULL);
 	void  Close();
-	void  OpenFile();
-	void  CloseFile();
 	void  OpenStream();
 	void  CloseStream();
 	static WATERMARK_VER1_INFO m_strWaterMark;
@@ -188,13 +212,15 @@ public:
 	HANDLE		m_hStreamFile;                  // input file
 
 private:
+	void  OpenFile();
+	void  CloseFile();
 	// callback function
 
 	//OnDrawFun
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 private:
-	_VIDEO_PLAY_STATE m_enumState;              // now the play state
+	ePlayState m_enumState;              // now the play state
 	LONG	m_lPort;
 	CString m_strPlayFileName;
 
@@ -225,4 +251,11 @@ private:
 	BOOL		m_bFileEnd;
 	DWORD		m_dwMaxFileSize;
 	DWORD		m_dwHeadSize;
+
+private:
+	CDVRSettings	m_DVRSettings;
+	//CLoginDvrMgr	m_DVRLoginMgr;
+	//CHWndManager	m_HWndMgr;
+	//CPlayerMgr		m_PlayerMgr;
+	int				m_UserID;
 };

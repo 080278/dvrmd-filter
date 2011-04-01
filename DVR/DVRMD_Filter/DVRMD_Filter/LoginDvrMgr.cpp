@@ -14,9 +14,10 @@
 
 #define SUYUAN_NO_CHECK_DVR_ONLINE	1	//苏源不检测dvr是否掉线
 
-CLoginDvrMgr		g_LoginDvrMgr;
+//CLoginDvrMgr		g_LoginDvrMgr;
 
 CLoginDvrMgr::CLoginDvrMgr()
+	:m_loginInfo(MAX_LOGIN_DVR)
 {
 	m_status = STOP_STATUS;
 
@@ -68,16 +69,17 @@ void CLoginDvrMgr::Clearup()
 	SAFE_CLOSE( m_hEventThreadExit );
 	SAFE_CLOSE( m_hCheckOnline );
 	
-	
+	m_csLock.Lock();
 	for( int i = 0; i < MAX_LOGIN_DVR; ++i )
 		SAFE_DELETE(m_loginInfo[i]);	
+	m_csLock.Unlock();
 
 	m_status = STOP_STATUS;
 	TRACE("CLoginDvrMgr::Clearup 成功返回\r\n\r\n");
 }
 
 //return the index handle
-int	CLoginDvrMgr::Login(TCHAR* userName, TCHAR* pwd, TCHAR* addr, int port)
+int	CLoginDvrMgr::Login(LPCTSTR userName, LPCTSTR pwd, LPCTSTR addr, int port)
 {
 	if( m_status == STOP_STATUS )
 	{
@@ -96,7 +98,7 @@ int	CLoginDvrMgr::Login(TCHAR* userName, TCHAR* pwd, TCHAR* addr, int port)
 		if( index < 0 )
 		{
 			//g_Config.lastError = HHV_ERROR_LOCALLOGINMAX;
-			TRACE("获得占位序号失败 CLoginDvrMgr::Login GetFreeIndex IP = %s port = %d\r\n\r\n", addr, port);
+			TRACE(_T("获得占位序号失败 CLoginDvrMgr::Login GetFreeIndex IP = %s port = %d\r\n\r\n"), addr, port);
 			m_csLock.Unlock();//解锁
 			return HHV_ERROR_LOCALLOGINMAX;
 		}
@@ -148,7 +150,7 @@ int CLoginDvrMgr::GetFreeIndex()
 	return -1;
 }
 
-CLoginDvr* CLoginDvrMgr::GetDvrLoginInfo(TCHAR* addr, int port)
+CLoginDvr* CLoginDvrMgr::GetDvrLoginInfo(LPCTSTR addr, int port)
 {
 	for( int i = 0; i < MAX_LOGIN_DVR; ++i )
 	{

@@ -16,7 +16,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CPlayerMgr	g_playerMgr;
+//CPlayerMgr	g_playerMgr;
 CPlayerMgr::CPlayerMgr()
 {
 	m_status = STOP_STATUS;
@@ -32,7 +32,7 @@ VOID CPlayerMgr::Init(HWND hNotifyWnd)
 {
 	if( m_status == RUN_STATUS )
 		return ;
-	LoadPlayMp4Dll();
+	//LoadPlayMp4Dll();
 	memset( m_player, 0x00, sizeof(m_player) );
 	m_status = RUN_STATUS;
 }

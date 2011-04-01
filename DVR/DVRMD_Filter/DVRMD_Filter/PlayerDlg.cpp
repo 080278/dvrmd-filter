@@ -35,7 +35,7 @@ static char THIS_FILE[] = __FILE__;
 
 
 // class used to convert file to avi
-CConvertAVI g_classAVI;
+//CConvertAVI g_classAVI;
 
 /************************************************************************/				
 
@@ -121,7 +121,6 @@ CPlayerDlg::CPlayerDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon	                  =	AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_hTestFile				  = INVALID_HANDLE_VALUE;	
 	m_bInited				  = FALSE;
 }
 
@@ -182,7 +181,7 @@ BOOL CPlayerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_pParentWnd = NULL;
+	m_pOldParentWnd = NULL;
 	// Add "About..." menu item to system menu.
 
 	// IDM_ABOUTBOX must be in the system command range.
@@ -284,7 +283,7 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_OverlayBmp.LoadBitmap(IDB_OVERLAY);
 #ifdef _FOR_HIKPLAYM4_DLL_
 	m_HikvisionBmp.LoadBitmap(IDB_HIKVISION);
-	SetWindowText("Hikvision Player");
+	SetWindowText(_T("Hikvision Player"));
 #else
 	m_HikvisionBmp.LoadBitmap(IDB_BLACK);
 	SetWindowText(_T("Player"));
@@ -350,7 +349,7 @@ void CPlayerDlg::OnPaint()
 	{
 		CDialog::OnPaint();
 	}
-	this->UpdateWindow();
+	UpdateWindow();
 	GetPlayer()->RefreshPlay();
 }
 
@@ -465,21 +464,21 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_ONE:
-			if(m_DVRPlayer.GetPlayState() != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_50);
 			}
 			break;
 
 		case VK_TWO:
-			if(m_DVRPlayer.GetPlayState() != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_100);
 			}
 			break;
 
 		case VK_THREE:
-			if(m_DVRPlayer.GetPlayState() != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Stop)
 			{
 				ViewZoom(IDM_VIEW_ZOOM_200);
 			}
@@ -502,12 +501,12 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_SPACE:
-			if(m_DVRPlayer.GetPlayState() == State_Play)
+			if(m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play)
 			{
 				Pause();
 				SetState();
 			}
-			else if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Stop)
+			else if(m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Stop)
 			{
 				Play();
 				SetState();
@@ -515,7 +514,7 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_LEFT:
-			if(m_DVRPlayer.GetPlayState() != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Stop)
 			{
 				StepBackward();
 				SetState();
@@ -523,7 +522,7 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_RIGHT:
-			if(m_DVRPlayer.GetPlayState() != State_Stop)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Stop)
 			{
 				StepForward();
 				SetState();
@@ -539,7 +538,7 @@ void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 
 		case VK_DOT:
-			if(m_DVRPlayer.GetPlayState() != State_Close)
+			if(m_DVRPlayer.GetPlayState() != CDVRPlayer::eState_Close)
 			{
 				if(m_bFullScreen)
 				{
@@ -622,7 +621,7 @@ void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	GetCursorPos(&dpoint);	
 
 	m_ctrlVideoPic.GetWindowRect(&vwrect);
-	if( ( m_DVRPlayer.GetPlayState() == State_Play || m_DVRPlayer.GetPlayState() == State_Pause) && vwrect.PtInRect(dpoint))
+	if( ( m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause) && vwrect.PtInRect(dpoint))
 	{
 		TRACE("DoubleClick");
 		ViewFullScreen();
@@ -889,7 +888,7 @@ LRESULT CPlayerDlg::EncChangeMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
 LRESULT CPlayerDlg::VideoCtrlOK(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
 	//m_pVideoControl->DestroyWindow();
-	if(m_DVRPlayer.GetPlayState() == State_Pause || m_DVRPlayer.GetPlayState() == State_Play)
+	if(m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play)
 	{
 		////m_pMainMenu->EnableMenuItem(IDM_VIDEO_CONTROL, MF_ENABLED);
 	}
@@ -1079,7 +1078,7 @@ void CALLBACK SourceBufFun(long nPort,DWORD nBufSize,DWORD dwUser,void*pContext)
 
 	CPlayerDlg* pOwner = (CPlayerDlg*)dwUser;
 
-	if( (pOwner->GetPlayer()->GetPlayState() == State_Close) || (pOwner->GetPlayer()->GetPlayState() == State_Stop) )
+	if( (pOwner->GetPlayer()->GetPlayState() == CDVRPlayer::eState_Close) || (pOwner->GetPlayer()->GetPlayState() == CDVRPlayer::eState_Stop) )
 	{
 		return ;
 	}
@@ -1351,7 +1350,7 @@ void CPlayerDlg::SetState()
 {
 	switch(m_DVRPlayer.GetPlayState())
 	{
-	case State_Close:
+	case CDVRPlayer::eState_Close:
 
 		// button state
 
@@ -1415,7 +1414,7 @@ void CPlayerDlg::SetState()
 
 		break;
 
-	case State_Play:
+	case CDVRPlayer::eState_Play:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_CHECK);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
 		m_ctrlBtnPlay.ShowWindow(SW_HIDE);
@@ -1495,8 +1494,8 @@ void CPlayerDlg::SetState()
 
 		break;
 
-	case State_Pause:
-	case State_Step:
+	case CDVRPlayer::eState_Pause:
+	case CDVRPlayer::eState_Step:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_ENABLE);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
 		m_ctrlBtnPlay.ShowWindow(SW_SHOW);
@@ -1548,7 +1547,7 @@ void CPlayerDlg::SetState()
 
 		break;
 
-	case State_Stop:
+	case CDVRPlayer::eState_Stop:
 		m_ctrlBtnPlay.SetIcon(IDI_PLAY_ENABLE);
 		m_ctrlBtnPlay.EnableWindow(TRUE);
 		m_ctrlBtnPlay.ShowWindow(SW_SHOW);
@@ -1960,9 +1959,9 @@ void CPlayerDlg::ViewFullScreen()
 
 	if(m_bFullScreen)
 	{
-		if (m_pParentWnd == NULL)
+		if (m_pOldParentWnd == NULL)
 		{
-			m_pParentWnd = GetParent();
+			m_pOldParentWnd = GetParent();
 			SetParent(NULL);
 		}
 		//Save the pre info;
@@ -2020,10 +2019,10 @@ void CPlayerDlg::ViewFullScreen()
 	}
 	else
 	{
-		if (m_pParentWnd != NULL)
+		if (m_pOldParentWnd != NULL)
 		{
-			SetParent(m_pParentWnd);
-			m_pParentWnd = NULL;
+			SetParent(m_pOldParentWnd);
+			m_pOldParentWnd = NULL;
 		}
 		//Visible the control.
 		m_ctrlBtnPlay.ModifyStyle(0, WS_VISIBLE, 0);
@@ -2421,29 +2420,6 @@ void CPlayerDlg::ConvertToAVI()
 	}
 }
 
-void CPlayerDlg::AppAbout() 
-{
-	// TODO: Add your command handler code here
-	//CAboutDlg AboutDlg;
-	//AboutDlg.DoModal();
-
-}
-
-void CPlayerDlg::AppHelp()
-{
-	//CHelpDlg HelpDlg;
-	//HelpDlg.DoModal();
-}
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-/* menu operation over
-/*************************************************************************/
-/*************************************************************************/
-/*************************************************************************/
-
-
-
 /*************************************************************************/
 /*************************************************************************/
 /*************************************************************************/
@@ -2492,28 +2468,13 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		Infomation();
 		break;
 
-	case IDM_SETDISPLAY:
-		//SetDisplay();
-		break;
-
-	case IDM_DEVICE0:
-	case IDM_DEVICE1:
-	case IDM_DEVICE2:
-	case IDM_DEVICE3:
-		//SetDevice(nID);
-		break;
-
-	case IDM_WATERMARK:
-		GetWatermark();
-		break;
-
 	case IDM_PLAY_PAUSE:
-		if(GetPlayer()->GetPlayState() == State_Play)
+		if(GetPlayer()->GetPlayState() == CDVRPlayer::eState_Play)
 		{
 			Pause();
 			SetState();
 		}
-		else if(GetPlayer()->GetPlayState() == State_Pause || GetPlayer()->GetPlayState() == State_Stop)
+		else if(GetPlayer()->GetPlayState() == CDVRPlayer::eState_Pause || GetPlayer()->GetPlayState() == CDVRPlayer::eState_Stop)
 		{
 			Play();
 			SetState();
@@ -2521,7 +2482,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_STOP:
-		if(GetPlayer()->GetPlayState() != State_Close)
+		if(GetPlayer()->GetPlayState() != CDVRPlayer::eState_Close)
 		{
 			Stop();
 			SetState();
@@ -2529,7 +2490,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_STEPFORWARD:
-		if(GetPlayer()->GetPlayState() != State_Stop)
+		if(GetPlayer()->GetPlayState() != CDVRPlayer::eState_Stop)
 		{
 			StepForward();
 			SetState();
@@ -2537,7 +2498,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_STEPBACKWARD:
-		if(GetPlayer()->GetPlayState() != State_Stop)
+		if(GetPlayer()->GetPlayState() != CDVRPlayer::eState_Stop)
 		{
 			StepBackward();
 			SetState();
@@ -2545,19 +2506,15 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		break;
 
 	case IDM_GOTOSTART:
-		m_DVRPlayer.GotoStart();
+		GetPlayer()->GotoStart();
 		break;
 
 	case IDM_GOTOEND:
-		m_DVRPlayer.GotoEnd();
+		GetPlayer()->GotoEnd();
 		break;
 
 	case IDM_SEEK:
 		Locate();
-		break;
-
-	case IDM_VIDEO_CONTROL:
-//		VideoControl();
 		break;
 
 	case IDM_REPEAT:
@@ -2576,30 +2533,10 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		Quality();
 		break;
 
-	case IDM_PREVIEW50:
-		//HighFluid();
-		break;
-
-	case IDM_SHARPEN_NONE:
-	case IDM_SHARPEN_LEVEL1:
-	case IDM_SHARPEN_LEVEL2:
-	case IDM_SHARPEN_LEVEL3:
-	case IDM_SHARPEN_LEVEL4:
-	case IDM_SHARPEN_LEVEL5:
-	case IDM_SHARPEN_LEVEL6:
-		//ImageSharpenLevel(nID);
-		break;
-
 	case IDM_THROW0:
 	case IDM_THROW1:                      
 	case IDM_THROW2:
 		GetPlayer()->ThrowB(nID);
-		break;
-
-	case IDM_DECODE_NORMAL:
-	case IDM_DECODE_I:
-	case IDM_DECODE_NONE:
-		//SetDecodeType(nID);
 		break;
 
 	case IDM_DISNORMAL:                   
@@ -2626,36 +2563,10 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		CappicPath();
 		break;
 
-		/*	case IDM_CONVERT:
-		ConvertToAVI();
-		break;
-		*/	
-	case IDM_APP_HELP:
-		AppHelp();
-		break;
-
-	case IDM_APP_ABOUT:
-		AppAbout();
-		break;
-	case IDM_BYRATE:
-	case IDM_BYTIME:
-		SetDiplayMode(nID);
-
 	default:
 		break;
 	}
 }
-
-void CPlayerDlg::GetWatermark()
-{
-	// TODO: Add your command handler code here
-	//	WaterMarkDlg dlg;
-	//	dlg.DoModal();
-//	m_pWatermarkDlg->Create(IDD_WATERMARK);
-	//m_pMainMenu->EnableMenuItem(IDM_WATERMARK, MF_GRAYED);
-}
-
-
 
 /*************************************************************************/
 /*************************************************************************/
@@ -2727,31 +2638,17 @@ void CPlayerDlg::OnDestroy()
 
 	GetPlayer()->Destory();
 
-	if(m_bConvertAVI)
-	{
-		g_classAVI.ReleaseResource();
-		m_bConvertAVI = FALSE;
-	}
+	//if(m_bConvertAVI)
+	//{
+	//	g_classAVI.ReleaseResource();
+	//	m_bConvertAVI = FALSE;
+	//}
 
 	if(m_pQcifTempBuf)
 	{
 		delete []m_pQcifTempBuf;
 		m_pQcifTempBuf = NULL;
 	}
-}
-
-BOOL CPlayerDlg::SetDiplayMode(int nID)
-{
-	//	for (int i = IDM_BYRATE; i < IDM_BYTIME; i++)
-	//	{
-	//		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-	//	}
-	//	
-	//	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
-	//
-	//	return PlayM4_SetDisplayMode(m_lPort, nID - IDM_BYRATE);
-
-	return FALSE;
 }
 
 void CPlayerDlg::OnBnClickedOpenfile()
@@ -2761,47 +2658,32 @@ void CPlayerDlg::OnBnClickedOpenfile()
 
 void CPlayerDlg::Play()
 {
-	if (GetPlayer()->GetPlayState() != State_Play)
+	if (GetPlayer()->GetPlayState() != CDVRPlayer::eState_Play)
 	{
 		//if (m_bStreamType)
 		GetPlayer()->Play();
 		SetTimer(PLAY_TIMER, 500, NULL);
-		//if (m_pDisplayRegion->m_bValid) 
-		//{
-		//	m_pDisplayRegion->Enable(FALSE);
- 	//	}
 	}
 }
 
 void CPlayerDlg::Pause()
 {
 	GetPlayer()->Pause();
-	//if (m_pDisplayRegion->m_bValid) 
-	//{
-	//	Sleep(50);	
-	//	m_pDisplayRegion->Enable(TRUE);
-	//	m_pDisplayRegion->DrawRectangle();
-	//}
 }
 
 void CPlayerDlg::Stop()
 {
-	if (GetPlayer()->GetPlayState() != State_Stop)
+	if (GetPlayer()->GetPlayState() != CDVRPlayer::eState_Stop)
 	{
 		KillTimer(PLAY_TIMER);
 		GetPlayer()->Stop();
 
-		if(m_bConvertAVI)
-		{
-			g_classAVI.ReleaseResource();
-
-			m_strSaveAVIPath = _T("");
-			m_bConvertAVI = FALSE;    
-		}
-
-		//if(m_pWatermarkDlg->m_hWnd)
+		//if(m_bConvertAVI)
 		//{
-		//	m_pWatermarkDlg->Clear();
+		//	g_classAVI.ReleaseResource();
+
+		//	m_strSaveAVIPath = _T("");
+		//	m_bConvertAVI = FALSE;    
 		//}
 	}
 }
@@ -2811,40 +2693,24 @@ void CPlayerDlg::StepBackward()
 	if (GetPlayer()->CanStepBackword())
 	{
 		GetPlayer()->StepBackward();
-		//if (m_pDisplayRegion->m_bValid) 
-		//{
-		//	Sleep(50);	
-		//	m_pDisplayRegion->Enable(TRUE);
-		//	m_pDisplayRegion->DrawRectangle();
-		//}
 	}
 }
 void CPlayerDlg::StepForward()
 {
 	GetPlayer()->StepForward();
-	//if (m_pDisplayRegion->m_bValid) 
-	//{
-	//	Sleep(50);	
-	//	m_pDisplayRegion->Enable(TRUE);
-	//	m_pDisplayRegion->DrawRectangle();
-	//}
 }
 
 void CPlayerDlg::Open(LPCTSTR szFile)
 {
 	GetPlayer()->Open(szFile);
 	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
-//	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 	InitWindowSize(m_nWidth, m_nHeight);
 }
 
 void CPlayerDlg::Close()
 {
 	GetPlayer()->Close();
-	//if(m_pWatermarkDlg)
-	//{
-	//	m_pWatermarkDlg->DestroyWindow();
-	//}
+
 
 	m_nWidth = 352;
 	m_nHeight = 288;
@@ -2869,20 +2735,8 @@ HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 	return E_FAIL;
 }
 
-void CPlayerDlg::CloseFile()
-{
-	//if (m_pDisplayRegion->m_bValid) 
-	//{
-	//	m_pDisplayRegion->DestroyWindow();
-	//	////m_pMainMenu->EnableMenuItem(2, MF_ENABLED|MF_BYPOSITION);
-	//	////m_pMainMenu->EnableMenuItem(IDM_SETDISPLAY, MF_ENABLED);
-
-	//}
-
-	GetPlayer()->CloseFile();
-}
-
 void CPlayerDlg::OnBnClickedShowHideSettings()
 {
-
+	CFileDialog dlg(TRUE);
+	dlg.DoModal();
 }

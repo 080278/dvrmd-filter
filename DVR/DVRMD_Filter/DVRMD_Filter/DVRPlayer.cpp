@@ -7,6 +7,7 @@ WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 CDVRPlayer::CDVRPlayer(void)
 {
 	m_lPort = -1;
+	m_UserID = -1;
 }
 
 
@@ -16,7 +17,7 @@ CDVRPlayer::~CDVRPlayer(void)
 
 bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort)
 {
-	m_enumState = State_Close;
+	m_enumState = CDVRPlayer::eState_Close;
 	m_lPort = lPort;
 	m_hRenderWnd = hRenderWnd;
 	m_rcDisplayRegion = *rcDisplayRegion;
@@ -43,7 +44,20 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_hStreamFile = NULL;
 	m_bStreamType = FALSE;
 
-	#if (WINVER > 0x0400)
+	//WSADATA wsaD;
+	//DWORD wVersion = MAKEWORD(2, 2);
+	//if ( WSAStartup( wVersion, &wsaD ) != 0 )
+	//{
+	//	::MessageBox(hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
+	//	return FALSE;
+	//}
+
+	//m_HWndMgr.InitSplit(m_hRenderWnd);
+	//m_HWndMgr.SetSplitMode(m_lPort, SPLIT_1);
+	//m_PlayerMgr.Init(NULL);
+	//m_DVRLoginMgr.Startup();
+
+#if (WINVER > 0x0400)
 	// If do not support multi monitor,may not call!
 	HMONITOR hMonitor;
 	char chDriverDesp[50];
@@ -76,7 +90,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 
 	// set the capture picture call back function;
 	//	NAME(PlayM4_SetDisplayCallBack)(m_lPort, DisplayCBFun);
-	// set the wave audio call back funtion;
+	// set the wave audio call back function;
 	//	NAME(PlayM4_SetAudioCallBack)(m_lPort, WaveCBFun, (long)this);
 
 	NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
@@ -85,18 +99,6 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 
 	NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
 	return true;
-}
-
-void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
-{
-	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
-	
-}
-
-void CDVRPlayer::RefreshPlay()
-{
-	NAME(PlayM4_RefreshPlay)(m_lPort);
-	NAME(PlayM4_RefreshPlayEx)(m_lPort, 0);
 }
 
 void CDVRPlayer::Destory()
@@ -109,24 +111,68 @@ void CDVRPlayer::Destory()
 
 	NAME(PlayM4_ReleaseDDrawDevice)();
 
-	m_enumState = State_Close;
+	m_lPort = -1;
+	m_enumState = CDVRPlayer::eState_Close;
+
+	//m_DVRLoginMgr.Clearup();
+
+	//WSACleanup();
 }
 
+BOOL CDVRPlayer::Login()
+{
+	if (m_DVRSettings.m_csUsername.GetLength() > 0 && 
+		m_DVRSettings.m_csPassword.GetLength() > 0 &&
+		m_DVRSettings.m_csMediaServerIP.GetLength() > 0 &&
+		m_DVRSettings.m_lPort != -1)
+	{
+		return Login(m_DVRSettings.m_csUsername, m_DVRSettings.m_csPassword, m_DVRSettings.m_csMediaServerIP, m_DVRSettings.m_lPort);
+	}
+
+	return FALSE;
+}
+BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPort)
+{
+//	m_UserID = m_DVRLoginMgr.Login(szUsername, szPwd, szIP, nPort);
+	return m_UserID >= 0;
+}
+void CDVRPlayer::Logout()
+{
+	if (m_UserID >= 0)
+	{
+//		m_DVRLoginMgr.Logout(m_UserID);
+		m_UserID = -1;
+	}
+}
+
+// Draw Function
+//	Draw the Meta Data
+void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
+{
+	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
+
+}
+
+void CDVRPlayer::RefreshPlay()
+{
+	NAME(PlayM4_RefreshPlay)(m_lPort);
+	NAME(PlayM4_RefreshPlayEx)(m_lPort, 0);
+}
 // play / pause / stop
 void CDVRPlayer::Play()
 {
-	if(m_enumState == State_Play)
+	if(m_enumState == CDVRPlayer::eState_Play)
 	{
 		return;
 	}
 	
-	if(m_enumState == State_Pause)
+	if(m_enumState == CDVRPlayer::eState_Pause)
 	{
 //		DWORD nPreSpeed = m_nSpeed;
 
 		NAME(PlayM4_Pause)(m_lPort, FALSE);
 
-		m_enumState = State_Play;
+		m_enumState = CDVRPlayer::eState_Play;
 
 		// when u called this api, the speed is adjust to normal speed, so we must resume it.
 //		NAME(PlayM4_Play)(m_lPort, m_ctrlVideoPic.GetSafeHwnd());
@@ -134,17 +180,17 @@ void CDVRPlayer::Play()
 //		ThrowB(IDM_THROW0);
 //		AdjustSpeed(nPreSpeed);
 	}
-	else if (m_enumState == State_Stop && m_bStreamType)
+	else if (m_enumState == CDVRPlayer::eState_Stop && m_bStreamType)
 	{
 		Open();
 	}
-	else if(m_enumState == State_Step)
+	else if(m_enumState == CDVRPlayer::eState_Step)
 	{
 		NAME(PlayM4_Play)(m_lPort, m_hRenderWnd);
 		m_nSpeed = 0;
 		ThrowB(IDM_THROW0);
 
-		m_enumState = State_Play;
+		m_enumState = CDVRPlayer::eState_Play;
 	}
 	else
 	{
@@ -168,7 +214,7 @@ void CDVRPlayer::Play()
 
 		if(NAME(PlayM4_Play)(m_lPort, m_hRenderWnd))
 		{
-			m_enumState = State_Play;
+			m_enumState = CDVRPlayer::eState_Play;
 
 			//SetTimer(PLAY_TIMER, 500, NULL);
 
@@ -181,16 +227,16 @@ void CDVRPlayer::Play()
 
 void CDVRPlayer::Pause()
 {
-	if(m_enumState == State_Play)
+	if(m_enumState == CDVRPlayer::eState_Play)
 	{
 		NAME(PlayM4_Pause)(m_lPort, TRUE);
-		m_enumState = State_Pause;
+		m_enumState = CDVRPlayer::eState_Pause;
 	}
 }
 
 void CDVRPlayer::Stop()
 {
-	if(m_enumState == State_Stop)
+	if(m_enumState == CDVRPlayer::eState_Stop)
 	{
 		return;
 	}
@@ -215,7 +261,7 @@ void CDVRPlayer::Stop()
 	}	
 
 	ZeroMemory(&m_strWaterMark, sizeof(WATERMARK_VER1_INFO));
-	m_enumState = State_Stop;
+	m_enumState = CDVRPlayer::eState_Stop;
 }
 
 // gotostart / slow / fast / gotoend
@@ -346,7 +392,7 @@ void CDVRPlayer::StepBackward()
 	if(m_bFileRefCreated)
 	{
 		NAME(PlayM4_OneByOneBack)(m_lPort);
-		m_enumState = State_Step;
+		m_enumState = CDVRPlayer::eState_Step;
 	}
 }
 
@@ -359,7 +405,7 @@ void CDVRPlayer::StepForward()
 	// NAME(PlayM4_SetCurrentFrameNum)(m_lPort,nCurrentFrame+1);
 	ThrowB(IDM_THROW0);          // when step forward one by one, don't throw B frame;
 	NAME(PlayM4_OneByOne)(m_lPort);
-	m_enumState = State_Step;
+	m_enumState = CDVRPlayer::eState_Step;
 
 }
 
@@ -755,7 +801,7 @@ void CDVRPlayer::CloseFile()
 	m_bFileRefCreated =	FALSE;	
 }
 
-// Funtion: Open the file by stream type and play it
+// Function: Open the file by stream type and play it
 void CDVRPlayer::OpenStream()
 {
 	m_dwDisplayHour		= 0;
@@ -783,7 +829,7 @@ void CDVRPlayer::OpenStream()
 	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
 	m_dwHeadSize = NAME(PlayM4_GetFileHeadLength)();
 	PBYTE pBuf = NULL;
-	char csError[50];
+	TCHAR szError[50];
 
 	pBuf = new BYTE[m_dwHeadSize];
 	if(!pBuf)
@@ -808,7 +854,7 @@ void CDVRPlayer::OpenStream()
 #ifdef SPLIT_INPUT
 	if(!NAME(PlayM4_OpenStreamEx)(m_lPort, (BYTE*)&stInfo, m_dwHeadSize, 6*1000*1024))
 	{
-		sprintf(csError, "Open stream failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
+		_stprintf(szError, _T("Open stream failed(%s)"), MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
 		MessageBox(csError);
 		delete []pBuf;
 		pBuf = NULL;
@@ -819,8 +865,8 @@ void CDVRPlayer::OpenStream()
 
 	if(!NAME(PlayM4_OpenStream)(m_lPort, pBuf, sizeof(stInfo),  6*1000*1024))
 	{
-		sprintf(csError, "Open stream failed(%s)", MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
-		MessageBox(NULL, CA2T(csError), _T("Error"), MB_OK);
+		_stprintf(szError, _T("Open stream failed(%s)"), MyErrorToString(NAME(PlayM4_GetLastError)(m_lPort)));
+		MessageBox(NULL, szError, _T("Error"), MB_OK);
 		delete []pBuf;
 		pBuf = NULL;
 		throw 0;
@@ -912,7 +958,7 @@ void CDVRPlayer::CloseStream()
 
 bool CDVRPlayer::SetDisplayRegion(HWND hRenderWnd, RECT* rcDisplayRegion)
 {
-	if (GetPlayState() != State_Step && GetPlayState() != State_Pause) 
+	if (GetPlayState() != CDVRPlayer::eState_Step && GetPlayState() != CDVRPlayer::eState_Pause) 
 	{
 		return false;
 	}
@@ -955,70 +1001,70 @@ void CDVRPlayer::ResetBuf()
 	NAME(PlayM4_ResetBuffer)(m_lPort, BUF_AUDIO_SRC);
 }
 
-//¥ÌŒÛ–≈œ¢
-char* CDVRPlayer::MyErrorToString(DWORD error)
+//Error Information
+LPCTSTR CDVRPlayer::MyErrorToString(DWORD error)
 {
 	switch(error)
 	{
 	case 0:
-		return "No error.\0";
+		return _T("No error.\0");
 	case 1:
-		return "The parameter that user inputted is invalid.\0";
+		return _T("The parameter that user inputted is invalid.\0");
 	case 2:
-		return "The order of the function to be called is incorrect.\0";
+		return _T("The order of the function to be called is incorrect.\0");
 	case 3:
-		return "Failure when creating system multimedia clock.\0";
+		return _T("Failure when creating system multimedia clock.\0");
 	case 4:
-		return "Failure when decoding video data.\0";
+		return _T("Failure when decoding video data.\0");
 	case 5:
-		return "Failure when decoding audio data.\0";
+		return _T("Failure when decoding audio data.\0");
 	case 6:
-		return "Failure when allocating memory.\0";
+		return _T("Failure when allocating memory.\0");
 	case 7:
-		return "File open failed when calling API Hik_PlayM4_OpenFile.\0";
+		return _T("File open failed when calling API Hik_PlayM4_OpenFile.\0");
 	case 8:
-		return "Failure when creating thread or event.\0";
+		return _T("Failure when creating thread or event.\0");
 	case 9:
-		return "Failure when creating directdraw object.\0";
+		return _T("Failure when creating directdraw object.\0");
 	case 10:
-		return "Failure when creating off-screen surface.\0";
+		return _T("Failure when creating off-screen surface.\0");
 	case 11:
-		return "The input source buffer has overflowed when calling API Hik_PlayM4_InputData.\0";
+		return _T("The input source buffer has overflowed when calling API Hik_PlayM4_InputData.\0");
 	case 12:
-		return "Failure when creating audio device.\0";
+		return _T("Failure when creating audio device.\0");
 	case 13:
-		return "Failure when setting audio volume.\0";
+		return _T("Failure when setting audio volume.\0");
 	case 14:
-		return "The function only supports playing a file.\0";
+		return _T("The function only supports playing a file.\0");
 	case 15:
-		return "The function only supports playing a stream.\0";
+		return _T("The function only supports playing a stream.\0");
 	case 16:
-		return "Neither MMX nor SSE arithmetic is supported by system.\0";
+		return _T("Neither MMX nor SSE arithmetic is supported by system.\0");
 	case 17:
-		return "Unknown file header.\0";
+		return _T("Unknown file header.\0");
 	case 18:
-		return "The version of video decoder and video encoder is not compatible.\0";
+		return _T("The version of video decoder and video encoder is not compatible.\0");
 	case 19:
-		return "Failure when initializing decoder.\0";
+		return _T("Failure when initializing decoder.\0");
 	case 20:
-		return "The file data is unknown. No I-frame found.\0";
+		return _T("The file data is unknown. No I-frame found.\0");
 	case 21:
-		return "Failure when initializing multimedia clock.\0";
+		return _T("Failure when initializing multimedia clock.\0");
 	case 22:
-		return "Failure when blitting overlay.\0";
+		return _T("Failure when blitting overlay.\0");
 	case 23:
-		return "Failure when updating overlay or offscreen surface.\0";
+		return _T("Failure when updating overlay or offscreen surface.\0");
 	case 24:
-		return "Open file error, streamtype is multi.\0";
+		return _T("Open file error, streamtype is multi.\0");
 	case 25:
-		return "Openfile error, streamtype is video.\0";
+		return _T("Openfile error, streamtype is video.\0");
 	case 26:
-		return "JPEG compression error when capturing jpeg file.\0";
+		return _T("JPEG compression error when capturing jpeg file.\0");
 	case 27:
-		return "Version of this file not supported when extracting h264 video data.\0";
+		return _T("Version of this file not supported when extracting h264 video data.\0");
 	case 28:
-		return "Failure when extracting video data.\0";
+		return _T("Failure when extracting video data.\0");
 	default:
-		return "Unrecognized error value.\0";
+		return _T("Unrecognized error value.\0");
 	}
 }
