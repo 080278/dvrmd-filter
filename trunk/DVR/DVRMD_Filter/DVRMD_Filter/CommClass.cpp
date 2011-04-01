@@ -23,7 +23,7 @@ static char THIS_FILE[]=__FILE__;
 BOOL CCommClass::ExtractFilePath( TCHAR* chPath )
 {
 	TCHAR path[_MAX_PATH] = {0X00};
-	::GetModuleFileName(NULL,(TCHAR*)path,sizeof(path));
+	::GetModuleFileName(AfxGetInstanceHandle(),(TCHAR*)path,sizeof(path));
 	CString strPath = path;
 	INT nPos = strPath.ReverseFind( '\\' );
 	_tcsncpy( chPath, strPath, nPos );

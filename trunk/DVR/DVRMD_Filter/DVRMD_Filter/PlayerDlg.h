@@ -96,31 +96,23 @@ public:
 	PBYTE			  m_pQcifTempBuf;			// convert qcif to avi
 
 public:
-	BOOL SetDiplayMode(int nID);
-
 	BOOL IsFullScreen()
 	{
 		return m_bFullScreen;
 	}
 	
-	HANDLE	m_hTestFile;
-	//¥ÌŒÛ–≈œ¢
-
 	BOOL PreTranslateMessage(MSG* lpmsg);       // overload to handle keydown message
 	
 	void  SetSecretKey();
 
-	CWnd* m_pParentWnd;
 	// view operation:
 	void  ViewFullScreen();
 	void  ViewZoom(UINT nID);
 	void  Infomation();
 	void  SetDisplay();
 	//BOOL  SetDevice(UINT nID);
-	void  GetWatermark();
 	
 	// control operation:
-	//void  VideoControl();
 	void  Repeat();
 	void  Locate();
   
@@ -142,9 +134,6 @@ public:
 	
 	void  ConvertToAVI();
 
-	// help operation:
-	void  AppAbout();
-	void  AppHelp();
 	// open/close file or stream
 	BOOL  BrowseFile(CString *strFileName);
 	void Play();
@@ -155,7 +144,6 @@ public:
 	void Open(LPCTSTR szFile = NULL);
 	void Close();
 	HRESULT OpenFile(LPCTSTR szFile);
-	void CloseFile();
 
 	// set play state
 	void  DrawStatus();
@@ -208,6 +196,7 @@ public:
 // Implementation
 protected:
 	HICON m_hIcon;
+	CWnd* m_pOldParentWnd;		//	For full screen feature: remember the parent HWND.
 
 
 	// Generated message map functions

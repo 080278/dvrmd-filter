@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+//#include <map>
 
 //连接DVR信息
 struct HHV_CONN_INFO
@@ -20,7 +20,7 @@ struct HHV_CLIENT_INFO
 	int childstream;	//0-主码流；1-次码流
 };
 
-class CDVRSettings
+struct CDVRSettings
 {
 public:
 	CDVRSettings(void);
@@ -30,17 +30,17 @@ public:
 
 public:
 	//Media Server Settings
-	TCHAR		m_szIP[48];		//Media Server IP: e.g. 192.168.123.59
-	int			m_lPort;		//Media Server Port: e.g. 2000
-	TCHAR		m_szUsername[64];
-	TCHAR		m_szPassword[64];
+	CString		m_csMediaServerIP;			//Media Server IP: e.g. 192.168.123.59
+	int			m_lPort;			//Media Server Port: e.g. 2000
+	CString		m_csUsername;	//Login Server: Username
+	CString		m_csPassword;	// Password
 
-	CTime		m_StartTime;
-	CTime		m_EndTime;
+	CTime		m_StartTime;		//Render start time
+	CTime		m_EndTime;			//Render end time
 	
 	//Player Settings.
-	BOOL		m_bHighPictureQuality;
-	TCHAR		m_szPicCapturePath[MAX_PATH];
-	eCapPicType	m_eCapturePicType;
+	BOOL		m_bHighPictureQuality;	//Quality of the picture: default is FALSE;
+	CString		m_csPicCapturePath;	//Capture Picture folder
+	eCapPicType	m_eCapturePicType;			//Capture picture type: default is JPEG
 };
 

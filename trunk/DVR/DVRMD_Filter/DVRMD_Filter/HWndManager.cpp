@@ -133,15 +133,15 @@ HMODULE ghWndDLL = NULL;
 
 int LoadHWndDll()
 {
-    CHAR path[_MAX_PATH] = {0X00};
+    TCHAR path[_MAX_PATH] = {0X00};
 	CCommClass::ExtractFilePath( path );
-	strcat( path, "\\HWndDll.dll");
+	_tcscat( path, _T("\\HWndDll.dll"));
     ghWndDLL = LoadLibrary(path);
 
 	if (NULL == ghWndDLL)
 	{
-		char chError[128] = {0x00};
-		sprintf( chError, "!!!加载 %s 的动态库失败!!!", "HWndDll.dll");
+		TCHAR chError[256] = {0x00};
+		_stprintf( chError, _T("!!!加载 %s 的动态库失败!!!"), path);
 		AfxMessageBox( chError );
 
 		return -1;

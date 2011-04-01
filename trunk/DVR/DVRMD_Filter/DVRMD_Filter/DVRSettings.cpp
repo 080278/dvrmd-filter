@@ -3,6 +3,9 @@
 
 
 CDVRSettings::CDVRSettings(void)
+	: m_lPort(-1)
+	, m_bHighPictureQuality(FALSE)
+	, m_eCapturePicType(eJPEG)
 {
 }
 

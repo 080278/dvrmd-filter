@@ -21,6 +21,7 @@ public:
 	CUploadFileMgr();
 	virtual ~CUploadFileMgr();
 
+	static CUploadFileMgr* GetInstance();
 	INT UploadCfgFile(int userID, TCHAR* dvrIP, 
 		int dvrPort,const TCHAR* imageName );
 
@@ -32,8 +33,10 @@ private:
 	CMutex m_csLock;
 	
 	int m_status;
+
+	static CUploadFileMgr g_UploadFileMgr;
 };
 
-extern CUploadFileMgr g_UploadFileMgr;
+//extern CUploadFileMgr g_UploadFileMgr;
 
 #endif // !defined(AFX_UPLOADFILEMGR_H__D22E8AC3_154A_4DE8_8DCB_41AE907E778A__INCLUDED_)

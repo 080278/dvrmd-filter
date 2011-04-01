@@ -41,6 +41,6 @@ private:
 
 	int m_status;
 };
-extern CPlayerMgr	g_playerMgr;
+//extern CPlayerMgr	g_playerMgr;
 
 #endif // !defined(AFX_PLAYERMGR_H__448B2740_E614_4457_9F1D_0B156F80B93C__INCLUDED_)

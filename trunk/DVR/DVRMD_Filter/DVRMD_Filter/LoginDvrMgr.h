@@ -28,7 +28,7 @@ public:
 	void	Startup();
 	void	Clearup();
 
-	int		Login(TCHAR* userName,  TCHAR* pwd, TCHAR* addr, int port);
+	int		Login(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port);
 	int		Logout( int index );
 
 	int	 SetVideoEffect(int userID, int channel, int bright,int contrast, int saturation, int hueValue);
@@ -40,15 +40,15 @@ public:
 	int StartDVRRecord( int userID, int channel );
 	int StopDVRRecord( int userID, int channel );
 	
-	INT UploadCfgFile(int userID,const TCHAR* imageName );
+	INT UploadCfgFile(int userID, LPCTSTR imageName );
 	
 private:
 	int		CheckUserID(int handle);
 	int		GetFreeIndex();	
-	CLoginDvr* GetDvrLoginInfo(TCHAR* addr, int port);
+	CLoginDvr* GetDvrLoginInfo(LPCTSTR addr, int port);
 	
 public:
-	CLoginDvr*		m_loginInfo[MAX_LOGIN_DVR];
+	std::vector<CLoginDvr*>		m_loginInfo;
 
 private:
 	bool			m_bExit;
@@ -74,7 +74,7 @@ private:
 	void			NotifyLogoutMessage(int index, TCHAR* dvrIP);
 };
 
-extern CLoginDvrMgr	g_LoginDvrMgr;
+//extern CLoginDvrMgr	g_LoginDvrMgr;
 
 /***********************************************************************************************/
 #endif // !defined(AFX_USERLOGIN_H__B480E331_A56A_4B89_8C20_128E6FA6BDB8__INCLUDED_)

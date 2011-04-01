@@ -15,7 +15,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CUploadFileMgr g_UploadFileMgr;
+CUploadFileMgr CUploadFileMgr::g_UploadFileMgr;
 
 CUploadFileMgr::CUploadFileMgr()
 {
@@ -25,6 +25,11 @@ CUploadFileMgr::CUploadFileMgr()
 CUploadFileMgr::~CUploadFileMgr()
 {
 
+}
+
+CUploadFileMgr* CUploadFileMgr::GetInstance()
+{
+	return &g_UploadFileMgr;
 }
 
 INT CUploadFileMgr::UploadCfgFile(int userID, TCHAR* dvrIP, 
