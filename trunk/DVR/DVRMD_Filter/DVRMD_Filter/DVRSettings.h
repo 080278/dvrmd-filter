@@ -26,20 +26,21 @@ public:
 	CDVRSettings(void);
 	~CDVRSettings(void);
 
+	enum eCapPicType{eJPEG = 0, eBMP};
+
 public:
-	//Settings of the DVR ActiveX Player.
+	//Media Server Settings
+	TCHAR		m_szIP[48];		//Media Server IP: e.g. 192.168.123.59
+	int			m_lPort;		//Media Server Port: e.g. 2000
+	TCHAR		m_szUsername[64];
+	TCHAR		m_szPassword[64];
 
-	//Display settings
-	HWND		m_hParentWnd;	//Main Frame window
-	HWND		m_hRenderWnd;
-	RECT		m_rcRenderArea;
+	CTime		m_StartTime;
+	CTime		m_EndTime;
 	
-	//Media Server Settings.
-	HHV_CLIENT_INFO		m_HHVClientInfo;
-	CTime				m_StartTime;
-	CTime				m_EndTime;
-
-	//Player Settings
+	//Player Settings.
 	BOOL		m_bHighPictureQuality;
+	TCHAR		m_szPicCapturePath[MAX_PATH];
+	eCapPicType	m_eCapturePicType;
 };
 

@@ -108,7 +108,6 @@ public:
 
 	BOOL PreTranslateMessage(MSG* lpmsg);       // overload to handle keydown message
 	
-	void  CutFile();
 	void  SetSecretKey();
 
 	CWnd* m_pParentWnd;
