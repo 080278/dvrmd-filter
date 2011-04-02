@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-//#include "HHVClient.h"
 #include "UploadFile.h"
 #include "Process.h"
 
@@ -27,6 +26,7 @@ CUploadFile::CUploadFile()
 	m_bCancel = FALSE;
 	m_upgradePos = 0;
 	m_state = 0;
+	m_channel = -1;
 }
 
 CUploadFile::~CUploadFile()
@@ -34,12 +34,14 @@ CUploadFile::~CUploadFile()
 
 }
 
-int CUploadFile::UploadCfgFile( int index, int userID, TCHAR* dvrIP, 
-							  int dvrPort,const TCHAR* imageName )
+int CUploadFile::UploadCfgFile( int index, int userID, LPCTSTR dvrIP, 
+							  int dvrPort,int cfgType, int channel, LPCTSTR imageName )
 {
 	m_nIndex = index;
 	m_nUserID = userID;
+	m_cfgType = cfgType;
 	_tcscpy( m_fileName, imageName );
+	m_channel = channel;
 
 	FILE *fin = _tfopen(imageName, _T("r+b"));
 	if( fin == NULL )
@@ -61,7 +63,7 @@ int CUploadFile::UploadCfgFile( int index, int userID, TCHAR* dvrIP,
 	}
 	
 	U32 fileLen = CCommClass::PowerGetFileSize(imageName);
-	ret = UpdateImageBeginCmd( s, userID, fileLen );
+	ret = UpdateImageBeginCmd( s, userID, cfgType, m_channel, fileLen );
 	if( ret < 0 )
 	{
 		closesocket( s );

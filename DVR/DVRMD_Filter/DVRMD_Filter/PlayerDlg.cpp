@@ -383,7 +383,7 @@ BOOL CPlayerDlg::PreTranslateMessage(MSG* lpmsg)
 //////////////////////////////////////////////////////////////////////////////
 void CPlayerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
-	TRACE("OnKeyDown");
+	TRACE(_T("OnKeyDown"));
 	if(nChar == VK_F2) 
 		ViewFullScreen();
 	else if (nChar == VK_ESCAPE && this->m_bFullScreen)
@@ -591,7 +591,7 @@ void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	m_ctrlVideoPic.GetWindowRect(&vwrect);
 	if( ( m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause) && vwrect.PtInRect(dpoint))
 	{
-		TRACE("DoubleClick");
+		TRACE(_T("DoubleClick"));
 		ViewFullScreen();
 	}
 
@@ -622,7 +622,7 @@ void CPlayerDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 	// TODO: Add your message handler code here
-	TRACE("OnSize");
+	TRACE(_T("OnSize"));
 	if(m_ctrlVideoPic.GetSafeHwnd())
 	{
 		//SortControl();
@@ -654,7 +654,7 @@ void CPlayerDlg::OnMove(int x, int y)
 	{
 		return;
 	}
-	TRACE("OnMove");
+	TRACE(_T("OnMove"));
 	// TODO: Add your message handler code here
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
 	GetPlayer()->RefreshPlay();
@@ -808,7 +808,7 @@ LRESULT CPlayerDlg::PlayMessage(WPARAM /*wParam*/, LPARAM lParam)
 
 	if(m_bRepeatPlay)
 	{
-		TRACE("wptest:Process message %d\n", lParam);
+		TRACE(_T("wptest:Process message %d\n"), lParam);
 		m_DVRPlayer.GotoStart();
 	}
 
@@ -970,8 +970,8 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
 {
 	//	OutputDebugString("½âÂë»Øµ÷");
 	//	DWORD dwTime = PlayM4_GetSpecialData(nPort);
-	////	TRACE("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
-	//	TRACE("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
+	////	TRACE(_T("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
+	//	TRACE(_T("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
 	//			GET_MONTH(dwTime), GET_DAY(dwTime), GET_HOUR(dwTime), GET_MINUTE(dwTime), GET_SECOND(dwTime));
 	/*	
 	CPlayerDlg* pDlg = (CPlayerDlg *)nReserved1;
@@ -1070,7 +1070,7 @@ void CALLBACK FileRefDone(DWORD /*nReserved*/,DWORD nUser)
 	pOwner->GetPlayer()->CanStepBackword(true);
 	//	pOwner->//m_pMainMenu->EnableMenuItem(IDM_CUT_FILE,MF_ENABLED);
 	//pOwner->//m_pMainMenu->EnableMenuItem(IDM_SEEK,MF_ENABLED);
-	TRACE("File reference created!\n");
+	TRACE(_T("File reference created!\n"));
 
 	//	DWORD dwIndex = 0;
 	//	NAME(PlayM4_GetRefValue)(m_lPort, NULL, &dwIndex);
@@ -1085,7 +1085,7 @@ void CALLBACK FileRefDone(DWORD /*nReserved*/,DWORD nUser)
 /*
 void CALLBACK VerifyFun(long nPort, FRAME_POS * pFilePos, DWORD bIsVideo,  DWORD nUser)
 {
-//	TRACE("File have been changed at: pos = 0x%X; time(s) = %d, frameNum = %d; IsVideo = %d\n",
+//	TRACE(_T("File have been changed at: pos = 0x%X; time(s) = %d, frameNum = %d; IsVideo = %d\n",
 //		pFilePos->nFilePos, pFilePos->nFrameTime/1000, pFilePos->nFrameNum, bIsVideo);
 CString abstime;
 CString str;
@@ -1106,7 +1106,7 @@ TRACE(str);
 void CALLBACK WaveCBFun(long /*nPort*/, char * pAudioBuf, long /*nSize*/, long /*nStamp*/, long /*nType*/, long /*nUser*/)
 {
 	UNREFERENCED_PARAMETER(pAudioBuf);
-	//TRACE("Wave data, nPort = %d, nSize = %d, nStamp = %d, nType = %d\n", nPort, nSize, nStamp, nType);
+	//TRACE(_T("Wave data, nPort = %d, nSize = %d, nStamp = %d, nType = %d\n", nPort, nSize, nStamp, nType);
 }
 /*************************************************************************/
 /*************************************************************************/
@@ -1143,7 +1143,7 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 	{	
 		if(!bBufFull)
 		{
-			// TRACE("Read file and put it input into the stream buffer.\n");
+			// TRACE(_T("Read file and put it input into the stream buffer.\n");
 			if(pOwner->m_dwSysFormat != SYSTEM_RTP)
 			{
 				if(!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
@@ -1211,25 +1211,39 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 // browse file and get the file path
 BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 {
+	try
+	{
 #ifdef _FOR_HIKPLAYM4_DLL_
-	CFileDialog dlg(TRUE, 
-		_T("mpg"),
-		NULL, 
-		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+		CFileDialog dlg(TRUE, 
+			_T("mpg"),
+			NULL, 
+			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+			_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #else
-	CFileDialog dlg(TRUE, 
-		_T("mpg"),
-		NULL, 
-		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+		CFileDialog dlg(TRUE, 
+			_T("mpg"),
+			NULL, 
+			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+			_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #endif
 
-	if(dlg.DoModal() == IDCANCEL)
-	{
-		return FALSE;
+		if(dlg.DoModal() == IDCANCEL)
+		{
+			return FALSE;
+		}
+		*strFileName = dlg.GetPathName();
 	}
-	*strFileName = dlg.GetPathName();
+	catch (CMemoryException* e)
+	{
+		
+	}
+	catch (CFileException* e)
+	{
+	}
+	catch (CException* e)
+	{
+	}
+
 	return TRUE;
 }
 
@@ -1239,9 +1253,9 @@ void CPlayerDlg::DrawStatus()
 {
 //	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
 //
-//	//TRACE("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
+//	//TRACE(_T("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
 //
-//	//TRACE("Get time is:%d\n",nCurrentTime);			
+//	//TRACE(_T("Get time is:%d\n",nCurrentTime);			
 //	DWORD nHour   = (nCurrentTime / 3600) % 24;
 //	DWORD nMinute = (nCurrentTime % 3600) / 60;
 //	DWORD nSecond = nCurrentTime % 60;
@@ -1265,7 +1279,7 @@ void CPlayerDlg::DrawStatus()
 //
 //	DWORD nCurrentFrame = GetPlayer()->GetCurrentFrameNum();//NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
 //
-//	TRACE("nCurrentFrame %d----------nCurrentTime %d--------------\n", nCurrentFrame, nCurrentTime);
+//	TRACE(_T("nCurrentFrame %d----------nCurrentTime %d--------------\n", nCurrentFrame, nCurrentTime);
 //	if(m_nSpeed > 0)
 //	{
 //		m_strPlayStateText.Format(_T("speed X %d            %d/%d  %02d:%02d:%02d/%02d:%02d:%02d"), GetSpeedModulus(), nCurrentFrame, m_dwTotalFrames, nHour, nMinute, nSecond, m_dwDisplayHour,m_dwDisplayMinute,m_dwDisplaySecond);
@@ -1308,8 +1322,8 @@ void CPlayerDlg::DrawStatus()
 //	m_nPrePlayPos = nScrollPos;
 //
 	// test
-	// TRACE("Current frame rate:%d\n",NAME(PlayM4_GetCurrentFrameRate)(m_lPort));
-	// TRACE("Current time use ms:%d\n",NAME(PlayM4_GetPlayedTimeEx)(m_lPort));
+	// TRACE(_T("Current frame rate:%d\n",NAME(PlayM4_GetCurrentFrameRate)(m_lPort));
+	// TRACE(_T("Current time use ms:%d\n",NAME(PlayM4_GetPlayedTimeEx)(m_lPort));
 
 }
 
@@ -1684,10 +1698,10 @@ void CPlayerDlg::SetWindowSize()
 	ClientToScreen(&rcClient);
 	m_dwDlgTopSize = rcClient.top - rcWin.top;
 
-	TRACE("init window size!\n");
+	TRACE(_T("init window size!\n"));
 	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
 //	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
-	TRACE("get window size ok\n");
+	TRACE(_T("get window size ok\n"));
 
 	if (m_nWidth == 704 && (m_nHeight == 288 || m_nHeight == 240))
 	{
@@ -1709,7 +1723,7 @@ void CPlayerDlg::SetWindowSize()
 		nWindowWidth,
 		nWindowHeight,
 		TRUE);
-	TRACE("exit window size\n");
+	TRACE(_T("exit window size\n"));
 
 }
 
@@ -1717,7 +1731,7 @@ void CPlayerDlg::SetWindowSize()
 void CPlayerDlg::SortControl()
 {
 	return;
-	TRACE("init SORT\n");
+	TRACE(_T("init SORT\n"));
 
 	// if the dialog doesn't support resizing, return;
 	//if( !(GetStyle() & WS_SIZEBOX) )
@@ -1806,14 +1820,14 @@ void CPlayerDlg::SortControl()
 	rect.right  = rcClient.right;
 	rect.bottom = rcClient.bottom;
 	InvalidateRect(&rect);
-	TRACE("exit SORT\n");
+	TRACE(_T("exit SORT\n"));
 }
 
 
 // Funtion: Init window size.
 void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 {
-	TRACE("init window\n");
+	TRACE(_T("init window\n"));
 	CRect rcWin, rcClient;
 	GetWindowRect(&rcWin);
 	GetClientRect(&rcClient);
@@ -1844,7 +1858,7 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 	DWORD nTopSize = rcClient.top - rcWin.top;
 	if(nTopSize != m_dwDlgTopSize)
 	{
-		TRACE("re init window!!!!!!\n");
+		TRACE(_T("re init window!!!!!!\n"));
 		m_dwDlgTopSize = nTopSize;
 		nWindowHeight  = cy + PANNEL_HEIGHT + m_dwDlgTopSize + m_dwDlgEdge + 10;
 		nWindowWidth   = cx + (m_dwDlgEdge << 1);

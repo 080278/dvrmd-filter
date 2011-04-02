@@ -72,7 +72,7 @@ int  CStreamParser::GetOneFrame( BYTE * dst , FRAME_HEADER  * frameHeader  )
         ret = ReadCacheData( pData , sizeof(FRAME_HEADER) - m_DataLeft ) ;
         if( ret <= 0 )
 		{
-			//TRACE("ReadCacheData return:%d  \r\n",ret);
+			//TRACE(_T("ReadCacheData return:%d  \r\n",ret);
 			return ret;
 		}
         m_DataLeft  +=  ret ;           
@@ -96,12 +96,12 @@ int  CStreamParser::GetOneFrame( BYTE * dst , FRAME_HEADER  * frameHeader  )
 			m_DataLeft -= sizeof( FRAME_HEADER );
 			if( ret <= 0 )
 			{
-			  //TRACE("帧长度异常为负数 ret = %d\r\n", ret );
+			  //TRACE(_T("帧长度异常为负数 ret = %d\r\n", ret );
 			  return ret;
 			}
 			if( ret > (MAX_FRAME_LENGTH - 1024 * 1024) )
 			{
-			  //TRACE("帧太长 ret = %d\r\n", ret );
+			  //TRACE(_T("帧太长 ret = %d\r\n", ret );
 			  return -1;
 			}	       
 
@@ -118,7 +118,7 @@ int  CStreamParser::GetOneFrame( BYTE * dst , FRAME_HEADER  * frameHeader  )
 			  memmove( m_StreamData , pBuf , m_DataLeft ) ;
 			  if( ret <= 0 )
 			  {
-				//TRACE("GetOneFrame::ret = %d\r\n", ret);
+				//TRACE(_T("GetOneFrame::ret = %d\r\n", ret);
 			  }
 			  return ret ;		  
 			}				    
@@ -149,7 +149,7 @@ int  CStreamParser::GetOneFrame( BYTE * dst , FRAME_HEADER  * frameHeader  )
         ret =  MpegStreamSync( NULL );
 		if( ret <= 0 )
 		{
-			//TRACE("GetOneFrame::MpegStreamSync return 0\r\n");
+			//TRACE(_T("GetOneFrame::MpegStreamSync return 0\r\n");
 			return ret ;
 		}
 

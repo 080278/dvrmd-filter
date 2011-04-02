@@ -73,8 +73,8 @@ int CPlayStreamParser::GetData_Vs(CComSocket * comSocket, char* buf, int len )
 {
     //headersize OK
     FILE_READ_REQUEST_MSG cmd64;
-	cmd64.command		= ntohl(SYSTEM_VIDEO_READ_REQUEST); //NET_READ_REQUEST_64
-	cmd64.size			= ntohl(sizeof(U32));
+	cmd64.header.command		= ntohl(SYSTEM_VIDEO_READ_REQUEST); //NET_READ_REQUEST_64
+	cmd64.header.length			= ntohl(sizeof(U32));
 	cmd64.length		= ntohl(len) ;
 	
     if( !comSocket->Send((char*)&cmd64, sizeof(cmd64)) )
@@ -82,7 +82,7 @@ int CPlayStreamParser::GetData_Vs(CComSocket * comSocket, char* buf, int len )
     if( !comSocket->Receive((char*)&cmd64, sizeof(cmd64)) )
         return HHV_ERROR_RECV;
 	
-	if(SYSTEM_REQUEST_ACCEPT != ntohl(cmd64.command))
+	if(SYSTEM_REQUEST_ACCEPT != ntohl(cmd64.header.command))
 	{
 		return 0;
 	}
@@ -101,15 +101,15 @@ bool CPlayStreamParser::MpegCacheSeek_Vs(CComSocket * comSocket, __int64 positio
 	FILE_SEEK_REQUEST_MSG cmd64;
 	int pos_hign = HIGHINT( position );
 	int pos_low  = LOWINT( position );
-	cmd64.command  =  htonl( SYSTEM_VIDEO_SEEK_REQUEST ) ;
-	cmd64.size = htonl( 2 * sizeof(int) );
+	cmd64.header.command  =  htonl( SYSTEM_VIDEO_SEEK_REQUEST ) ;
+	cmd64.header.length = htonl( 2 * sizeof(int) );
 	cmd64.hpos   =  htonl(pos_hign);
 	cmd64.lpos  =  htonl(pos_low) ;
 	
     comSocket->Send((char*)&cmd64, sizeof(cmd64));
     comSocket->Receive((char*)&cmd64, sizeof(cmd64)- 2 * sizeof(int));
 	
-	if ( ntohl( cmd64.command ) == SYSTEM_REQUEST_ACCEPT )
+	if ( ntohl( cmd64.header.command ) == SYSTEM_REQUEST_ACCEPT )
 	{
 		return true;
 	}

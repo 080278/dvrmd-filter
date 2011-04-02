@@ -48,39 +48,33 @@ public:
 	CLoginDvr(LPCTSTR dvrIP, int dvrPort, LPCTSTR userName, LPCTSTR userPwd, int index );
 	virtual ~CLoginDvr();
 
-	void	Startup();
-	void	Clearup();
+	void Startup();
+	void Clearup();
 
-	int		Login(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port );
-	int		Logout( );
+	int Login(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port );
+	int Logout( );
 
-	int		ReLogin( int index );
+	int ReLogin( int index );	
 
-	int		CheckOnlineStatus( int index);
-
-	int		MakeKeyFrame(LONG lUserID, LONG lChannel);
-	
-	int		ShutDownDVR( int userID );
-
-
-	int PanelKey( int userID, int keyIndex );
+	int MakeKeyFrame(LONG lUserID, LONG lChannel);
 	int StartDVRRecord( int userID, int channel );
-	int StopDVRRecord( int userID, int channel );	
-	
-	int GetDvrVersion(long lUserID, LPTSTR buf);
+	int StopDVRRecord( int userID, int channel );
+	int ReStartDVR( int loginID, int restartType, int channel = 0 );
+	int GetDvrVersion(long lUserID, char *buf);
 
-	bool IsSame(LPCTSTR dvrIP, int dvrPort);
-	
-	int FindFileByTime(int userID, int channel, UINT startTime, UINT stopTime, WORD MaxCount, char *buf);
+	int FindFileByTime(int userID, int channel, UINT startTime, UINT stopTime, WORD MaxCount, char *buf);	
+	int UploadCfgFile(int fileType, int channel, LPCTSTR imageName );
 
-	INT UploadCfgFile(LPCTSTR imageName );
+	
+	bool IsSame( LPCTSTR dvrIP, int dvrPort );
+	int CheckOnlineStatus( int index);	
 private:
 	int				CheckUserID_T(int handle);
 	int				GetFreeIndex_T();	
-	int				LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port, LOGIN_STRUCT* login);
+	int				LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port,LOGIN_STRUCT* login);
 	void			OnNetDisconnected_T(int retvalue );
 
-	int				LoginDvrCmd(SOCKET sk, LPCTSTR strUser, LPCTSTR strPass, LOGIN_STRUCT* login);
+	int				LoginDvrCmd(SOCKET sk, LPCTSTR strUser,LPCTSTR strPass, LOGIN_STRUCT* login);
 private:
 	bool			m_bExit;
 	HANDLE			m_hEventThreadExit;
@@ -94,11 +88,11 @@ private:
 	CCritSec		m_csLock;
 	
 private:
-	void			NotifyLogoutMessage(int index, TCHAR* dvrIP);
+	void			NotifyLogoutMessage(int index, char* dvrIP);
 private:
-	char			userName[MAX_USERNAME_LEN];
-	char			userPwd[MAX_USERNAME_LEN];
-	char			dvrIP[MAX_IPADDR_LEN];
+	TCHAR			userName[MAX_USERNAME_LEN];
+	TCHAR			userPwd[MAX_USERNAME_LEN];
+	TCHAR			dvrIP[MAX_IPADDR_LEN];
 	unsigned short	dvrPort;
 };
 /***********************************************************************************************/

@@ -57,7 +57,7 @@ void CConvertAVI::ReleaseResource()
 {
 	if(m_pOutAVI != NULL)
 	{
-		TRACE("Close wriff files.\n");
+		TRACE(_T("Close wriff files.\n"));
 		CloseWriffFiles();
 		m_pOutAVI = NULL;
 	}
@@ -65,7 +65,7 @@ void CConvertAVI::ReleaseResource()
 #ifdef WRITE_INDEX
 	if(m_pIndexes != NULL)
 	{
-		TRACE("Delete m_pIndexes.\n");
+		TRACE(_T("Delete m_pIndexes.\n"));
 		delete [] m_pIndexes;
 		m_pIndexes = NULL;
 	}

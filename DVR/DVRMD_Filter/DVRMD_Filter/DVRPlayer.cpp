@@ -45,7 +45,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_bStreamType = FALSE;
 
 	WSADATA wsaD;
-	DWORD wVersion = MAKEWORD(2, 2);
+	WORD wVersion = MAKEWORD(2, 2);
 	if ( WSAStartup( wVersion, &wsaD ) != 0 )
 	{
 		::MessageBox(hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
@@ -286,7 +286,7 @@ DWORD CDVRPlayer::GetCurrentPosition()
 {
 	DWORD nCurrentTime = NAME(PlayM4_GetPlayedTime)(m_lPort);
 
-	TRACE("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
+	TRACE(_T("hytest: play position = %f!\n"), NAME(PlayM4_GetPlayPos)(m_lPort));
 
 	return nCurrentTime;
 }
@@ -316,7 +316,7 @@ void CDVRPlayer::GotoEnd()
 //		int nCurFrame = NAME(PlayM4_GetCurrentFrameNum)(m_lPort);
 		while( !NAME(PlayM4_SetPlayedTimeEx)(m_lPort, m_dwMaxFileTime * 1000 ) )
 		{
-			//TRACE("FrameNum is :%d\n",nEndFrame);
+			//TRACE(_T("FrameNum is :%d\n",nEndFrame);
 //			if(nEndFrame <= int(max(0, m_dwTotalFrames - 3)))
 //			{
 //				NAME(PlayM4_SetCurrentFrameNum)(m_lPort, nCurFrame);
@@ -409,7 +409,7 @@ void CDVRPlayer::StepForward()
 
 bool CDVRPlayer::GetPictureSize(LONG* plWidth, LONG* plHeight)
 {
-	return NAME(PlayM4_GetPictureSize)(m_lPort, plWidth, plHeight);
+	return NAME(PlayM4_GetPictureSize)(m_lPort, plWidth, plHeight) == TRUE;
 }
 
 void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
@@ -918,7 +918,7 @@ void CDVRPlayer::CloseStream()
 			if(!::GetExitCodeThread(m_hThread, &dwStatus)|| (i == 4) )
 			{
 				TerminateThread(m_hThread, 0);
-				TRACE("GetExitCode option error!-decodethread\n");
+				TRACE(_T("GetExitCode option error!-decodethread\n"));
 			}
 			else
 			{
@@ -972,7 +972,7 @@ bool CDVRPlayer::SetDisplayRegion(HWND hRenderWnd, RECT* rcDisplayRegion)
 
 bool CDVRPlayer::SetDisplayType(LONG lType)
 {
-	return NAME(PlayM4_SetDisplayType)(m_lPort, lType);
+	return NAME(PlayM4_SetDisplayType)(m_lPort, lType) == TRUE;
 }
 LONG CDVRPlayer::GetDisplayType()
 {
@@ -981,7 +981,7 @@ LONG CDVRPlayer::GetDisplayType()
 
 bool CDVRPlayer::SetTimerType(DWORD dwTimerType)
 {
-	return NAME(PlayM4_SetTimerType)(m_lPort, dwTimerType, 0);
+	return NAME(PlayM4_SetTimerType)(m_lPort, dwTimerType, 0) == TRUE;
 }
 
 DWORD CDVRPlayer::GetTimerType()

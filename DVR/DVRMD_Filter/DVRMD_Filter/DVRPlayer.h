@@ -238,7 +238,7 @@ private:
 	BOOL		m_bHighFluid;					// hight fluid motion
 	DWORD		m_dwMaxFileTime;				// Media File duration.
 	bool		m_bFileRefCreated;				// Back seek Index is created.
-	//CDVRSettings::eCapPicType m_nCapPicType;
+
 	CString		m_strCapPicPath;				//Capture path;
 	UINT		m_npic_bmp;						// capped bmp  pic number
 	UINT		m_npic_jpeg;					// capped jpeg pic number

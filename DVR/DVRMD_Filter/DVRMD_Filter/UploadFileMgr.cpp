@@ -3,8 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
-//#include "HHVClient.h"
-#include "Sync_Locks.h"
 #include "UploadFileMgr.h"
 
 #ifdef _DEBUG
@@ -16,9 +14,10 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CUploadFileMgr CUploadFileMgr::g_UploadFileMgr;
+CUploadFileMgr g_UploadFileMgr;
 
 CUploadFileMgr::CUploadFileMgr()
+	: m_UploadFile(MAX_UPLOADFILE_NUM)
 {
 
 }
@@ -28,13 +27,8 @@ CUploadFileMgr::~CUploadFileMgr()
 
 }
 
-CUploadFileMgr* CUploadFileMgr::GetInstance()
-{
-	return &g_UploadFileMgr;
-}
-
-INT CUploadFileMgr::UploadCfgFile(int userID, TCHAR* dvrIP, 
-								  int dvrPort,const TCHAR* imageName )
+INT CUploadFileMgr::UploadCfgFile(int userID, LPCTSTR dvrIP, 
+								  int dvrPort,int fileType, int channel, LPCTSTR imageName )
 {
 	CUploadFile* pUploadFile = NULL;
 	
@@ -59,7 +53,7 @@ INT CUploadFileMgr::UploadCfgFile(int userID, TCHAR* dvrIP,
 	m_UploadFile[index] = pUploadFile;
 	m_csLock.Unlock();
 	
-	int ret = pUploadFile->UploadCfgFile(index, userID, dvrIP, dvrPort, imageName);
+	int ret = pUploadFile->UploadCfgFile(index, userID, dvrIP, dvrPort, fileType, channel, imageName);
 	if( ret < 0)
 	{
 		CAutoLock_Mutex lc(&m_csLock);
