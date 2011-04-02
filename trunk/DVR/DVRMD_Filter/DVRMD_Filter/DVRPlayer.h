@@ -107,14 +107,14 @@ public:
 	// Play file interfaces
 	void  Open(LPCTSTR szFile = NULL);
 	void  Close();
-	DWORD GetDuration(){return m_dwMaxFileTime;}	// Get Media File duration.
+	DWORD GetDuration(){return m_dwMaxFileTime;}	// Get Media File duration: Second
 
 	// Play operation interfaces
 	void  Play();
 	void  Pause();
 	void  Stop();
 	BOOL  SetPosition(DWORD dwTime);	// Set play position: microsecond
-	DWORD GetCurrentPosition();			// Get play position: microsecond.
+	DWORD GetCurrentPosition();			// Get play position: second.
 	DWORD GetCurrentFrameNum();		
 	BOOL  SetVolume(WORD wVolume);
 
