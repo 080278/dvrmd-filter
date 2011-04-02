@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CDVRMD_FilterCtrl, COleControl)
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_LBUTTONDBLCLK()
 	ON_STN_DBLCLK(IDC_SHOW, &CDVRMD_FilterCtrl::OnStnDblclickShow)
+	ON_WM_MOVE()
 END_MESSAGE_MAP()
 
 
@@ -237,3 +238,11 @@ void CDVRMD_FilterCtrl::OnStnDblclickShow()
 	int n = 0;
 }
 
+
+
+void CDVRMD_FilterCtrl::OnMove(int x, int y)
+{
+	COleControl::OnMove(x, y);
+
+	// TODO: Add your message handler code here
+}

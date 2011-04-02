@@ -15,6 +15,10 @@
 #include "VolumeCtrl.h"
 #include "DVRPlayer.h"
 #include "BtnST.h"
+#include "PlaySettingsDlg.h"
+#include "MonitorSettingsDlg.h"
+#include "ServerPlaybackSettingsDlg.h"
+#include "FilePlaybackSettings.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CPlayerDlg dialog
@@ -209,8 +213,15 @@ protected:
 	afx_msg void OnButtonItem(UINT nID);
 	afx_msg void OnBnClickedOpenfile();
 	afx_msg void OnBnClickedShowHideSettings();
-	afx_msg void OnBnClickedLogin();
 	DECLARE_MESSAGE_MAP()
+
+protected:
+	
+	CPropertySheet	m_DVRSettingsSheet;
+	CPlaySettingsDlg	m_DVRSettingsPage1;
+	CMonitorSettingsDlg m_DVRSettingsPage2;
+	CServerPlaybackSettingsDlg m_DVRSettingsPage3;
+	CFilePlaybackSettingsDlg m_DVRSettingsPage4;
 };
 
 //{{AFX_INSERT_LOCATION}}

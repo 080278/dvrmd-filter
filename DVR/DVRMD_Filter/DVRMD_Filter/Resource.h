@@ -67,11 +67,16 @@
 #define IDD_DIALOG1                     243
 #define IDS_DVRMD_FILTER_PPG            244
 #define IDD_DVR_PLAY_SETTINGS           244
+#define IDD_MEDIASERVER_SETTINGS        244
 #define IDS_DVRMD_FILTER_PPG_CAPTION    245
+#define IDD_DIALOG2                     245
+#define IDD_MONITOR_SETTINGS            245
 #define IDD_PROPPAGE_DVRMD_FILTER       246
 #define IDD_ABOUTBOX_DVRMD_FILTER       247
 #define IDB_DVRMD_FILTER                248
+#define IDD_PLAYBACK_SETTINGS           248
 #define IDI_ABOUTDLL                    249
+#define IDD_FILE_SETTINGS               249
 #define IDD_DVRMDFRAME_DIALOG           250
 #define IDC_VER                         1025
 #define IDC_REFRESH                     1026
@@ -118,17 +123,13 @@
 #define IDC_RAD_ASCII                   1083
 #define IDC_RAD_HEX                     1084
 #define IDC_EDT_KEY                     1085
-#define IDC_BUTTON1                     1086
 #define IDC_OPENFILE                    1086
 #define IDC_MEDIASERVER_IP              1087
 #define IDC_MEDIASERVER_PORT            1088
 #define IDC_CHANNEL1                    1089
 #define IDC_USERNAME                    1089
 #define IDC_START_TIME                  1090
-#define IDC_MEDIASERVER_PORT2           1090
-#define IDC_PASSWORD                    1090
 #define IDC_END_TIME                    1091
-#define IDC_BUTTON2                     1092
 #define IDC_SHOWHIDE_SETTINGS           1092
 #define IDC_PLAY_TIMEINFO               1093
 #define IDC_LOGIN                       1096
@@ -138,6 +139,17 @@
 #define IDC_STATIC_UNAME                1100
 #define IDC_STATIC_PORT                 1101
 #define IDC_STATIC_IP                   1102
+#define IDC_LOGOUT                      1103
+#define IDC_WATCH_START                 1105
+#define IDC_WATCH_END                   1106
+#define IDC_START_DATE                  1107
+#define IDC_END_DATE                    1108
+#define IDC_SHEET_POS                   1108
+#define IDC_LOGININFO                   1109
+#define IDC_PASSWORD                    1110
+#define IDC_PLAYBACK                    1110
+#define IDC_EDIT1                       1111
+#define IDC_MEDIA_FILEPATH              1111
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -216,9 +228,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        245
+#define _APS_NEXT_RESOURCE_VALUE        250
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1103
+#define _APS_NEXT_CONTROL_VALUE         1112
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

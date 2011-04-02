@@ -164,9 +164,11 @@
     <ClCompile Include="DVRMetaDataHandler.cpp" />
     <ClCompile Include="DVRPlayer.cpp" />
     <ClCompile Include="DVRSettings.cpp" />
+    <ClCompile Include="FilePlaybackSettings.cpp" />
     <ClCompile Include="HWndManager.cpp" />
     <ClCompile Include="LoginDvr.cpp" />
     <ClCompile Include="LoginDvrMgr.cpp" />
+    <ClCompile Include="MonitorSettingsDlg.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
@@ -174,6 +176,7 @@
     <ClCompile Include="PlayerDlg.cpp" />
     <ClCompile Include="PlayStreamParser.cpp" />
     <ClCompile Include="RealStreamParser.cpp" />
+    <ClCompile Include="ServerPlaybackSettingsDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -263,9 +266,11 @@
     <ClInclude Include="DVRMetaDataHandler.h" />
     <ClInclude Include="DVRPlayer.h" />
     <ClInclude Include="DVRSettings.h" />
+    <ClInclude Include="FilePlaybackSettings.h" />
     <ClInclude Include="HWndManager.h" />
     <ClInclude Include="LoginDvr.h" />
     <ClInclude Include="LoginDvrMgr.h" />
+    <ClInclude Include="MonitorSettingsDlg.h" />
     <ClInclude Include="PlayerMgr.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
@@ -275,6 +280,7 @@
     <ClInclude Include="PlayStreamParser.h" />
     <ClInclude Include="RealStreamParser.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ServerPlaybackSettingsDlg.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StreamParser.h" />
     <ClInclude Include="Sync_Locks.h" />

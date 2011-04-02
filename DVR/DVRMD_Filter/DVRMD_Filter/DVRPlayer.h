@@ -100,7 +100,7 @@ public:
 	void Logout();
 	BOOL IsLogined(){return m_UserID >= 0;}
 
-	// Realtime watching interfaces
+	// Real time watching interfaces
 	BOOL StartMonitor();
 	void StopMonitor();
 
@@ -212,6 +212,11 @@ public:
 	HANDLE		m_hStreamFile;                  // input file
 
 private:
+	int   m_nPlayType;	//	-1: Unknown; 0: Play file; 1: Monitor
+	BOOL  InitForPlayFile();
+	void  DestoryPlayFile();
+	BOOL  InitForMonitor();
+	void  DestoryMonitor();
 	void  OpenFile();
 	void  CloseFile();
 	void  GetPic(PBYTE pImage, DWORD nBufSize);

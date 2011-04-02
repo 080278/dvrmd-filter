@@ -43,26 +43,32 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_hThread = NULL;    
 	m_hStreamFile = NULL;
 	m_bStreamType = FALSE;
+	m_nPlayType = -1;
 
-	WSADATA wsaD;
-	WORD wVersion = MAKEWORD(2, 2);
-	if ( WSAStartup( wVersion, &wsaD ) != 0 )
-	{
-		::MessageBox(hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
-		return FALSE;
-	}
 	if (m_lPort == -1)
 		NAME(PlayM4_GetPort)(&m_lPort);
 
-	m_spHWndMgr.reset(new CHWndManager);
-	m_spPlayerMgr.reset(new CPlayerMgr);
-	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
+	return true;
+}
 
-	m_spHWndMgr->InitSplit(m_hRenderWnd);
-	m_spHWndMgr->SetSplitMode(m_lPort, SPLIT_1);
-	m_spPlayerMgr->Init(NULL);
-	m_spDVRLoginMgr->Startup();
+void CDVRPlayer::Destory()
+{
+	if (m_nPlayType == 0)
+	{
+		DestoryPlayFile();
+	}
+	else if (m_nPlayType == 1)
+	{
+		DestoryMonitor();
+	}
 
+	m_nPlayType = -1;
+}
+
+BOOL CDVRPlayer::InitForPlayFile()
+{
+	Destory();
+	m_nPlayType = 0;
 #if (WINVER > 0x0400)
 	// If do not support multi monitor,may not call!
 	HMONITOR hMonitor;
@@ -101,10 +107,11 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	NAME(PlayM4_SetVolume)(m_lPort, 0);
 
 	NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
-	return true;
+
+	return TRUE;
 }
 
-void CDVRPlayer::Destory()
+void CDVRPlayer::DestoryPlayFile()
 {
 	Close();
 
@@ -114,7 +121,34 @@ void CDVRPlayer::Destory()
 
 	m_lPort = -1;
 	m_enumState = CDVRPlayer::eState_Close;
+}
+BOOL CDVRPlayer::InitForMonitor()
+{
+	Destory();
 
+	m_nPlayType = 1;
+	WSADATA wsaD;
+	WORD wVersion = MAKEWORD(2, 2);
+	if ( WSAStartup( wVersion, &wsaD ) != 0 )
+	{
+		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
+		return FALSE;
+	}
+
+	m_spHWndMgr.reset(new CHWndManager);
+	m_spPlayerMgr.reset(new CPlayerMgr);
+	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
+
+	m_spHWndMgr->InitSplit(m_hRenderWnd);
+	m_spHWndMgr->SetSplitMode(m_lPort, SPLIT_1);
+	m_spPlayerMgr->Init(NULL);
+	m_spDVRLoginMgr->Startup();
+
+	return TRUE;
+}
+
+void CDVRPlayer::DestoryMonitor()
+{
 	m_spDVRLoginMgr->Clearup();
 	m_spHWndMgr.release();
 	m_spPlayerMgr.release();
@@ -122,7 +156,6 @@ void CDVRPlayer::Destory()
 
 	WSACleanup();
 }
-
 BOOL CDVRPlayer::Login()
 {
 	if (m_DVRSettings.m_csUsername.GetLength() > 0 && 
@@ -137,18 +170,40 @@ BOOL CDVRPlayer::Login()
 }
 BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPort)
 {
-//	m_UserID = m_DVRLoginMgr.Login(szUsername, szPwd, szIP, nPort);
-	return m_UserID >= 0;
+	m_UserID = m_spDVRLoginMgr->Login(szUsername, szPwd, szIP, nPort);
+	if (m_UserID >= 0)
+	{
+		m_DVRSettings.m_csUsername = szUsername;
+		m_DVRSettings.m_csPassword = szPwd;
+		m_DVRSettings.m_csMediaServerIP = szIP;
+		m_DVRSettings.m_lPort = nPort;
+
+		return TRUE;
+	}
+	return FALSE;
 }
 void CDVRPlayer::Logout()
 {
 	if (m_UserID >= 0)
 	{
-//		m_DVRLoginMgr.Logout(m_UserID);
+		m_spDVRLoginMgr->Logout(m_UserID);
 		m_UserID = -1;
 	}
 }
 
+BOOL CDVRPlayer::StartMonitor()
+{
+	if (InitForMonitor())
+	{
+
+	}
+
+	return FALSE;
+}
+void CDVRPlayer::StopMonitor()
+{
+
+}
 // Draw Function
 //	Draw the Meta Data
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
@@ -567,6 +622,8 @@ void CDVRPlayer::Cappic()
 // file operation:
 void CDVRPlayer::Open(LPCTSTR szFile) 
 {
+	InitForPlayFile();
+
 	Close();
 //	SetState();
 	if (szFile != NULL)
@@ -627,14 +684,8 @@ void CDVRPlayer::Close()
 		{
 			CloseFile();	
 		}
-
-
-
 		m_nWidth = 352;
 		m_nHeight = 288;
-
-
-
 	}
 }
 
@@ -760,26 +811,6 @@ void CDVRPlayer::OpenFile()
 	m_dwDisplaySecond   = m_dwMaxFileTime % 60;
 	m_dwTotalFrames		= NAME(PlayM4_GetFileTotalFrames)(m_lPort);
 
-	//if(m_bConvertAVI)
-	//{
-	//	AVI_CONVERT_PARA strParam;
-	//	long dwHeight, dwWidth;
-	//	NAME(PlayM4_GetPictureSize)(m_lPort, &dwWidth, &dwHeight);
-	//	strParam.dwFrameWidth  = MOD16(dwWidth);
-	//	strParam.dwFrameHeight = MOD16(dwHeight);
-	//	strParam.dwFrameSize   = strParam.dwFrameWidth * strParam.dwFrameHeight *3/2;
-	//	strParam.dwTotalFrames = m_dwTotalFrames;
-
-	//	BOOL bInitAVI = g_classAVI.InitResource(&strParam, m_strSaveAVIPath);
-	//	if(!bInitAVI)
-	//	{
-	//		strError.Format(_T("Init AVI Resource failed!"));
-	//		MessageBox(strError);
-	//		g_classAVI.ReleaseResource();
-	//		m_bConvertAVI = FALSE;
-	//	}
-	//}
-
 	// If you want to change the display buffer. Do hear!
 	//	NAME(PlayM4_SetDisplayBuf)(m_lPort,50);
 	//	NAME(PlayM4_SetDisplayBufAddtionalLen)(m_lPort, 6);
@@ -790,7 +821,7 @@ void CDVRPlayer::OpenFile()
 	//	PlayM4_SetCurrentFrameNum(m_lPort, 10000);
 	//	PlayM4_SetPlayPos(m_lPort, 1.2);
 	// 	DWORD dw = PlayM4_GetLastError(m_lPort);
-	::SetWindowText(m_hParentWnd, (LPCTSTR) m_strPlayFileName);
+	//::SetWindowText(m_hParentWnd, (LPCTSTR) m_strPlayFileName);
 }
 
 // close file
@@ -798,9 +829,7 @@ void CDVRPlayer::CloseFile()
 {
 	Stop();
 	NAME(PlayM4_CloseFile)(m_lPort);
-	//	NAME(PlayM4_FreePort)(m_lPort);
-	////m_pMainMenu->GetSubMenu(3)->EnableMenuItem(10, MF_ENABLED|MF_BYPOSITION);
-	//Destory();
+
 	m_bOpen = FALSE;
 	m_bFileRefCreated =	FALSE;	
 }
