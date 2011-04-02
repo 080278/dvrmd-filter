@@ -607,7 +607,7 @@ void CPlayerDlg::OnTimer(UINT nIDEvent)
 	// TODO: Add your message handler code here and/or call default
 	if(nIDEvent==PLAY_TIMER)
 	{
-		//DrawStatus();
+		DrawStatus();
 	}
 	CDialog::OnTimer(nIDEvent);
 }
@@ -1238,7 +1238,14 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 // Funtion: Draw the status .
 void CPlayerDlg::DrawStatus()
 {
-//	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
+	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
+	DWORD nDuration	= GetPlayer()->GetDuration();
+
+	m_PlaySlider.SetScrollPos(PLAYER_SLIDER_MAX * nCurrentTime / nDuration);
+
+	CString csPlayTime;
+	csPlayTime.Format(_T("%.2d:%.2d:%.2d / %.2d:%.2d:%.2d"), nCurrentTime/3600, nCurrentTime/60, nCurrentTime%60, nDuration/3600, nDuration/60, nDuration%60);
+	GetDlgItem(IDC_PLAY_TIMEINFO)->SetWindowText(csPlayTime);
 //
 //	//TRACE(_T("hytest: play position = %f!\n", NAME(PlayM4_GetPlayPos)(m_lPort));
 //
@@ -2232,6 +2239,7 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		{
 			Close();
 			Open(csFile);
+			SetTimer(PLAY_TIMER, 500, NULL);
 			SetState();
 		}
 		break;
