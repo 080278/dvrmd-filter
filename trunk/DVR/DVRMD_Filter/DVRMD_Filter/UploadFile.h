@@ -33,11 +33,11 @@ public:
 	CUploadFile();
 	virtual ~CUploadFile();
 
-	int UploadCfgFile( int index, int userID, TCHAR* dvrIP, 
-		int dvrPort,const TCHAR* imageName );
+	int UploadCfgFile( int index, int userID, LPCTSTR dvrIP, 
+		int dvrPort,int fileType, int channel, LPCTSTR imageName );
 
 private:
-	int UpdateImageBeginCmd(SOCKET sk, int loginID, int imagLen);
+	int UpdateImageBeginCmd(SOCKET sk, int loginID, int fileType, int channel, int imagLen);
 	int UpdateImageDataCmd(SOCKET sk,int loginID, unsigned char* buf, int len);
 	int UpdateImageEndCmd( SOCKET sk,int loginID, int checkSum );
 
@@ -48,12 +48,13 @@ private:
 	int	m_nIndex;
 	int m_nUserID;
 	SOCKET m_skSocket;
+	int	 m_channel;
 	TCHAR m_fileName[MAX_PATH];
 	UINT m_fileLen;
 	BOOL m_bCancel;
 	int m_upgradePos;
 	int m_state;
-
+	int	m_cfgType;
 };
 
 #endif // !defined(AFX_UPLOADFILE_H__9F5085E0_04B7_4D37_B683_87015C3C2CF3__INCLUDED_)

@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "LoginDvr.h"
-//#include "TraceLog.h"
 #include "Player.h"
 #include "DvrSDKErr.h"
 //#include "struct_TCPServ.h"
@@ -16,14 +15,15 @@
 
 int g_connectTimeOut = 10*1000;
 
+extern HWND			g_hWnd;
 VOID __stdcall TimerProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime);
 
 CLoginDvr::CLoginDvr(LPCTSTR pdvrIP, int pdvrPort, LPCTSTR puserName, LPCTSTR puserPwd, int nIndex)
 {
-	strcpy( m_loginInfo.dvrIP, CT2A(pdvrIP));
+	strcpy( m_loginInfo.dvrIP, CT2A(pdvrIP) );
 	m_loginInfo.dvrPort = pdvrPort;
 
-	TRACE("CLoginDvr::CLoginDvr中pdvrIP = %s, pdvrPort = %d, puserName =%s, puserPwd = %s \r\n", pdvrIP, pdvrPort, puserName, puserPwd);
+	TRACE(_T("CLoginDvr::CLoginDvr中pdvrIP = %s, pdvrPort = %d, puserName =%s, puserPwd = %s \r\n"), pdvrIP, pdvrPort, puserName, puserPwd);
 	strcpy( m_loginInfo.userName, CT2A(puserName) );
 	strcpy( m_loginInfo.userPwd, CT2A(puserPwd) );
 	m_index = nIndex;
@@ -55,7 +55,7 @@ int	CLoginDvr::Login(LPCTSTR userName, LPCTSTR pwd, LPCTSTR addr, int port)
 	m_csLock.Lock();
 	if( login->hSocket != INVALID_SOCKET )//先关闭socket
 	{
-		TRACE("登录时先关闭原socket index = %d IP = %s SOCKET = %d\r\n\r\n",login->index, login->dvrIP, login->hSocket );
+		TRACE(_T("登录时先关闭原socket index = %d IP = %s SOCKET = %d\r\n\r\n"),login->index, login->dvrIP, login->hSocket );
 		closesocket( login->hSocket );
 		login->hSocket = INVALID_SOCKET;
 	}
@@ -104,7 +104,7 @@ int CLoginDvr::CheckOnlineStatus( int index)
 	CAutoLock_CS		lc(&m_csLock);
 	if( login->logined == STATUS_UNLOGINED )
 	{
-//		TRACE("CLoginDvr::CheckOnlineStatus()中login->logined == STATUS_UNLOGINED， 退出--------------checkonline------2 \r\n");
+//		TRACE(_T("CLoginDvr::CheckOnlineStatus()中login->logined == STATUS_UNLOGINED， 退出--------------checkonline------2 \r\n");
 		return 0;
 	}
 	int ret = -1;
@@ -112,25 +112,25 @@ int CLoginDvr::CheckOnlineStatus( int index)
 	if( ret < 0 )
 	{
 		Logout( );
-		NotifyLogoutMessage(m_index, CA2T(login->dvrIP));
+		NotifyLogoutMessage(m_index, login->dvrIP );
 	}
 	
 	return ret;
 }
 
-int	CLoginDvr::LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port, LOGIN_STRUCT* login )
+int	CLoginDvr::LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port,LOGIN_STRUCT* login )
 {
 	SOCKET sk = CreateSocket( 0, 30 );
 
 	if( sk == INVALID_SOCKET )
 	{
-		TRACE("创建Socket失败 CLoginDvr::Login IP = %s port = %d\r\n\r\n", addr, port);
+		TRACE(_T("创建Socket失败 CLoginDvr::Login IP = %s port = %d\r\n\r\n"), addr, port);
 		return HHV_ERROR_CREATESOCKET;
 	}
 	if( Connect(sk, CT2A(addr), port,g_connectTimeOut ) == SOCKET_ERROR )
 	{
 		int err = GetLastError();
-		TRACE("连接DVR失败 CLoginDvr::Login IP = %s port = %d SOCKET = %d, err=%d\r\n\r\n", addr, port, sk, err);
+		TRACE(_T("连接DVR失败 CLoginDvr::Login IP = %s port = %d SOCKET = %d, err=%d\r\n\r\n"), addr, port, sk, err);
 		closesocket(sk);
 		return HHV_ERROR_CONNECT;
 	}
@@ -138,31 +138,47 @@ int	CLoginDvr::LoginDvr_T(LPCTSTR userName,  LPCTSTR pwd, LPCTSTR addr, int port
 	int ret = LoginDvrCmd( sk, userName, pwd, login );
 	if( ret < 0 )
 	{
-		TRACE("登录命令交互失败 CLoginDvr::Login IP = %s port = %d userName = %s pwd = %s\r\n\r\n", addr, port, userName, pwd);
+		TRACE(_T("登录命令交互失败 CLoginDvr::Login IP = %s port = %d userName = %s pwd = %s\r\n\r\n"), addr, port, userName, pwd);
 		closesocket( sk );
 		return ret;
 	}
 	return (int)sk;
 }
 
-int CLoginDvr::MakeKeyFrame(LONG index, LONG lChannel)
+int CLoginDvr::MakeKeyFrame(LONG index, LONG channel)
 {
-	TRACE("进入CLoginDvr::MakeKeyFrame，\r\n" );
+	TRACE(_T("进入CLoginDvr::MakeKeyFrame，\r\n") );
 	LOGIN_STRUCT* login = &m_loginInfo;
 	if( login == NULL )
 		return HHV_ERROR_NOLOGIN;
 
-	m_csLock.Lock();
-	//int ret = CInterfaceCmd::GenerateIFrame( login->hSocket, login->loginID, lChannel );
-	//TRACE("退出CLoginDvr::MakeKeyFrame，ret = %d\r\n", ret );
-	m_csLock.Unlock();
-	//return ret;
+	CAutoLock_CS lc(&m_csLock);
+	
+	REMOTE_MAKE_IFRAME_REQUEST		msg;
+	REMOTE_MAKE_IFRAME_RESPONSE		rsp;
+	msg.header.command	= REMOTE_SYSTEM_MAKE_IFRAME;
+	msg.loginID	= login->logined;
+	msg.Channel	= channel;
+	msg.h2n();
+	
+	int ret = SendAndRecv(login->hSocket, (char*)&msg, sizeof(msg), (char*)&rsp, sizeof(rsp) );
+	if( ret < 0 )
+	{
+		int err = GetLastError();
+		TRACE(_T("MakeKeyFrame 返回小于0， ret = %d,  err = %d\r\n"), ret, err );
+		return ret;
+	}
+	rsp.n2h();
+	if( rsp.header.command != SYSTEM_REQUEST_ACCEPT )
+	{
+		return HHV_ERROR_GENEIFRAME;
+	}
 	return 0;
 }
 
-void CLoginDvr::NotifyLogoutMessage( int index, TCHAR* dvrIP)
+void CLoginDvr::NotifyLogoutMessage( int index, char* dvrIP)
 {
-	TRACE("CLoginDvr::NotifyLogoutMessage  \r\n");
+	TRACE(_T("CLoginDvr::NotifyLogoutMessage  \r\n"));
 	
 //	UINT uMsg = WM_DLDVR_LOGOUT_NOTIFY;
 //	UINT wParam = index; 
@@ -179,7 +195,7 @@ void CLoginDvr::NotifyLogoutMessage( int index, TCHAR* dvrIP)
 //	ext.lPara = lParam;
 //	if( g_Config.funCallBack != NULL )
 //	{
-//		TRACE("NotifyLogoutMessage 中调用g_Config.funCallBack， index = %d IP = %s \r\n\r\n", index, dvrIP);
+//		TRACE(_T("NotifyLogoutMessage 中调用g_Config.funCallBack， index = %d IP = %s \r\n\r\n", index, dvrIP);
 //
 //		g_Config.funCallBack( EXCEPTION_NOTIFY, dvrIP, (char*)&ext, sizeof(NET_DLDVR_EXCEPTION) );			
 //	}
@@ -217,15 +233,24 @@ void CLoginDvr::NotifyLogoutMessage( int index, TCHAR* dvrIP)
 
 }
 
-int CLoginDvr::ShutDownDVR( int userID )
+int CLoginDvr::ReStartDVR( int loginID, int restartType, int channel )
 {
-	//int ret = 0;
-	//	LOGIN_STRUCT* login = &m_loginInfo;	
-	//	CAutoLock_CS lc(&m_csLock);
-	//	
-	//	ret = CInterfaceCmd::ShutDownDvr(login->hSocket, login->loginID, NULL );
-	//	OnNetDisconnected_T( ret );
-	//	return ret;
+	int ret = 0;
+	LOGIN_STRUCT* login = &m_loginInfo;	
+	CAutoLock_CS lc(&m_csLock);
+
+	REMOTE_REBOOT_DVR_REQUEST				msg;
+	REMOTE_REBOOT_DVR_RESPONSE				rsp;
+	msg.header.command					= REMOTE_SYSTEM_REBOOT_DVR;
+	msg.loginID							= loginID;
+	msg.h2n();
+	
+	ret = SendAndRecv(login->hSocket, (char*)&msg, sizeof(msg), (char*)&rsp, sizeof(rsp) );
+	if( ret < 0 )
+		return ret;	
+	rsp.n2h();
+	if( rsp.header.command != SYSTEM_REQUEST_ACCEPT )
+		return HHV_ERROR_REBOOTDVR;
 	return 0;
 }
 
@@ -283,12 +308,12 @@ int CLoginDvr::StopDVRRecord( int userID, int channel )
 	//	ret = CInterfaceCmd::GetDvrState( login->hSocket, login->loginID, workState, NULL);
 	//
 	//	OnNetDisconnected_T( ret );
-	////	TRACE("正确退出CDVRCfg::GetDvrWorkState, ret=%d\r\n",ret);
+	////	TRACE(_T("正确退出CDVRCfg::GetDvrWorkState, ret=%d\r\n",ret);
 	//	return ret;
 //	return 0;
 //}
 
-int CLoginDvr::GetDvrVersion(long userID, LPTSTR buf)
+int CLoginDvr::GetDvrVersion(long userID, char *buf)
 {
 	//int ret = 0;
 	//	LOGIN_STRUCT* login = &m_loginInfo;	
@@ -325,7 +350,7 @@ int CLoginDvr::FindFileByTime(int userID, int channel, UINT startTime, UINT stop
 	//	
 	//
 	//	OnNetDisconnected_T( ret );
-	//	TRACE("CDVRCfg::FindFileOpen中调用CInterfaceCmd::FindFileOpen ret= %d，退出FindFileOpen\r\n", ret);
+	//	TRACE(_T("CDVRCfg::FindFileOpen中调用CInterfaceCmd::FindFileOpen ret= %d，退出FindFileOpen\r\n", ret);
 	//	return ret;
 
 	return 0;
@@ -409,13 +434,13 @@ bool CLoginDvr::IsSame( LPCTSTR dvrIP, int dvrPort )
 }
 
 
-INT CLoginDvr::UploadCfgFile(LPCTSTR imageName )
+INT CLoginDvr::UploadCfgFile(int fileType, int channel, LPCTSTR imageName )
 {
 	int ret = 0;
 	LOGIN_STRUCT* login = &m_loginInfo;	
 	CAutoLock_CS lc(&m_csLock);
 
-	return CUploadFileMgr::GetInstance()->UploadCfgFile(login->loginID, CA2T(login->dvrIP), login->dvrPort,
-										imageName);
+	return g_UploadFileMgr.UploadCfgFile(login->loginID, CA2T(login->dvrIP), login->dvrPort,
+										fileType, channel, imageName);
 }
 

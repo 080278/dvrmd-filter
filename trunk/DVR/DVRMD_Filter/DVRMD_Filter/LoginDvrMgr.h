@@ -35,12 +35,12 @@ public:
 	int	 GetVideoEffect(int userID, int channel, int &bright, int &contrast, 
 		int &saturation, int &hueValue);
 
-	int ShutDownDVR( int userID );
+	int ReStartDVR( int loginID, int restartType, int channel = 0 );
 
 	int StartDVRRecord( int userID, int channel );
 	int StopDVRRecord( int userID, int channel );
 	
-	INT UploadCfgFile(int userID, LPCTSTR imageName );
+	INT UploadCfgFile(int userID, int cfgType, int channel, LPCTSTR imageName );
 	
 private:
 	int		CheckUserID(int handle);
@@ -71,10 +71,10 @@ private:
 	CCritSec		m_csLock;
 	
 private:
-	void			NotifyLogoutMessage(int index, TCHAR* dvrIP);
+	void			NotifyLogoutMessage(int index, char* dvrIP);
 };
 
-//extern CLoginDvrMgr	g_LoginDvrMgr;
+extern CLoginDvrMgr	g_LoginDvrMgr;
 
 /***********************************************************************************************/
 #endif // !defined(AFX_USERLOGIN_H__B480E331_A56A_4B89_8C20_128E6FA6BDB8__INCLUDED_)

@@ -6,12 +6,14 @@
 #include "NetDef.h"
 #include "assert.h"
 
-int CUploadFile::UpdateImageBeginCmd(SOCKET sk, int loginID, int imagLen)
+int CUploadFile::UpdateImageBeginCmd(SOCKET sk, int loginID, int fileType, int channel, int imagLen)
 {
 	REMOTE_UPDATE_BEGIN_REQUEST		msg;
 	REMOTE_UPDATE_BEGIN_RESPONSE	rsp;
 	msg.header.command				= REMOTE_SYSTEM_UPDATE_REQUEST;
 	msg.loginID						= loginID;
+	msg.uploadType					= fileType;
+	msg.channel						= channel;
 	msg.Length						= imagLen;
 	msg.h2n();
 	
@@ -33,6 +35,7 @@ int CUploadFile::UpdateImageDataCmd(SOCKET sk,int loginID, unsigned char* buf, i
 	REMOTE_UPDATE_IMAGEDATA_RESPONSE		rsp;
 	msg.header.command						= REMOTE_SYSTEM_UPDATE_DATA;
 	msg.loginID								= loginID;
+	msg.length								= len;
 	assert( len > 0 );
 	memcpy( msg.data, buf, len );
 	msg.h2n();

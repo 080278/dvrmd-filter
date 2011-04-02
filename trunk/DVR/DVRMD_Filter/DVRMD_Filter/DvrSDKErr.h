@@ -46,5 +46,7 @@
 #define HHV_ERROR_READFILE			-171//读文件失败
 #define HHV_ERROR_UPDATEDATA		-172
 #define HHV_ERROR_UPDATEND			-173
+#define HHV_ERROR_REBOOTDVR			-174//重启DVR失败
+#define HHV_ERROR_GENEIFRAME		-400	//生成关键帧失败
 
 #endif

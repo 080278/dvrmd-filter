@@ -7,6 +7,7 @@
 #include <process.h>
 #include "./DvrSDKErr.h"
 #include "./CommClass.h"
+//#include "./struct_TCPServ.h"
 #include "./NetDef.h"
 #include "./PlayMp4H_fFunDef.h"
 
@@ -71,12 +72,12 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
     int ret = MonitorStartCmdMT(m_comSocket.m_hSocket, clientInfo, m_streamHeader, streamHeaderSize);
     if( ret < 0 )
     {
-        //TRACE("(MTVideo)监视失败 发送cmd失败或被服务器拒绝 vsIP = %s vsPort = %d dvrIP = %s channel = %d\r\n",
+        //TRACE(_T("(MTVideo)监视失败 发送cmd失败或被服务器拒绝 vsIP = %s vsPort = %d dvrIP = %s channel = %d\r\n",
 		//	clientInfo->RFIP, clientInfo->RFTCPPort, clientInfo->connInfo.ip, clientInfo->channel);
         m_comSocket.Close();
         return ret;
     }
-    //TRACE("(MTVideo)监视 发送cmd成功 vsIP = %s vsPort = %d dvrIP = %s channel = %d\r\n",
+    //TRACE(_T("(MTVideo)监视 发送cmd成功 vsIP = %s vsPort = %d dvrIP = %s channel = %d\r\n",
 	//	clientInfo->RFIP, clientInfo->RFTCPPort, clientInfo->connInfo.ip, clientInfo->channel);
 
     //mode- 流模式（1-实时流/2-文件流）
@@ -113,7 +114,7 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 		return -nErr;
 	}
 
-    TRACE("(MTVideo)监视 OpenPlayStream成功 m_index = %d dvrIP = %s channel = %d\r\n",
+    TRACE(_T("(MTVideo)监视 OpenPlayStream成功 m_index = %d dvrIP = %s channel = %d\r\n"),
 		m_index, clientInfo->connInfo.ip, clientInfo->channel);
     //memcpy(&m_clientInfo, clientInfo, sizeof(UNISDK_CLIENT_INFO));
     //开启线程, 接收视频流
@@ -122,28 +123,28 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
     m_Thread = (HANDLE)_beginthreadex( NULL, 4*1024*1024, DecoderRoutine, this, 0, &threadid ); 
     if(m_Thread <= 0)
     {
-        TRACE("(MTVideo)!!!!!!开辟接受数据线程失败！m_Thread:%d errno:%d _doserrno:%d \r\n",
+        TRACE(_T("(MTVideo)!!!!!!开辟接受数据线程失败！m_Thread:%d errno:%d _doserrno:%d \r\n"),
             m_Thread, errno, _doserrno);
         SetEvent( m_hExitEvent );
     }
 	
     CloseHandle( m_Thread );
   
-    TRACE("(MTVideo)监视成功结束 m_PlayHandle = %d dvrIP = %s channel = %d\r\n",
+    TRACE(_T("(MTVideo)监视成功结束 m_PlayHandle = %d dvrIP = %s channel = %d\r\n"),
 		m_PlayHandle, clientInfo->connInfo.ip, clientInfo->channel);
     return m_index;
 }
 VOID CPlayer::StopMonitor( )
 {
-	TRACE("(MTVideo)停止监视 开始\r\n");
+	TRACE(_T("(MTVideo)停止监视 开始\r\n"));
     m_exit = true;
     m_comSocket.Close();
-    //TRACE("(MTVideo)停止监视 将执行WaitForSingleObject dvrIP = %s channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
+    //TRACE(_T("(MTVideo)停止监视 将执行WaitForSingleObject dvrIP = %s channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
 	//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
     DWORD dwret = WaitForSingleObject( m_hExitEvent, WAIT_THREAD_EXIT_MAX_TIME );
     if(dwret == WAIT_TIMEOUT)
     {
-        TRACE("(MTVideo)!!!!!停止监视时 WaitFor退出信号超时 \r\n");
+        TRACE(_T("(MTVideo)!!!!!停止监视时 WaitFor退出信号超时 \r\n"));
     }
     
 	BOOL bret =  PlayM4_Stop(m_index);
@@ -168,7 +169,7 @@ VOID CPlayer::StopMonitor( )
 	}
 	
 	
-    //TRACE("(MTVideo)停止监视成功 DvrIP = %s channnel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
+    //TRACE(_T("(MTVideo)停止监视成功 DvrIP = %s channnel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
 	//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
     m_PlayHandle = -1;
 }
@@ -194,7 +195,7 @@ UINT __stdcall CPlayer::DecoderRoutine( void * dat)
     
     pPlayer->m_comSocket.Close();
     SetEvent( pPlayer->m_hExitEvent );
-    TRACE("线程 '监视' (0x%x)%d 已退出\r\n", GetCurrentThreadId(), GetCurrentThreadId());
+    TRACE(_T("线程 '监视' (0x%x)%d 已退出\r\n"), GetCurrentThreadId(), GetCurrentThreadId());
     return 0;
 }
 
@@ -205,13 +206,13 @@ int CPlayer::InputData()
     {
         if(m_exit)
         {
-            //TRACE("CMTVideo::InputData 退出1 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d ret = %d nReceiveOneTime = %dkbps\r\n",
+            //TRACE(_T("CMTVideo::InputData 退出1 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d ret = %d nReceiveOneTime = %dkbps\r\n",
 			//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager, ret, nReceiveOneTime);
             return -1;
         }
-        //TRACE("CMTVideo::InputData <m_comSocket.Recv Fail> dvrIP = %s Channel = %d m_PlayHandle = %d  m_index_MTManager = %d ret = %d nReceiveOneTime = %dkbps\r\n\r\n",
+        //TRACE(_T("CMTVideo::InputData <m_comSocket.Recv Fail> dvrIP = %s Channel = %d m_PlayHandle = %d  m_index_MTManager = %d ret = %d nReceiveOneTime = %dkbps\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager, ret, nReceiveOneTime);
-        //TRACE("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
+        //TRACE(_T("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);                     
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
         m_exit = true;
@@ -219,7 +220,7 @@ int CPlayer::InputData()
     }
     if(m_exit)
     {
-        //TRACE("CMTVideo::InputData 退出2 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n",
+        //TRACE(_T("CMTVideo::InputData 退出2 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n",
 			//m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager, nReceiveOneTime);
         return -1;
     }
@@ -234,9 +235,9 @@ int CPlayer::InputData()
 		//string strErr = GetPlayMp4LastErrorStr( nErr );
 		//TRACE_SDK_ERROR("执行 CHKSeries::SetStreamBuf 中  PlayM4_InputData 函数 Fail nErr = %d strErr = %s\r\n\r\n", nErr, strErr.c_str() );
 		
-		//TRACE("CMTVideo::InputData 退出3 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n\r\n",
+		//TRACE(_T("CMTVideo::InputData 退出3 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager, nReceiveOneTime);
-        //TRACE("！！！！inputdata<0检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
+        //TRACE(_T("！！！！inputdata<0检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
 		
@@ -254,13 +255,13 @@ int CPlayer::InputData_Frame()
     {
         if(m_exit)
         {
-            //TRACE("CMTVideo::InputData_Frame 退出1 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
+            //TRACE(_T("CMTVideo::InputData_Frame 退出1 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
 			//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
             return -1;
         }
-        //TRACE("CMTVideo::InputData_Frame <m_streamParser.GetOneFrame Fail> dvrIP = %s Channel = %d m_PlayHandle = %d  m_index_MTManager = %d\r\n\r\n",
+        //TRACE(_T("CMTVideo::InputData_Frame <m_streamParser.GetOneFrame Fail> dvrIP = %s Channel = %d m_PlayHandle = %d  m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
-        //TRACE("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
+        //TRACE(_T("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
         m_exit = true;
@@ -268,7 +269,7 @@ int CPlayer::InputData_Frame()
     }
     if(m_exit)
     {
-        //TRACE("CMTVideo::InputData_Frame 退出2 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
+        //TRACE(_T("CMTVideo::InputData_Frame 退出2 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
 		//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
         return -1;
     }
@@ -283,9 +284,9 @@ int CPlayer::InputData_Frame()
 		//string strErr = GetPlayMp4LastErrorStr( nErr );
 		//TRACE_SDK_ERROR("执行 CHKSeries::SetStreamBuf 中  PlayM4_InputData 函数 Fail nErr = %d strErr = %s\r\n\r\n", nErr, strErr.c_str() );
 		
-		//TRACE("CMTVideo::InputData 退出3 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n\r\n",
+		//TRACE(_T("CMTVideo::InputData 退出3 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d nReceiveOneTime = %dkbps\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager, nReceiveOneTime);
-        //TRACE("！！！！inputdata<0检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
+        //TRACE(_T("！！！！inputdata<0检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
 		
@@ -323,7 +324,7 @@ int CPlayer::InputData_Frame_PlayBack()
     if(nret <= 0)
     {
         m_exit = true;
-        TRACE("(存储回放 解包1)error: GetOneFrame<0 ret=%d\r\n", nret);
+        TRACE(_T("(存储回放 解包1)error: GetOneFrame<0 ret=%d\r\n"), nret);
         if( nret == READ_DATA_OVER )//读数据结束
         {
             //等待播放结束
@@ -409,7 +410,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 	
     if( send(sk, (char*)&request,sizeof(request), 0) <= 0 )
 	{
-        TRACE("(MonitorStartCmdMT) 发送头失败\r\n");
+        TRACE(_T("(MonitorStartCmdMT) 发送头失败\r\n"));
         //CCommClass::ErrorDeal(pErrorMsg, CLIENT_ERROR, VCT_NETERROR_SEND, false);
     	return HHV_ERROR_SEND;
     }
@@ -417,7 +418,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
     int nRouteInfo = 0;
     if( send(sk, (char*)&nRouteInfo,sizeof(int), 0) <= 0 )
 	{
-        //TRACE("(MonitorStartCmdMT) 发送nRouteInfo失败\r\n");
+        //TRACE(_T("(MonitorStartCmdMT) 发送nRouteInfo失败\r\n");
         //CCommClass::ErrorDeal(pErrorMsg, CLIENT_ERROR, VCT_NETERROR_SEND, false);
     	return HHV_ERROR_SEND;
     }
@@ -427,7 +428,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 		char pRouteInfo[128] = {0x00};
 		if( send(sk, (char*)pRouteInfo,nRouteInfo, 0) <= 0 )
 		{
-            //TRACE("(MonitorStartCmdMT) 发送pRouteInfo失败\r\n");
+            //TRACE(_T("(MonitorStartCmdMT) 发送pRouteInfo失败\r\n");
         	//CCommClass::ErrorDeal(pErrorMsg, CLIENT_ERROR, VCT_NETERROR_SEND, false);
     		return HHV_ERROR_SEND;
     	}
@@ -442,19 +443,19 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
     response.n2h();
 	if( response.header.command == SYSTEM_REQUEST_ACCEPT )
 	{
-        TRACE("(MonitorStartCmdMT) Accept:%d n:%d\r\n",
+        TRACE(_T("(MonitorStartCmdMT) Accept:%d n:%d\r\n"),
             response.header.command, htonl(response.header.command));
-        TRACE("(MonitorStartCmdMT)回应命令ACCEPT streamheadsize = %d dvrIP = %s channel=%d\r\n",
+        TRACE(_T("(MonitorStartCmdMT)回应命令ACCEPT streamheadsize = %d dvrIP = %s channel=%d\r\n"),
                     response.streamheadsize, clientInfo->connInfo.ip, clientInfo->channel);
         if( recv(sk, (char*)streamHeader, response.streamheadsize, 0 ) <= 0 )
 		{
-            TRACE("(MonitorStartCmdMT) 收streamHeader失败！streamheadsize = %d dvrIP = %s\r\n",
+            TRACE(_T("(MonitorStartCmdMT) 收streamHeader失败！streamheadsize = %d dvrIP = %s\r\n"),
                     response.streamheadsize, clientInfo->connInfo.ip);
             //CCommClass::ErrorDeal(pErrorMsg, CLIENT_ERROR, VCT_NETERROR_RECV, false);
             return HHV_ERROR_RECV;
         }
         size = response.streamheadsize;
-        TRACE("(MonitorStartCmdMT)成功结束 dvrIP = %s channel=%d\r\n",
+        TRACE(_T("(MonitorStartCmdMT)成功结束 dvrIP = %s channel=%d\r\n"),
             clientInfo->connInfo.ip, clientInfo->channel);
 		return 0;
 	}
@@ -463,7 +464,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
         size = response.reason;
         int errtype = response.streamheadsize ? SERVER_ERROR : SDK_ERROR;  //0:sdk错误， 1为Server错误
         //CCommClass::ErrorDeal(pErrorMsg, errtype, size, false);
-        TRACE("(MonitorStartCmdMT)服务器拒绝 cmd=%d(%d) reason=%d errtype(sdk(0) server(1))=%d dvrIP=%s channel=%d\r\n",
+        TRACE(_T("(MonitorStartCmdMT)服务器拒绝 cmd=%d(%d) reason=%d errtype(sdk(0) server(1))=%d dvrIP=%s channel=%d\r\n"),
             response.header.command, htonl(response.header.command), size, response.streamheadsize,
             clientInfo->connInfo.ip, clientInfo->channel);
     }
@@ -550,7 +551,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
     m_Thread = (HANDLE)_beginthreadex( NULL, 4*1024*1024, DecoderRoutine, this, 0, &threadid ); 
     if(m_Thread <= 0)
     {
-        TRACE("(MTVideo)!!!!!!开辟接受数据线程失败！m_Thread:%d errno:%d _doserrno:%d \r\n",
+        TRACE(_T("(MTVideo)!!!!!!开辟接受数据线程失败！m_Thread:%d errno:%d _doserrno:%d \r\n"),
             m_Thread, errno, _doserrno);
         SetEvent( m_hExitEvent );
     }
@@ -572,11 +573,9 @@ int CPlayer::PlayStartCmdByTime( SOCKET sk, SYSTEM_VIDEO_FILE* recdFile, char* s
     //headersize OK
     Playback_ByTime_REQUEST_MSG           msg;
     memset( &msg, 0x00, sizeof(msg));
-    //msg.header.CmdType = 0x05;          //CMD_SYSTEMPLAYBACK   0x05     CMD_DVRPLAYBACK      0x06   
     msg.header.command = SYSTEM_VIDEO_Playback_ByTime_REQUEST;
     msg.header.length = sizeof(msg) - sizeof(COMMAND_HEADER);
     msg.channel = recdFile->channel;
-    //msg.data = recdFile->video;  //文件标签
     msg.StartDate = recdFile->start_date;
     msg.StartTime = recdFile->start_time;
     msg.EndDate = recdFile->end_date;
@@ -595,7 +594,7 @@ int CPlayer::PlayStartCmdByTime( SOCKET sk, SYSTEM_VIDEO_FILE* recdFile, char* s
         return HHV_ERROR_RECV;
     }
 	
-    if( htonl(msgresp.command) != SYSTEM_REQUEST_ACCEPT )
+    if( htonl(msgresp.header.command) != SYSTEM_REQUEST_ACCEPT )
     {
        return -1;
     }

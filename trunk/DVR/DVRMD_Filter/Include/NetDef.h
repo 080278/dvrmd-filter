@@ -52,22 +52,18 @@ typedef  unsigned __int64		U64 ;
 // 监视, 并且需要当前时刻之前的固定长度的视频数据
 #define SYSTEM_MONITOR_START_NeedData_BeforeCurrentTime	 ( SYSTEM_COMMAND_BASE + 51 )
 
-//支持回放
+//文件名回放
 #define SYSTEM_VIDEO_OPEN_REQUEST		         ( SYSTEM_COMMAND_BASE + 73  )
 #define SYSTEM_VIDEO_CLOSE_REQUEST	   	         ( SYSTEM_COMMAND_BASE + 77  )
 #define SYSTEM_VIDEO_READ_REQUEST	             ( SYSTEM_COMMAND_BASE + 78  )
 #define SYSTEM_VIDEO_SEEK_REQUEST                ( SYSTEM_COMMAND_BASE + 81  )
 
-#define SYSTEM_VIDEOCHANNEL_WORKSATUTUS_REQUEST		( SYSTEM_COMMAND_BASE + 88 )
+#define SYSTEM_VIDEOCHANNEL_WORKSATUTUS_REQUEST			( SYSTEM_COMMAND_BASE + 88 )
 #define SYSTEM_DVR_VIDEOCHANNEL_WORKSATUTUS_REQUEST		( SYSTEM_COMMAND_BASE + 89 )
 #define SYSTEM_ALL_VIDEOCHANNEL_WORKSATUTUS_REQUEST		( SYSTEM_COMMAND_BASE + 90 )
 
 // 按时间回放录像
-#define SYSTEM_VIDEO_Playback_ByTime_REQUEST	( SYSTEM_COMMAND_BASE + 91 )
-
-#define   REMOTE_SYSTEM_UPDATE_REQUEST			( SYSTEM_COMMAND_BASE + 46 )
-#define   REMOTE_SYSTEM_UPDATE_DATA				( SYSTEM_COMMAND_BASE + 47 )
-#define   REMOTE_SYSTEM_UPDATE_OVER				( SYSTEM_COMMAND_BASE + 48 )
+#define SYSTEM_VIDEO_Playback_ByTime_REQUEST			( SYSTEM_COMMAND_BASE + 91 )
 
 #define SYSTEM_TIMESYNCH_SET			(SYSTEM_COMMAND_BASE + 9)
 #define	SYSTEM_DVR_INFO					(SYSTEM_COMMAND_BASE + 101)
@@ -75,6 +71,18 @@ typedef  unsigned __int64		U64 ;
 #define	SYSTEM_STOP_RECORD_Direct		(SYSTEM_COMMAND_BASE + 109)	
 #define SYSTEM_TIMEREC_INFO				(SYSTEM_COMMAND_BASE + 110)	
 
+
+#define		REMOTE_SYSTEM_UPDATE_REQUEST			( SYSTEM_COMMAND_BASE + 46 )
+#define		REMOTE_SYSTEM_UPDATE_DATA				( SYSTEM_COMMAND_BASE + 47 )
+#define		REMOTE_SYSTEM_UPDATE_OVER				( SYSTEM_COMMAND_BASE + 48 )
+#define		REMOTE_SYSTEM_REBOOT_DVR				( SYSTEM_COMMAND_BASE + 44 )
+#define		REMOTE_SYSTEM_MAKE_IFRAME				( SYSTEM_COMMAND_BASE + 8 )
+
+
+
+
+
+//通用回应
 #define SYSTEM_REQUEST_ACCEPT                ( SYSTEM_COMMAND_BASE + 333  )
 #define SYSTEM_REQUEST_REJECT                ( SYSTEM_COMMAND_BASE + 334  )
 
@@ -234,10 +242,7 @@ struct SYSTEM_VIDEO_FILE
 
 struct FILE_OPEN_REQUEST_MSG
 {
-    unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD		command ;
-    DWORD		size	;
+    COMMAND_HEADER header;
 	SGUID		dvrID;
 	UINT		channel;
     DWORD		video   ; 	
@@ -252,46 +257,31 @@ struct FILE_OPEN_REQUEST_MSG
 
 struct FILE_OPEN_RESPONSE_MSG
 {
-    unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD   command ;
-    DWORD   size  ;        
+    COMMAND_HEADER header;
     DWORD   reason  ;    
 } ;      
 
 struct FILE_SEEK_REQUEST_MSG
 {
-    unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD   command ;
-    DWORD   size  ;        
+   COMMAND_HEADER header;
     DWORD   hpos    ;    
     DWORD   lpos    ;
 } ;
 
 struct FILE_SEEK_RESPONSE_MSG
 {
-    unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD   command ;
-    DWORD   size  ;          
+   COMMAND_HEADER header;
 } ;       
 
 struct FILE_READ_REQUEST_MSG
 {
-	unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD   command ;
-    DWORD   size  ;        
+	COMMAND_HEADER header;
 	DWORD	length;	
 };  
 
 struct  FILE_READ_RESPONSE_MSG
 {
-	unsigned char CmdType	;
-	unsigned short CmdPara	;
-	DWORD   command ;
-    DWORD   size  ;        
+	COMMAND_HEADER header;
 	DWORD	Data;	
 };  
  
@@ -746,6 +736,7 @@ struct SS_LOGIN_RESPONSE
 
 struct DVR_INFO_MSG
 {
+	COMMAND_HEADER  header;
 	unsigned char		bAdd; //0:删除DVR, 1: 添加DVR 
 	SGUID	DVRID;
 	
@@ -780,6 +771,7 @@ struct DVR_INFO_MSG
 
 	void n2h()
 	{
+		header.h2n();
 		AddrType = ntohl(AddrType);
 		DVRPort = ntohs(DVRPort);
 		DVRType = ntohl(DVRType);
@@ -800,6 +792,7 @@ struct DVR_INFO_MSG
  */
 struct STIMEREC_INFO_MSG
 {
+	COMMAND_HEADER  header;
 	unsigned char bAdd;
 	SGUID TimerId;
 	//SGUID DVRID;
@@ -811,6 +804,7 @@ struct STIMEREC_INFO_MSG
 
 	void h2n()
 	{
+		header.h2n();
 		ChnIndex = htonl(ChnIndex);
 		StartTime = htonl(StartTime); 
 		EndTime = htonl(EndTime);
@@ -824,12 +818,14 @@ struct STIMEREC_INFO_MSG
 };
 
 
-
+#define UPDATE_TYPE_VPK	1	//智能分析配置
 //文件上传请求
 struct REMOTE_UPDATE_BEGIN_REQUEST
 {
     COMMAND_HEADER  header ;
     U16				loginID; 
+	U16				uploadType;//配置文件类型
+	U16				channel;
 	U32				Length;	//升级文件长度
 	REMOTE_UPDATE_BEGIN_REQUEST(){
 		memset( this, 0x00, sizeof(REMOTE_UPDATE_BEGIN_REQUEST) );
@@ -837,6 +833,8 @@ struct REMOTE_UPDATE_BEGIN_REQUEST
 	void h2n(){
 		header.h2n();
 		loginID	= htons( loginID );
+		uploadType = htons(uploadType);
+		channel = htons( channel );
 		Length	= htonl( Length );
 	}
 	void n2h(){
@@ -865,6 +863,7 @@ struct REMOTE_UPDATE_IMAGEDATA_REQUEST
 {
     COMMAND_HEADER  header ;
     U16				loginID; 
+	U16				length;
 	U8				data[1024];	//数据
 	REMOTE_UPDATE_IMAGEDATA_REQUEST(){
 		memset( this, 0x00, sizeof(REMOTE_UPDATE_IMAGEDATA_REQUEST) );
@@ -872,6 +871,7 @@ struct REMOTE_UPDATE_IMAGEDATA_REQUEST
 	void h2n(){
 		header.h2n();
 		loginID	= htons( loginID );
+		length = htons(length);
 	}
 	void n2h(){
 		h2n();
@@ -916,6 +916,85 @@ struct REMOTE_UPDATE_END_RESPONSE
 		h2n();
 	}
 };
+
+struct REMOTE_SYSTEM_NORMAL_REQUEST
+{
+    COMMAND_HEADER  header ;
+    U16				loginID;
+	REMOTE_SYSTEM_NORMAL_REQUEST(){
+		memset( this, 0x00, sizeof(REMOTE_SYSTEM_NORMAL_REQUEST) );
+	}
+	void h2n(){
+		header.h2n();
+		loginID	= htons( loginID );
+	}
+	void n2h(){
+		h2n();
+	}
+} ;
+
+struct REMOTE_SYSTEM_NORMAL_RESPONSE
+{
+    COMMAND_HEADER	header ;
+    U32             Reason ;
+	REMOTE_SYSTEM_NORMAL_RESPONSE(){
+		memset( this, 0x00, sizeof(REMOTE_SYSTEM_NORMAL_RESPONSE) );
+	}
+	void h2n(){
+		header.h2n();
+		Reason	= htonl( Reason );
+	}
+	void n2h(){
+		h2n();
+	}
+} ;
+
+//Dvr重新启动
+#define RESTART_TYPE_DVR	0
+#define RESTART_TYPE_VPK	1
+#define RESTART_TYPE_PC		2
+struct REMOTE_REBOOT_DVR_REQUEST
+{
+    COMMAND_HEADER  header ;
+    U16				loginID;
+	U16				restartType;	//0:重启DVR 1:重启VPK 2://重启机器
+	U16				channel;		//VPK通道号
+	REMOTE_REBOOT_DVR_REQUEST(){
+		memset( this, 0x00, sizeof(REMOTE_REBOOT_DVR_REQUEST) );
+	}
+	void h2n(){
+		header.h2n();
+		loginID	= htons( loginID );
+		restartType = htons( restartType );
+		channel = htons( channel );
+	}
+	void n2h(){
+		h2n();
+	}
+} ;
+
+typedef REMOTE_SYSTEM_NORMAL_RESPONSE REMOTE_REBOOT_DVR_RESPONSE;
+
+
+//生成关键帧
+struct REMOTE_MAKE_IFRAME_REQUEST
+{
+    COMMAND_HEADER  header ;
+    U16				loginID; 
+    U16				Channel;//Reserve
+	REMOTE_MAKE_IFRAME_REQUEST(){
+		memset( this, 0x00, sizeof(REMOTE_MAKE_IFRAME_REQUEST) );
+	}
+	void h2n(){
+		header.h2n();
+		loginID	= htons( loginID );
+		Channel = htons( Channel );
+	}
+	void n2h(){
+		h2n();
+	}
+} ;
+typedef REMOTE_SYSTEM_NORMAL_RESPONSE REMOTE_MAKE_IFRAME_RESPONSE;
 
 
 #pragma pack()

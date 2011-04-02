@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "LoginDvrMgr.h"
 #include "LoginDvr.h"
-//#include "TraceLog.h"
 #include "Process.h"
 #include "Player.h"
 #include "DvrSDKErr.h"
@@ -14,10 +13,10 @@
 
 #define SUYUAN_NO_CHECK_DVR_ONLINE	1	//苏源不检测dvr是否掉线
 
-//CLoginDvrMgr		g_LoginDvrMgr;
+CLoginDvrMgr		g_LoginDvrMgr;
 
 CLoginDvrMgr::CLoginDvrMgr()
-	:m_loginInfo(MAX_LOGIN_DVR)
+	: m_loginInfo(MAX_LOGIN_DVR)
 {
 	m_status = STOP_STATUS;
 
@@ -26,10 +25,7 @@ CLoginDvrMgr::CLoginDvrMgr()
 
 CLoginDvrMgr::~CLoginDvrMgr()
 {
-	TRACE("进入CLoginDvrMgr::~CLoginDvrMgr()  \r\n");
 	Clearup();
-
-	TRACE(" 退出CLoginDvrMgr::~CLoginDvrMgr()  \r\n");
 }
 
 void CLoginDvrMgr::Startup()
@@ -53,7 +49,7 @@ void CLoginDvrMgr::Clearup()
 {
 	if( m_status == STOP_STATUS )
 	{
-		TRACE("CLoginDvrMgr::Clearup()中m_status == STOP_STATUS， 返回\r\n\r\n");
+		//TRACE(_T("CLoginDvrMgr::Clearup()中m_status == STOP_STATUS， 返回\r\n\r\n");
 		return;
 	}
 	m_bExit = true;
@@ -65,17 +61,16 @@ void CLoginDvrMgr::Clearup()
 	WaitForSingleObject( m_hCheckOnline , INFINITE );
 
 	//关闭句柄
-//	TRACE("CLoginDvrMgr::Clearup()中关闭句柄 \r\n\r\n");
+//	TRACE(_T("CLoginDvrMgr::Clearup()中关闭句柄 \r\n\r\n"));
 	SAFE_CLOSE( m_hEventThreadExit );
 	SAFE_CLOSE( m_hCheckOnline );
 	
-	m_csLock.Lock();
+	
 	for( int i = 0; i < MAX_LOGIN_DVR; ++i )
 		SAFE_DELETE(m_loginInfo[i]);	
-	m_csLock.Unlock();
 
 	m_status = STOP_STATUS;
-	TRACE("CLoginDvrMgr::Clearup 成功返回\r\n\r\n");
+	TRACE(_T("CLoginDvrMgr::Clearup 成功返回\r\n\r\n"));
 }
 
 //return the index handle
@@ -83,7 +78,7 @@ int	CLoginDvrMgr::Login(LPCTSTR userName, LPCTSTR pwd, LPCTSTR addr, int port)
 {
 	if( m_status == STOP_STATUS )
 	{
-		TRACE("处于STOP_STATUS状态 CLoginDvrMgr::Login IP = %s port = %d\r\n\r\n", addr, port);
+		TRACE(_T("处于STOP_STATUS状态 CLoginDvrMgr::Login IP = %s port = %d\r\n\r\n"), addr, port);
 		return HHV_ERROR_STOP_STATUS;
 	}
 	
@@ -119,7 +114,7 @@ int	CLoginDvrMgr::Logout( int index )
 {
 	if( m_status == STOP_STATUS )
 	{
-		TRACE("处于STOP_STATUS状态 CLoginDvrMgr::Logout index = %d\r\n\r\n", index);
+		TRACE(_T("处于STOP_STATUS状态 CLoginDvrMgr::Logout index = %d\r\n\r\n"), index);
 		return HHV_ERROR_STOP_STATUS;
 	}	
 	
@@ -191,7 +186,7 @@ int CLoginDvrMgr::CheckOnlineStatusLoop( )
 			login = m_loginInfo[i];
 			m_csLock.Unlock();
 		
-//			TRACE("DVR类型 = %d\r\n", login->m_loginInfo.deviceInfo.byDVRType);
+//			TRACE(_T("DVR类型 = %d\r\n", login->m_loginInfo.deviceInfo.byDVRType);
 			if( login != NULL && (login->m_loginInfo.loginID >= 0) )
 			{		
 				login->CheckOnlineStatus(0);
@@ -229,28 +224,28 @@ UINT WINAPI CLoginDvrMgr::CheckOnlineThread( void * dat)
 	return 1;
 }
 
-void CLoginDvrMgr::NotifyLogoutMessage( int index, TCHAR* dvrIP)
+void CLoginDvrMgr::NotifyLogoutMessage( int index, char* dvrIP)
 {
-	TRACE("CLoginDvrMgr::NotifyLogoutMessage  \r\n");
+	TRACE(_T("CLoginDvrMgr::NotifyLogoutMessage  \r\n"));
 }
 
-int CLoginDvrMgr::ShutDownDVR( int userID )
+int CLoginDvrMgr::ReStartDVR( int userID, int restartType, int channel )
 {
-	//if( CheckUserID( userID ) < 0 )
-	//	{
-	//		return HHV_ERROR_INVALIDPARA;
-	//	}
-	//	
-	//	m_csLock.Lock();
-	//	CLoginDvr* login = m_loginInfo[userID];
-	//	m_csLock.Unlock();
-	//	
-	//	if( login == NULL )
-	//	{
-	//		return HHV_ERROR_NOLOGIN;
-	//	}
-	//	
-	//	return login->ShutDownDVR( userID );
+	if( CheckUserID( userID ) < 0 )
+	{
+		return HHV_ERROR_INVALIDPARA;
+	}
+	
+	m_csLock.Lock();
+	CLoginDvr* login = m_loginInfo[userID];
+	m_csLock.Unlock();
+	
+	if( login == NULL )
+	{
+		return HHV_ERROR_NOLOGIN;
+	}
+	
+	return login->ReStartDVR( userID, restartType, channel );
 	return 0;	
 }
 
@@ -334,7 +329,7 @@ int CLoginDvrMgr::GetVideoEffect(int lUserID, int channel,int &bright, int &cont
 }
 
 
-INT CLoginDvrMgr::UploadCfgFile(int userID, const TCHAR* imageName )
+INT CLoginDvrMgr::UploadCfgFile(int userID, int cfgType, int channel, LPCTSTR imageName )
 {
 	if( m_status == STOP_STATUS )
 		return HHV_ERROR_STOP_STATUS;
@@ -349,5 +344,5 @@ INT CLoginDvrMgr::UploadCfgFile(int userID, const TCHAR* imageName )
 	if( login == NULL )
 		return HHV_ERROR_NOLOGIN;
 
-	return login->UploadCfgFile( imageName );
+	return login->UploadCfgFile(cfgType, channel, imageName );
 }
