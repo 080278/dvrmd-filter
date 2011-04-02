@@ -44,18 +44,20 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_hStreamFile = NULL;
 	m_bStreamType = FALSE;
 
-	//WSADATA wsaD;
-	//DWORD wVersion = MAKEWORD(2, 2);
-	//if ( WSAStartup( wVersion, &wsaD ) != 0 )
-	//{
-	//	::MessageBox(hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
-	//	return FALSE;
-	//}
+	WSADATA wsaD;
+	DWORD wVersion = MAKEWORD(2, 2);
+	if ( WSAStartup( wVersion, &wsaD ) != 0 )
+	{
+		::MessageBox(hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
+		return FALSE;
+	}
+	if (m_lPort == -1)
+		NAME(PlayM4_GetPort)(&m_lPort);
 
-	//m_HWndMgr.InitSplit(m_hRenderWnd);
-	//m_HWndMgr.SetSplitMode(m_lPort, SPLIT_1);
-	//m_PlayerMgr.Init(NULL);
-	//m_DVRLoginMgr.Startup();
+	m_HWndMgr.InitSplit(m_hRenderWnd);
+	m_HWndMgr.SetSplitMode(m_lPort, SPLIT_1);
+	m_PlayerMgr.Init(NULL);
+	m_DVRLoginMgr.Startup();
 
 #if (WINVER > 0x0400)
 	// If do not support multi monitor,may not call!
@@ -85,9 +87,6 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	TestCapability(0);
 #endif
 
-	if (m_lPort == -1)
-		NAME(PlayM4_GetPort)(&m_lPort);
-
 	// set the capture picture call back function;
 	//	NAME(PlayM4_SetDisplayCallBack)(m_lPort, DisplayCBFun);
 	// set the wave audio call back function;
@@ -113,9 +112,9 @@ void CDVRPlayer::Destory()
 	m_lPort = -1;
 	m_enumState = CDVRPlayer::eState_Close;
 
-	//m_DVRLoginMgr.Clearup();
+	m_DVRLoginMgr.Clearup();
 
-	//WSACleanup();
+	WSACleanup();
 }
 
 BOOL CDVRPlayer::Login()
