@@ -54,10 +54,14 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	if (m_lPort == -1)
 		NAME(PlayM4_GetPort)(&m_lPort);
 
-	m_HWndMgr.InitSplit(m_hRenderWnd);
-	m_HWndMgr.SetSplitMode(m_lPort, SPLIT_1);
-	m_PlayerMgr.Init(NULL);
-	m_DVRLoginMgr.Startup();
+	m_spHWndMgr.reset(new CHWndManager);
+	m_spPlayerMgr.reset(new CPlayerMgr);
+	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
+
+	m_spHWndMgr->InitSplit(m_hRenderWnd);
+	m_spHWndMgr->SetSplitMode(m_lPort, SPLIT_1);
+	m_spPlayerMgr->Init(NULL);
+	m_spDVRLoginMgr->Startup();
 
 #if (WINVER > 0x0400)
 	// If do not support multi monitor,may not call!
@@ -103,8 +107,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 void CDVRPlayer::Destory()
 {
 	Close();
-	//NAME(PlayM4_Stop)(m_lPort);
-	//NAME(PlayM4_CloseFile)(m_lPort);
+
 	NAME(PlayM4_RealeseDDraw)();
 	NAME(PlayM4_ReleaseDDrawDevice)();
 	NAME(PlayM4_FreePort)(m_lPort);
@@ -112,7 +115,10 @@ void CDVRPlayer::Destory()
 	m_lPort = -1;
 	m_enumState = CDVRPlayer::eState_Close;
 
-	m_DVRLoginMgr.Clearup();
+	m_spDVRLoginMgr->Clearup();
+	m_spHWndMgr.release();
+	m_spPlayerMgr.release();
+	m_spDVRLoginMgr.release();
 
 	WSACleanup();
 }

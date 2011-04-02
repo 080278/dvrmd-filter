@@ -256,8 +256,8 @@ private:
 
 private:
 	CDVRSettings	m_DVRSettings;
-	CLoginDvrMgr	m_DVRLoginMgr;
-	CHWndManager	m_HWndMgr;
-	CPlayerMgr		m_PlayerMgr;
+	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
+	std::auto_ptr<CHWndManager>	m_spHWndMgr;
+	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
 	int				m_UserID;
 };

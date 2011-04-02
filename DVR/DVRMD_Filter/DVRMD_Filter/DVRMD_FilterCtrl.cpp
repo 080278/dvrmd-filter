@@ -24,6 +24,7 @@ BEGIN_MESSAGE_MAP(CDVRMD_FilterCtrl, COleControl)
 	ON_WM_DESTROY()
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_LBUTTONDBLCLK()
+	ON_STN_DBLCLK(IDC_SHOW, &CDVRMD_FilterCtrl::OnStnDblclickShow)
 END_MESSAGE_MAP()
 
 
@@ -225,4 +226,11 @@ void CDVRMD_FilterCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 
 	COleControl::OnLButtonDblClk(nFlags, point);
+}
+
+
+void CDVRMD_FilterCtrl::OnStnDblclickShow()
+{
+	// TODO: Add your control notification handler code here
+	int n = 0;
 }

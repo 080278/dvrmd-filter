@@ -589,7 +589,7 @@ void CPlayerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 	GetCursorPos(&dpoint);	
 
 	m_ctrlVideoPic.GetWindowRect(&vwrect);
-	if( ( m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause) && vwrect.PtInRect(dpoint))
+	if( ( m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Play || m_DVRPlayer.GetPlayState() == CDVRPlayer::eState_Pause))
 	{
 		TRACE(_T("DoubleClick"));
 		ViewFullScreen();
@@ -1211,38 +1211,25 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 // browse file and get the file path
 BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 {
-	try
-	{
 #ifdef _FOR_HIKPLAYM4_DLL_
-		CFileDialog dlg(TRUE, 
-			_T("mpg"),
-			NULL, 
-			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-			_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+	CFileDialog dlg(TRUE, 
+		_T("mpg"),
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("Hikvision File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #else
-		CFileDialog dlg(TRUE, 
-			_T("mpg"),
-			NULL, 
-			OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-			_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+	CFileDialog dlg(TRUE, 
+		_T("mpg"),
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #endif
 
-		if(dlg.DoModal() == IDCANCEL)
-		{
-			return FALSE;
-		}
-		*strFileName = dlg.GetPathName();
-	}
-	catch (CMemoryException* e)
+	if(dlg.DoModal() == IDCANCEL)
 	{
-		
+		return FALSE;
 	}
-	catch (CFileException* e)
-	{
-	}
-	catch (CException* e)
-	{
-	}
+	*strFileName = dlg.GetPathName();
 
 	return TRUE;
 }
