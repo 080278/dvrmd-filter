@@ -197,7 +197,9 @@ void CDVRMD_FilterCtrl::OnDraw(
 	//pdc->FillRect(rcBounds, CBrush::FromHandle((HBRUSH)GetStockObject(WHITE_BRUSH)));
 	//pdc->Ellipse(rcBounds);
 	if (::IsWindow(m_MainDialog.m_hWnd) && !m_MainDialog.IsFullScreen())
+	{
 		m_MainDialog.MoveWindow(rcBounds, TRUE);
+	}
 }
 
 
@@ -234,3 +236,4 @@ void CDVRMD_FilterCtrl::OnStnDblclickShow()
 	// TODO: Add your control notification handler code here
 	int n = 0;
 }
+

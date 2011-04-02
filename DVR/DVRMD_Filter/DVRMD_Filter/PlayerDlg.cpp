@@ -168,6 +168,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
 
+	ON_BN_CLICKED(IDC_LOGIN, &CPlayerDlg::OnBnClickedLogin)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -282,8 +283,8 @@ BOOL CPlayerDlg::OnInitDialog()
 	UpdateData(FALSE);
 	SortControl();
 
-//	m_ctrlPlayText.ShowWindow(SW_HIDE);
 	m_bInited = TRUE;
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -2503,8 +2504,25 @@ HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 	return E_FAIL;
 }
 
+static bool bShow = true;
+
 void CPlayerDlg::OnBnClickedShowHideSettings()
 {
-	CFileDialog dlg(TRUE);
-	dlg.DoModal();
+	bShow = !bShow;
+	
+	GetDlgItem(IDC_SETTINGS_PANEL)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_MEDIASERVER_IP)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_MEDIASERVER_PORT)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_USERNAME)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_PASSWORD)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_LOGIN)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_STATIC_IP)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_STATIC_PORT)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_STATIC_UNAME)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_STATIC_PWD)->ShowWindow(bShow ? SW_SHOW : SW_HIDE);
+}
+
+void CPlayerDlg::OnBnClickedLogin()
+{
+	
 }
