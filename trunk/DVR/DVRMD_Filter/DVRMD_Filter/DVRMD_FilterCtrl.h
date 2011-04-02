@@ -56,5 +56,6 @@ protected:
 	LONG OpenFile(LPCTSTR bstrFile);
 public:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnStnDblclickShow();
 };
 
