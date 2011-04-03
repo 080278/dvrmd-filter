@@ -39,26 +39,10 @@ END_MESSAGE_MAP()
 
 void CFilePlaybackSettingsDlg::OnBnClickedOpenfile()
 {
-	CString csMediaFile;
-	GetDlgItem(IDC_MEDIA_FILEPATH)->GetWindowText(csMediaFile);
+	//CString csMediaFile;
+	//GetDlgItem(IDC_MEDIA_FILEPATH)->GetWindowText(csMediaFile);
 
 	m_pMainDlg->PostMessage(WM_COMMAND, IDC_OPENFILE, 0);
-	//if (csMediaFile.Trim().IsEmpty())
-	//{
-	//	CFileDialog dlg(TRUE, 
-	//		_T("mpg"),
-	//		NULL, 
-	//		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-	//		_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
-
-	//	if (dlg.DoModal() == IDOK)
-	//	{
-	//		GetDlgItem(IDC_MEDIA_FILEPATH)->SetWindowText(dlg.GetPathName());
-	//		SetPathName(dlg.GetPathName());
-	//		//m_pMainDlg->OpenFile(m_csMediaFile);
-	//		m_pMainDlg->SendMessage(WM_COMMAND, IDC_OPENFILE, 0);
-	//	}
-	//}
 }
 
 CString CFilePlaybackSettingsDlg::GetPathName()
@@ -69,6 +53,10 @@ CString CFilePlaybackSettingsDlg::GetPathName()
 void CFilePlaybackSettingsDlg::SetPathName(LPCTSTR szPath)
 {
 	m_csMediaFile = szPath;
+	if (IsWindow(m_hWnd))
+	{
+		GetDlgItem(IDC_MEDIA_FILEPATH)->SetWindowText(szPath);
+	}
 }
 
 BOOL CFilePlaybackSettingsDlg::OnInitDialog()

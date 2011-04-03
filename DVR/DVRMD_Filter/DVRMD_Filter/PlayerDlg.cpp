@@ -116,6 +116,7 @@ CPlayerDlg::CPlayerDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CPlayerDlg::IDD, pParent)
 	, m_DVRSettingsPage1(GetPlayer())
 	, m_DVRSettingsPage2(GetPlayer())
+	, m_DVRSettingsPage3(GetPlayer())
 	, m_DVRSettingsPage4(this)
 {
 	//{{AFX_DATA_INIT(CPlayerDlg)
@@ -286,22 +287,24 @@ BOOL CPlayerDlg::OnInitDialog()
 
 	m_bInited = TRUE;
 
+	m_DVRSettingsSheet.SetTitle(_T("DVR ÅäÖÃ"));
+
 	m_DVRSettingsSheet.AddPage(&m_DVRSettingsPage1);
 	m_DVRSettingsSheet.AddPage(&m_DVRSettingsPage2);
 	m_DVRSettingsSheet.AddPage(&m_DVRSettingsPage3);
 	m_DVRSettingsSheet.AddPage(&m_DVRSettingsPage4);
 
-	//m_DVRSettingsSheet.Create(this, WS_VISIBLE);
+	m_DVRSettingsSheet.Create(this);
 
-	//::SetWindowLong(m_DVRSettingsSheet.m_hWnd, GWL_STYLE, WS_CHILD | WS_VISIBLE);//GetWindowLong(m_DVRSettingsSheet.m_hWnd, GWL_STYLE) - WS_CAPTION);
+	//::SetWindowLong(m_DVRSettingsSheet.m_hWnd, GWL_STYLE, WS_VISIBLE);//GetWindowLong(m_DVRSettingsSheet.m_hWnd, GWL_STYLE) - WS_CAPTION);
 
-	//RECT rcSheet;
-	//GetDlgItem(IDC_SHEET_POS)->GetWindowRect(&rcSheet);
+	RECT rcSheet; 
+	GetDlgItem(IDC_SHEET_POS)->GetWindowRect(&rcSheet);
 	////ClientToScreen(&rcSheet);
-	//ScreenToClient(&rcSheet);
-	//m_DVRSettingsSheet.SetWindowPos(NULL, rcSheet.left, rcSheet.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+	ScreenToClient(&rcSheet);
+	m_DVRSettingsSheet.SetWindowPos(NULL, rcSheet.left, rcSheet.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
-	//m_DVRSettingsSheet.ShowWindow(SW_SHOW);
+	m_DVRSettingsSheet.ShowWindow(SW_HIDE);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -667,12 +670,12 @@ void CPlayerDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 void CPlayerDlg::OnMove(int x, int y) 
 {
 	CDialog::OnMove(x, y);
-	//if (::IsWindow(m_DVRSettingsSheet.m_hWnd))
-	//{
-	//	RECT rcSheet;
-	//	GetDlgItem(IDC_SHEET_POS)->GetWindowRect(&rcSheet);
-	//	m_DVRSettingsSheet.MoveWindow(&rcSheet);
-	//}
+	if (::IsWindow(m_DVRSettingsSheet.m_hWnd))
+	{
+		RECT rcSheet;
+		GetDlgItem(IDC_SHEET_POS)->GetWindowRect(&rcSheet);
+		m_DVRSettingsSheet.MoveWindow(&rcSheet);
+	}
 
 	if (!m_bInited)
 	{
@@ -1994,7 +1997,9 @@ void CPlayerDlg::ViewFullScreen()
 		m_SoundSlider.ModifyStyle(WS_VISIBLE,0,0);
 		m_PlaySlider.ModifyStyle(WS_VISIBLE,0,0);
 
-		//m_ctrlPlayText.ModifyStyle(WS_VISIBLE,0,0);
+		GetDlgItem(IDC_OPENFILE)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_SHOWHIDE_SETTINGS)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_PLAY_TIMEINFO)->ShowWindow(SW_HIDE);
 	}
 	else
 	{
@@ -2030,6 +2035,10 @@ void CPlayerDlg::ViewFullScreen()
 		//change the window pos to pre rect.
 		SetWindowPlacement(&m_OldWndpl);
 		m_ctrlVideoPic.MoveWindow(&m_rcOldPicPos,TRUE);
+
+		GetDlgItem(IDC_OPENFILE)->ShowWindow(SW_SHOW);
+		GetDlgItem(IDC_SHOWHIDE_SETTINGS)->ShowWindow(SW_SHOW);
+		GetDlgItem(IDC_PLAY_TIMEINFO)->ShowWindow(SW_SHOW);
 
 	}
 	SetState();
@@ -2256,6 +2265,8 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 		{
 			Close();
 			Open(csFile);
+			if (IsWindow(m_DVRSettingsSheet.m_hWnd))
+				m_DVRSettingsPage4.SetPathName(csFile);
 			SetTimer(PLAY_TIMER, 500, NULL);
 			SetState();
 		}
@@ -2439,6 +2450,8 @@ void CPlayerDlg::OnDestroy()
 
 	GetPlayer()->Destory();
 
+	m_DVRSettingsSheet.DestroyWindow();
+
 	if(m_pQcifTempBuf)
 	{
 		delete []m_pQcifTempBuf;
@@ -2523,6 +2536,6 @@ HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 
 void CPlayerDlg::OnBnClickedShowHideSettings()
 {
-	//m_DVRSettingsSheet.ShowWindow(m_DVRSettingsSheet.IsWindowVisible()?SW_HIDE:SW_SHOW);
-	m_DVRSettingsSheet.DoModal();
+	m_DVRSettingsSheet.ShowWindow(m_DVRSettingsSheet.IsWindowVisible()?SW_HIDE:SW_SHOW);
+	//m_DVRSettingsSheet.DoModal();
 }

@@ -40,6 +40,17 @@ END_MESSAGE_MAP()
 BOOL CPlaySettingsDlg::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
+	if (m_pPlayer->GetDVRSettings().m_csMediaServerIP.GetLength() > 0)
+	{
+		GetDlgItem(IDC_MEDIASERVER_IP)->SetWindowText(m_pPlayer->GetDVRSettings().m_csMediaServerIP);
+	}
+	
+	if (m_pPlayer->GetDVRSettings().m_lPort > 0)
+	{
+		CString csPort;
+		csPort.Format(_T("%d"), m_pPlayer->GetDVRSettings().m_lPort);
+		GetDlgItem(IDC_MEDIASERVER_PORT)->SetWindowText(csPort);
+	}
 	SetState();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE

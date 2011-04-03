@@ -44,9 +44,21 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_hStreamFile = NULL;
 	m_bStreamType = FALSE;
 	m_nPlayType = -1;
+	m_nPlaybackIndex = -1;
 
 	if (m_lPort == -1)
 		NAME(PlayM4_GetPort)(&m_lPort);
+
+	WSADATA wsaD;
+	WORD wVersion = MAKEWORD(2, 2);
+	if ( WSAStartup( wVersion, &wsaD ) != 0 )
+	{
+		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
+		return FALSE;
+	}
+
+	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
+	m_spDVRLoginMgr->Startup();
 
 	return true;
 }
@@ -63,6 +75,10 @@ void CDVRPlayer::Destory()
 	}
 
 	m_nPlayType = -1;
+	m_MonitorHandler.clear();
+	//m_spDVRLoginMgr->Clearup();
+	//m_spDVRLoginMgr.reset(NULL);
+	//WSACleanup();
 }
 
 BOOL CDVRPlayer::InitForPlayFile()
@@ -127,34 +143,50 @@ BOOL CDVRPlayer::InitForMonitor()
 	Destory();
 
 	m_nPlayType = 1;
-	WSADATA wsaD;
-	WORD wVersion = MAKEWORD(2, 2);
-	if ( WSAStartup( wVersion, &wsaD ) != 0 )
-	{
-		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
-		return FALSE;
-	}
 
 	m_spHWndMgr.reset(new CHWndManager);
 	m_spPlayerMgr.reset(new CPlayerMgr);
-	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
 
 	m_spHWndMgr->InitSplit(m_hRenderWnd);
-	m_spHWndMgr->SetSplitMode(m_lPort, SPLIT_1);
+	int splitMode = SPLIT_1;	//1;3;4;6;9;16;25;36
+	switch (GetDVRSettings().m_nRenderWndNum)
+	{
+	case 3:
+		splitMode = SPLIT_3;
+		break;
+	case 4:
+		splitMode = SPLIT_4;
+		break;
+	case 6:
+		splitMode = SPLIT_6;
+		break;
+	case 9:
+		splitMode = SPLIT_9;
+		break;
+	case 16:
+		splitMode = SPLIT_16;
+		break;
+	case  25:
+		splitMode = SPLIT_25;
+		break;
+	case  36:
+		splitMode = SPLIT_36;
+		break;
+	default:
+		splitMode = SPLIT_1;
+	}
+	m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
 	m_spPlayerMgr->Init(NULL);
-	m_spDVRLoginMgr->Startup();
+	//m_spDVRLoginMgr->Startup();
 
 	return TRUE;
 }
 
 void CDVRPlayer::DestoryMonitor()
 {
-	m_spDVRLoginMgr->Clearup();
-	m_spHWndMgr.release();
-	m_spPlayerMgr.release();
-	m_spDVRLoginMgr.release();
-
-	WSACleanup();
+	m_spPlayerMgr->Clearup();
+	m_spHWndMgr.reset(NULL);
+	m_spPlayerMgr.reset(NULL);
 }
 BOOL CDVRPlayer::Login()
 {
@@ -195,14 +227,74 @@ BOOL CDVRPlayer::StartMonitor()
 {
 	if (InitForMonitor())
 	{
+		if (!IsLogined())
+		{
+			::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
+			return FALSE;
+		}
 
+		for (int i = 0; i < GetDVRSettings().m_nRenderWndNum; ++i)
+		{
+			HWND hWnd = m_spHWndMgr->GetHWnd(i);
+			HHV_CLIENT_INFO	 hhvInfo;
+			strcpy( hhvInfo.connInfo.ip, CT2A(GetDVRSettings().m_csMediaServerIP));
+			hhvInfo.connInfo.port = GetDVRSettings().m_lPort;
+			hhvInfo.channel = i;
+			int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
+			if( ret < 0 )
+			{
+				MessageBox(m_hParentWnd, _T("监视出错"), _T("Error"), MB_OK);
+			}
+			else
+			{
+				m_MonitorHandler.push_back(ret);
+			}
+		}
 	}
 
 	return FALSE;
 }
 void CDVRPlayer::StopMonitor()
 {
+	for (std::vector<int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+	{
+		m_spPlayerMgr->StopMonitor(*it);
+	}
 
+	m_MonitorHandler.clear();
+}
+
+BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
+{
+	if (IsLogined())
+	{
+		if (m_spPlayerMgr.get() == NULL)
+		{
+			InitForMonitor();
+		}
+		m_nPlaybackIndex = m_spPlayerMgr->StartPlayBackByTime(m_hRenderWnd, &sysFile, CT2A(m_DVRSettings.m_csMediaServerIP), m_DVRSettings.m_lPort);
+		if (m_nPlaybackIndex < 0)
+		{
+			::MessageBox(m_hParentWnd, _T("监视出错"), _T("Error"), MB_OK);
+		}
+		return m_nPlaybackIndex >= 0;
+	}
+	else
+	{
+		::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
+	}
+
+	return FALSE;
+}
+
+void CDVRPlayer::EndPlayback()
+{
+	if (IsLogined() && m_nPlaybackIndex >= 0)
+	{
+		m_spPlayerMgr->StopPlayBackByTime(m_nPlaybackIndex);
+
+		m_nPlaybackIndex = -1;
+	}
 }
 // Draw Function
 //	Draw the Meta Data

@@ -2,13 +2,14 @@
 
 
 // CServerPlaybackSettingsDlg dialog
+class CDVRPlayer;
 
 class CServerPlaybackSettingsDlg : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CServerPlaybackSettingsDlg)
 
 public:
-	CServerPlaybackSettingsDlg();
+	CServerPlaybackSettingsDlg(CDVRPlayer* pPlayer);
 	virtual ~CServerPlaybackSettingsDlg();
 
 // Dialog Data
@@ -18,4 +19,9 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedPlayback();
+
+private:
+	CDVRPlayer*		m_pDVRPlayer;
 };
