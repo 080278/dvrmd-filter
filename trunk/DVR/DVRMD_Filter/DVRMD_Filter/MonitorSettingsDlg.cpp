@@ -40,12 +40,22 @@ END_MESSAGE_MAP()
 
 void CMonitorSettingsDlg::OnBnClickedWatchEnd()
 {
+
+	m_pPlayer->StopMonitor();
 	SetState();
 }
 
 
 void CMonitorSettingsDlg::OnBnClickedWatchStart()
 {
+	CString csWndNum;
+	GetDlgItem(IDC_COMBO_WINNUM)->GetWindowText(csWndNum);
+	if (csWndNum.IsEmpty())
+		m_pPlayer->GetDVRSettings().m_nRenderWndNum = 1;
+	else
+		m_pPlayer->GetDVRSettings().m_nRenderWndNum = _ttoi(csWndNum);
+
+	m_pPlayer->StartMonitor();
 	SetState();
 }
 

@@ -148,8 +148,9 @@
 #define IDC_LOGININFO                   1109
 #define IDC_PASSWORD                    1110
 #define IDC_PLAYBACK                    1110
-#define IDC_EDIT1                       1111
 #define IDC_MEDIA_FILEPATH              1111
+#define IDC_COMBO1                      1112
+#define IDC_COMBO_WINNUM                1112
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -228,9 +229,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        250
+#define _APS_NEXT_RESOURCE_VALUE        251
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1112
+#define _APS_NEXT_CONTROL_VALUE         1113
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

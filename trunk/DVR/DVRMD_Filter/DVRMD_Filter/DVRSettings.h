@@ -38,6 +38,9 @@ public:
 	CTime		m_StartTime;		//Render start time
 	CTime		m_EndTime;			//Render end time
 	
+	//Render Window Settings
+	int			m_nRenderWndNum;	//Default: 1. 1 , 4, 8, 16
+
 	//Player Settings.
 	BOOL		m_bHighPictureQuality;	//Quality of the picture: default is FALSE;
 	CString		m_csPicCapturePath;	//Capture Picture folder

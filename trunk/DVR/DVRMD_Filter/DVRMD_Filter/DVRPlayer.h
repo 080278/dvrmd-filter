@@ -104,6 +104,10 @@ public:
 	BOOL StartMonitor();
 	void StopMonitor();
 
+	// Playback by time
+	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);
+	void EndPlayback();
+
 	// Play file interfaces
 	void  Open(LPCTSTR szFile = NULL);
 	void  Close();
@@ -265,4 +269,6 @@ private:
 	std::auto_ptr<CHWndManager>	m_spHWndMgr;
 	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
 	int				m_UserID;
+	int				m_nPlaybackIndex;
+	std::vector<int> m_MonitorHandler;
 };
