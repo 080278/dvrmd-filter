@@ -22,10 +22,6 @@ BEGIN_MESSAGE_MAP(CDVRMD_FilterCtrl, COleControl)
 	ON_WM_CREATE()
 	
 	ON_WM_DESTROY()
-	ON_WM_LBUTTONDBLCLK()
-	ON_WM_LBUTTONDBLCLK()
-	ON_STN_DBLCLK(IDC_SHOW, &CDVRMD_FilterCtrl::OnStnDblclickShow)
-	ON_WM_MOVE()
 END_MESSAGE_MAP()
 
 
@@ -221,28 +217,4 @@ LONG CDVRMD_FilterCtrl::OpenFile(LPCTSTR bstrFile)
 	
 	m_MainDialog.OpenFile(bstrFile);
 	return 0;
-}
-
-
-void CDVRMD_FilterCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
-{
-	// TODO: Add your message handler code here and/or call default
-
-	COleControl::OnLButtonDblClk(nFlags, point);
-}
-
-
-void CDVRMD_FilterCtrl::OnStnDblclickShow()
-{
-	// TODO: Add your control notification handler code here
-	int n = 0;
-}
-
-
-
-void CDVRMD_FilterCtrl::OnMove(int x, int y)
-{
-	COleControl::OnMove(x, y);
-
-	// TODO: Add your message handler code here
 }

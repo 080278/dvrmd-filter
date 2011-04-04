@@ -54,9 +54,6 @@ public:
 	afx_msg void OnDestroy();
 protected:
 	LONG OpenFile(LPCTSTR bstrFile);
-public:
-	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
-	afx_msg void OnStnDblclickShow();
-	afx_msg void OnMove(int x, int y);
+
 };
 
