@@ -171,6 +171,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_MESSAGE(WM_ENC_CHANGE,EncChangeMessage)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
+
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
