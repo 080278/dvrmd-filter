@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "Player.h"
 #include "DVRPlayer.h"
-#include <gdiplus.h>
-
 
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 
@@ -316,29 +314,58 @@ void CDVRPlayer::DrawArrow(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen,
 
 }
 
-void CDVRPlayer::DrawArrows(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen, const Gdiplus::SolidBrush& brush, Gdiplus::Point* ptLines, int count, int arrowType)
+void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame)
 {
-	switch(arrowType)
+	TRACE(_T("Frame Image: width(%d), height(%d)"), frame.displayData.image_width, frame.displayData.image_height);
+	TRACE(_T("Frame Attributes:"));
+#ifdef _DEBUG
+	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
-	case 1:
-		graphics.DrawLines(&pen, ptLines, count);
-		break;
-	case 2:
-		graphics.DrawLines(&pen, ptLines, count);
-		break;
-	case 0:
-	default:
-		graphics.DrawLines(&pen, ptLines, count);
-		break;
+		TRACE(_T("Attr Key(%s), Value(%s)"), it->first, it->second);
+	}
+#endif
+	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
+		itDspObj != frame.displayData.disp_obj_list.end(); 
+		++itDspObj)
+	{
+		TRACE(_T("Draw DisplayObjectMeta: id=%s"), CA2T(itDspObj->id.c_str()));
+		DrawDisplayObjectMeta(graphics, *itDspObj);
+	}
+
+	for (HHV::PolyLines::const_iterator itLine = frame.displayData.line_list.begin(); 
+		itLine != frame.displayData.line_list.end(); 
+		++itLine)
+	{
+		DrawPolyLine(graphics, *itLine);
+	}
+
+	for (HHV::Texts::const_iterator itTxt = frame.displayData.text_list.begin();
+		itTxt != frame.displayData.text_list.end();
+		++itTxt)
+	{
+		DrawTextMeta(graphics, *itTxt);
+	}
+
+	for (HHV::Polygons::const_iterator itPolygon = frame.displayData.polygon_list.begin();
+		itPolygon != frame.displayData.polygon_list.end();
+		++itPolygon)
+	{
+		DrawPolygon(graphics, *itPolygon);
+	}
+
+	for (HHV::GUIObjects::const_iterator itGUIObj = frame.displayData.gui_object_list.begin();
+		itGUIObj != frame.displayData.gui_object_list.end();
+		++itGUIObj)
+	{
+		DrawObjectType(graphics, *itGUIObj);
 	}
 }
-
 void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line)
 {
 	if (line.lines.size() > 1)
 	{
-		Gdiplus::Pen gTrackPen(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b), line.thickness);
-		Gdiplus::SolidBrush gArrowBrush(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b));
+		Gdiplus::Pen gPlusPen(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b), line.thickness);
+		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b));
 
 		Gdiplus::Point* ptLines = new Gdiplus::Point[line.lines.size()];
 		int i = 0;
@@ -349,7 +376,20 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 			ptLines[i].X = itPt->x;
 			ptLines[i].Y = itPt->y;
 		}
-		DrawArrows(graphics, gTrackPen, gArrowBrush, ptLines, line.lines.size(), line.end_style);
+
+		switch(line.end_style)
+		{
+		case 1:
+			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+			break;
+		case 2:
+			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+			break;
+		case 0:
+		default:
+			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+			break;
+		}
 
 		delete[] ptLines;
 	}
@@ -417,52 +457,10 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
+		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
 		{
-			Gdiplus::Graphics graphics(hDC);
-			for (HHV::DisplayObjectMetaList::iterator itDspObj = itFrame->displayData.disp_obj_list.begin(); 
-					itDspObj != itFrame->displayData.disp_obj_list.end(); 
-					++itDspObj)
-			{
-				// Draw Display Object Meta Data
-
-				// id
-				TRACE(_T("Draw DisplayObjectMeta: id=%s"), CA2T(itDspObj->id.c_str()));
-
-				//ObjectType
-				pThis->DrawObjectType(graphics, itDspObj->obj);
-
-				//PolyLine;
-				pThis->DrawPolyLine(graphics, itDspObj->track);
-			}
-
-			for (HHV::PolyLines::iterator itLine = itFrame->displayData.line_list.begin(); 
-					itLine != itFrame->displayData.line_list.end(); 
-					++itLine)
-			{
-				pThis->DrawPolyLine(graphics, *itLine);
-			}
-
-			for (HHV::Texts::iterator itTxt = itFrame->displayData.text_list.begin();
-					itTxt != itFrame->displayData.text_list.end();
-					++itTxt)
-			{
-				pThis->DrawTextMeta(graphics, *itTxt);
-			}
-
-			for (HHV::Polygons::iterator itPolygon = itFrame->displayData.polygon_list.begin();
-					itPolygon != itFrame->displayData.polygon_list.end();
-					++itPolygon)
-			{
-				pThis->DrawPolygon(graphics, *itPolygon);
-			}
-
-			for (HHV::GUIObjects::iterator itGUIObj = itFrame->displayData.gui_object_list.begin();
-					itGUIObj != itFrame->displayData.gui_object_list.end();
-					++itGUIObj)
-			{
-				pThis->DrawObjectType(graphics, *itGUIObj);
-			}
+			DrawFrameMetaData(graphics, *itFrame);
 		}
 	}
 }
