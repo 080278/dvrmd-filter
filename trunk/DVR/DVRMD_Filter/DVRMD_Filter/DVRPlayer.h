@@ -6,6 +6,7 @@
 #include "LoginDvrMgr.h"
 #include "PlayerMgr.h"
 #include "HWndManager.h"
+#include "Metadata_Types.h"
 
 static UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the file is end.
 static UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
@@ -83,6 +84,12 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
 #define HIK_STD_STREAM_TYPE_MPG2_TS		7    	/* TSÁ÷           */
 #define HIK_STD_STREAM_TYPE_MPG2_PS     8       /* PSÁ÷           */
 
+namespace Gdiplus{
+	class Graphics;
+	class Point;
+	class Pen;
+	class SolidBrush;
+}
 class CDVRPlayer
 {
 public:
@@ -230,6 +237,13 @@ private:
 	//OnDrawFun
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
+	void DrawArrow(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen, const Gdiplus::SolidBrush& brush, const Gdiplus::Point& ptStart, const Gdiplus::Point& ptEnd, int arrowType);
+	void DrawArrows(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen, const Gdiplus::SolidBrush& brush, Gdiplus::Point* ptLines, int count, int arrowType);
+	void DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line);
+	void DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt);
+	void DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon);
+	void DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj);
+	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 private:
 	ePlayState	m_enumState;              // now the play state
 	LONG		m_lPort;
@@ -271,4 +285,7 @@ private:
 	int				m_UserID;
 	int				m_nPlaybackIndex;
 	std::vector<int> m_MonitorHandler;
+	BOOL			m_bDrawMetaData;
+
+	ULONG_PTR	m_gdiplusToken;
 };

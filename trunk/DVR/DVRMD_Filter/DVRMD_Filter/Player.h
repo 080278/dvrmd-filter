@@ -31,6 +31,7 @@
 #include "./PlayStreamParser.h"
 #include "./NetDef.h"
 #include "DVRSettings.h"
+#include "Sync_Locks.h"
 
 #define SYN_READ_STREAM
 #define WAIT_THREAD_EXIT_MAX_TIME    (5*1000)
@@ -102,5 +103,6 @@ private:
 
 	int m_playType;
 
+	CCritSec	m_MetaDataLock;
 };
 #endif // !defined(AFX_PLAYER_H__B22F676B_7805_4359_8D74_B5A63BA0B5F9__INCLUDED_)

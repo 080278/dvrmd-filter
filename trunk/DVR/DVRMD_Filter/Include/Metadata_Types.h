@@ -7,10 +7,11 @@
 #include <fstream>
 #include <iostream>
 
-using std::string;
-using std::vector;
 
 namespace HHV {
+
+	using std::string;
+	using std::vector;
 
 	struct RGBColor;
 	typedef std::map<std::string, std::string> Attributes;

@@ -10,6 +10,7 @@
 //#include "./struct_TCPServ.h"
 #include "./NetDef.h"
 #include "./PlayMp4H_fFunDef.h"
+#include "Metadata_Types.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -294,8 +295,10 @@ int CPlayer::InputData_Frame()
 		return -nErr;
 	}
 	//取出meta数据，叠加到视频
-	memcpy( m_meta, m_buffer + encFrameLength, m_frameHeader.MetaLength );
-
+	m_MetaDataLock.Lock();
+	memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(U32));
+	memcpy( m_meta+sizeof(U32), m_buffer + encFrameLength, m_frameHeader.MetaLength );
+	m_MetaDataLock.Unlock();
     return 0;
 }
 
@@ -373,8 +376,10 @@ int CPlayer::InputData_Frame_PlayBack()
     }
 	
     //取出meta数据，叠加到视频
-    memcpy( m_meta, m_buffer + encFrameLength, m_frameHeader.MetaLength ); 
-	
+	m_MetaDataLock.Lock();
+	memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(m_frameHeader.MetaLength));
+    memcpy( m_meta+sizeof(m_frameHeader.MetaLength), m_buffer + encFrameLength, m_frameHeader.MetaLength ); 
+	m_MetaDataLock.Unlock();
     return 0;
 }
 
@@ -478,11 +483,33 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 	CPlayer* pPlayer = (CPlayer*)nUser;
 	if( pPlayer != NULL )
 	{
-		SetBkMode(hDc, TRANSPARENT);
-		//SetBkColor(hdc, RGB(0 ,0 ,255));
-		SetTextColor( hDc, RGB(255 , 0 , 0 ) );
+		BYTE byMetaData[sizeof(pPlayer->m_meta)];
+		U32 metaLen = 0;
+		pPlayer->m_MetaDataLock.Lock();
+		memcpy(&metaLen, pPlayer->m_meta, sizeof(U32));
+		memcpy(byMetaData, pPlayer->m_meta+sizeof(U32), metaLen);
+		pPlayer->m_MetaDataLock.Unlock();
 
-		::TextOut(hDc, 0, 0, _T("Meta"), 4);
+		HHV::FrameMetaDataList metaList;
+		U32 readSize = 0;
+		BYTE* pFMDStartPos = byMetaData;
+		while(readSize < metaLen)
+		{
+			HHV::FrameMetaData fmd;
+			pFMDStartPos = fmd.FromMemory(pFMDStartPos);
+			metaList.push_back(fmd);
+			readSize += fmd.memsize();
+		}
+
+		for (HHV::FrameMetaDataList::iterator it = metaList.begin(); it != metaList.end(); ++it)
+		{
+			// Now, let's draw the meta data.
+			SetBkMode(hDc, TRANSPARENT);
+			//SetBkColor(hdc, RGB(0 ,0 ,255));
+			SetTextColor( hDc, RGB(255 , 0 , 0 ) );
+
+			::TextOut(hDc, 0, 0, _T("Meta"), 4);
+		}
 	}
 }
 
