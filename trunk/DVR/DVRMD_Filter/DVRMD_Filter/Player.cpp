@@ -476,6 +476,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 	return HHV_ERROR_CONNECT;
 }
 
+#include "DVRPlayer.h"
 void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 {
 	//if( g_uniSDKDrawFuncCallBack != NULL )
@@ -501,14 +502,17 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 			readSize += fmd.memsize();
 		}
 
-		for (HHV::FrameMetaDataList::iterator it = metaList.begin(); it != metaList.end(); ++it)
+		Gdiplus::Graphics graphics(hDc);
+
+		for (HHV::FrameMetaDataList::const_iterator it = metaList.begin(); it != metaList.end(); ++it)
 		{
 			// Now, let's draw the meta data.
-			SetBkMode(hDc, TRANSPARENT);
-			//SetBkColor(hdc, RGB(0 ,0 ,255));
-			SetTextColor( hDc, RGB(255 , 0 , 0 ) );
+			CDVRPlayer::DrawFrameMetaData(graphics, *it);
+			//SetBkMode(hDc, TRANSPARENT);
+			////SetBkColor(hdc, RGB(0 ,0 ,255));
+			//SetTextColor( hDc, RGB(255 , 0 , 0 ) );
 
-			::TextOut(hDc, 0, 0, _T("Meta"), 4);
+			//::TextOut(hDc, 0, 0, _T("Meta"), 4);
 		}
 	}
 }
