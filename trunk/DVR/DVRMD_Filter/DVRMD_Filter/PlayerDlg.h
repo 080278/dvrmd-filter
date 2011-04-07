@@ -222,6 +222,8 @@ protected:
 	CMonitorSettingsDlg m_DVRSettingsPage2;
 	CServerPlaybackSettingsDlg m_DVRSettingsPage3;
 	CFilePlaybackSettingsDlg m_DVRSettingsPage4;
+public:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 //{{AFX_INSERT_LOCATION}}
