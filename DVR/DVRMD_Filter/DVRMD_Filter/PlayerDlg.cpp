@@ -172,6 +172,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_BN_CLICKED(IDC_OPENFILE, OnBnClickedOpenfile)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
 
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -336,22 +337,22 @@ void CPlayerDlg::OnPaint()
 		//	SendMessage(WM_ICONERASEBKGND, (WPARAM) dc.GetSafeHdc(), 0);
 
 		// Center icon in client rectangle
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+		//int cxIcon = GetSystemMetrics(SM_CXICON);
+		//int cyIcon = GetSystemMetrics(SM_CYICON);
+		//CRect rect;
+		//GetClientRect(&rect);
+		//int x = (rect.Width() - cxIcon + 1) / 2;
+		//int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// Draw the icon
-		dc.DrawIcon(x, y, m_hIcon);
+		//// Draw the icon
+		//dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
 	{
 		CDialog::OnPaint();
 	}
-	UpdateWindow();
-	GetPlayer()->RefreshPlay();
+	//UpdateWindow();
+	//GetPlayer()->RefreshPlay();
 }
 
 // The system calls this to obtain the cursor to display while the user drags
@@ -671,7 +672,10 @@ void CPlayerDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 void CPlayerDlg::OnMove(int x, int y) 
 {
 	CDialog::OnMove(x, y);
-	if (::IsWindow(m_DVRSettingsSheet.m_hWnd))
+
+	return;
+
+	if (::IsWindow(m_DVRSettingsSheet.m_hWnd) && m_DVRSettingsSheet.IsWindowVisible())
 	{
 		RECT rcSheet;
 		GetDlgItem(IDC_SHEET_POS)->GetWindowRect(&rcSheet);
@@ -1266,6 +1270,10 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 // Funtion: Draw the status .
 void CPlayerDlg::DrawStatus()
 {
+	if (IsFullScreen())
+	{
+		return;
+	}
 	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
 	DWORD nDuration	= GetPlayer()->GetDuration();
 
@@ -2041,10 +2049,10 @@ void CPlayerDlg::ViewFullScreen()
 		GetDlgItem(IDC_SHOWHIDE_SETTINGS)->ShowWindow(SW_SHOW);
 		GetDlgItem(IDC_PLAY_TIMEINFO)->ShowWindow(SW_SHOW);
 
+		SetState();
+		RedrawWindow();
 	}
-	SetState();
 
-	RedrawWindow();
 
 	GetPlayer()->RefreshPlay();
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
@@ -2539,4 +2547,15 @@ void CPlayerDlg::OnBnClickedShowHideSettings()
 {
 	m_DVRSettingsSheet.ShowWindow(m_DVRSettingsSheet.IsWindowVisible()?SW_HIDE:SW_SHOW);
 	//m_DVRSettingsSheet.DoModal();
+}
+
+
+BOOL CPlayerDlg::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (IsFullScreen())
+	{
+		return 0;
+	}
+	return CDialog::OnEraseBkgnd(pDC);
 }

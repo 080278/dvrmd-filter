@@ -309,10 +309,6 @@ void CDVRPlayer::EndPlayback()
 	}
 }
 // Draw Function
-void CDVRPlayer::DrawArrow(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen, const Gdiplus::SolidBrush& brush, const Gdiplus::Point& ptStart, const Gdiplus::Point& ptEnd, int arrowType)
-{
-
-}
 
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame)
 {
@@ -377,19 +373,20 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 			ptLines[i].Y = itPt->y;
 		}
 
+
 		switch(line.end_style)
 		{
 		case 1:
-			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+			gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, FALSE));
 			break;
 		case 2:
-			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+			gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, TRUE));
 			break;
 		case 0:
 		default:
-			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
 			break;
 		}
+		graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
 
 		delete[] ptLines;
 	}
@@ -397,11 +394,35 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 
 void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt)
 {
-
+	Gdiplus::Font gPlusFont(L"黑体", txt.size, Gdiplus::FontStyleRegular,Gdiplus::UnitPixel);
+	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(255, txt.color.r, txt.color.g, txt.color.b));
+	int nTxtLen = txt.text.length();
+	WCHAR* pBuf = new WCHAR[nTxtLen+1];
+	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
+	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
+	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(txt.x, txt.y), &gPlushBrush);
+	delete[] pBuf;
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon)
 {
+	const HHV::DrawingStyle& style = polygon.style;
 
+	Gdiplus::Pen gPlusPen(Gdiplus::Color(style.alpha*255/100, style.color.r, style.color.g, style.color.b), style.thickness);
+
+	Gdiplus::Point* ptPolygons = new Gdiplus::Point[polygon.points.size()];
+	for (int i = 0; i < polygon.points.size(); ++i)
+	{
+		ptPolygons[i].X = polygon.points[i].x;
+		ptPolygons[i].Y = polygon.points[i].y;
+	}
+	if (polygon.style.bFill)
+	{
+		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
+		graphics.FillPolygon(&gPlusBrush, ptPolygons, polygon.points.size());
+	}
+	
+	graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
+	delete[] ptPolygons;
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj)
 {
@@ -496,7 +517,7 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 	dom1.track.color.g = 200;
 	dom1.track.color.b = 255;
 	dom1.track.thickness = 2;
-	dom1.track.end_style = 1; // 0 no style; 1: arrow solid, 2: arrow line
+	dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
 	dom1.track.arrow_width = 4;
 	dom1.track.arrow_length = 5;
 	dom1.track.lines.push_back(cvPoint(150, 20));
@@ -505,7 +526,40 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 	dom1.track.lines.push_back(cvPoint(315, 80));
 	dom1.track.lines.push_back(cvPoint(150, 100));
 
+	HHV::PolygonM pg;
+	pg.style.color.r = 0;
+	pg.style.color.g = 255;
+	pg.style.color.b = 0;
+	pg.style.alpha = 50;
+	pg.style.bFill = true;
+	pg.style.fill_color.r = 255;
+	pg.style.fill_color.g = 255;
+	pg.style.fill_color.b = 0; 
+	pg.style.thickness = 5;
+	pg.points.push_back(cvPoint(50, 200));
+	pg.points.push_back(cvPoint(200, 200));
+	pg.points.push_back(cvPoint(200, 250));
+	pg.points.push_back(cvPoint(50, 250));
+
+	HHV::TextMeta txt;
+	txt.color = pg.style.color;
+	txt.size = 30;
+	txt.text = "你好，这是测试用的MetaData！";
+	txt.x = 300;
+	txt.y = 400;
+
 	fmd1.displayData.disp_obj_list.push_back(dom1);
+	fmd1.displayData.polygon_list.push_back(pg);
+	pg.style.bFill = false;
+	pg.points.clear();
+	pg.points.push_back(cvPoint(250, 200));
+	pg.points.push_back(cvPoint(300, 200));
+	pg.points.push_back(cvPoint(300, 250));
+	pg.points.push_back(cvPoint(50, 250));
+	fmd1.displayData.polygon_list.push_back(pg);
+
+	fmd1.displayData.text_list.push_back(txt);
+
 
 	metaDataList.push_back(fmd1);
 	return (int)metaDataList.size();

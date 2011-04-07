@@ -243,7 +243,7 @@ private:
 	static void DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt);
 	static void DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon);
 	static void DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj);
-	static void DrawArrow(Gdiplus::Graphics& graphics, const Gdiplus::Pen& pen, const Gdiplus::SolidBrush& brush, const Gdiplus::Point& ptStart, const Gdiplus::Point& ptEnd, int arrowType);
+
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 private:
 	ePlayState	m_enumState;              // now the play state

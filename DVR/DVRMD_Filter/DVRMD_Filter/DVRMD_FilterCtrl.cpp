@@ -193,6 +193,7 @@ void CDVRMD_FilterCtrl::OnDraw(
 	// TODO: Replace the following code with your own drawing code.
 	//pdc->FillRect(rcBounds, CBrush::FromHandle((HBRUSH)GetStockObject(WHITE_BRUSH)));
 	//pdc->Ellipse(rcBounds);
+
 	if (::IsWindow(m_MainDialog.m_hWnd) && !m_MainDialog.IsFullScreen())
 	{
 		m_MainDialog.MoveWindow(rcBounds, TRUE);
