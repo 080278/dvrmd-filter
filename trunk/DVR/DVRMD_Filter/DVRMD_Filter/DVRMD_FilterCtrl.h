@@ -42,6 +42,12 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidLogout = 7L,
+		dispidLogin = 6L,
+		dispidMediaServerPort = 5,
+		dispidMediaServerIP = 4,
+		dispidRenderHeight = 3,
+		dispidRenderWidth = 2,
 		dispidOpenFile = 1L,
 		IDD = IDD_PLAYER_DIALOG
 	};
@@ -55,5 +61,15 @@ public:
 protected:
 	LONG OpenFile(LPCTSTR bstrFile);
 
+	ULONG GetRenderWidth(void);
+	void SetRenderWidth(ULONG newVal);
+	ULONG GetRenderHeight(void);
+	void SetRenderHeight(ULONG newVal);
+	BSTR GetMediaServerIP(void);
+	void SetMediaServerIP(LPCTSTR newVal);
+	LONG GetMediaServerPort(void);
+	void SetMediaServerPort(LONG newVal);
+	VARIANT_BOOL Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, LONG lPort);
+	void Logout(void);
 };
 

@@ -22,10 +22,15 @@ library DVRMD_FilterLib
 	dispinterface _DDVRMD_Filter
 	{
 		properties:
+			[id(2), helpstring("Set the render window width")] ULONG RenderWidth;
+			[id(3), helpstring("Set the render window height")] ULONG RenderHeight;
+			[id(4), helpstring("Media Server IP")] BSTR MediaServerIP;
+			[id(5), helpstring("Media Server Port")] LONG MediaServerPort;
 		methods:
-
 			[id(DISPID_ABOUTBOX)] void AboutBox();
 			[id(1), helpstring("Open MeidaFile")] LONG OpenFile(BSTR bstrFile);
+			[id(6), helpstring("Login to Media Server")] VARIANT_BOOL Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort);
+			[id(7), helpstring("Logout from Media Server")] void Logout(void);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl
