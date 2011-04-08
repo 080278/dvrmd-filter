@@ -1,45 +1,65 @@
 ﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
 </head>
 <body>
-        <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width=800 height=600>
-        </object>
-
-        <script language="javascript" type="text/javascript" for="DVRPlayer" event="DBLCLICK">
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tr>
+            <td>
+                <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width="800"
+                    height="600">
+                </object>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input id="fileMedia" type="file" onchange="OnOpenFile(this.value)"/>
+            </td>
+        </tr>
+    </table>
+    <script language="javascript" type="text/javascript" for="DVRPlayer" event="DBLCLICK">
             MouseDoubleClick();
-        </script>
+    </script>
+    <script language="javascript" type="text/javascript">
+        function OnOpenFile(filePath) {
+            if (filePath != null && filePath.length > 0) {
+                alert(filePath);
+                DVRPlayer.OpenFile(filePath);
+           }
+           else
+           {
+                alert("filePath != null");
+           }
+         }
 
-        <script language="javascript" type="text/javascript">
-            function MouseDoubleClick() {
-//                DVRPlayer.style.left = 0;
-//                DVRPlayer.style.top = 0;
-//                DVRPlayer.width = screen.width;
-//                DVRPlayer.height = screen.height;
-                //alert("mouse double click");
-                //windowopen();
-            }
+        function MouseDoubleClick() {
+            //                DVRPlayer.style.left = 0;
+            //                DVRPlayer.style.top = 0;
+            //                DVRPlayer.width = screen.width;
+            //                DVRPlayer.height = screen.height;
+            //alert("mouse double click");
+            //windowopen();
+        }
 
-//            function toFull() {
-//                if (window.name == "fullscreen ") return;
-//                var a = window.open(" ", "fullscreen ", "fullscreen=yes ")
-//                a.location = window.location.href
-//                window.opener = null
-//                window.close()
-//            }
+        //            function toFull() {
+        //                if (window.name == "fullscreen ") return;
+        //                var a = window.open(" ", "fullscreen ", "fullscreen=yes ")
+        //                a.location = window.location.href
+        //                window.opener = null
+        //                window.close()
+        //            }
 
-//            function windowopen() {
-//                var target = "http://www.google.com";
-//                newwindow = window.open("", "", "scrollbars");
-//                if (document.all) {
-//                    newwindow.moveTo(0, 0)
-//                    newwindow.resizeTo(screen.width, screen.height)
-//                }
-//                newwindow.location = target
-//            }
+        //            function windowopen() {
+        //                var target = "http://www.google.com";
+        //                newwindow = window.open("", "", "scrollbars");
+        //                if (document.all) {
+        //                    newwindow.moveTo(0, 0)
+        //                    newwindow.resizeTo(screen.width, screen.height)
+        //                }
+        //                newwindow.location = target
+        //            }
 
-        </script>
+    </script>
 </body>
 </html>

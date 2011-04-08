@@ -32,6 +32,12 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "AboutBox", DISPID_ABOUTBOX, AboutBox, VT_EMPTY, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "OpenFile", dispidOpenFile, OpenFile, VT_I4, VTS_BSTR)
 	DISP_STOCKFUNC_DOCLICK()
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "RenderWidth", dispidRenderWidth, GetRenderWidth, SetRenderWidth, VT_UI4)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "RenderHeight", dispidRenderHeight, GetRenderHeight, SetRenderHeight, VT_I4)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "MediaServerIP", dispidMediaServerIP, GetMediaServerIP, SetMediaServerIP, VT_BSTR)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "MediaServerPort", dispidMediaServerPort, GetMediaServerPort, SetMediaServerPort, VT_I4)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Login", dispidLogin, Login, VT_BOOL, VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Logout", dispidLogout, Logout, VT_EMPTY, VTS_NONE)
 END_DISPATCH_MAP()
 
 
@@ -218,4 +224,104 @@ LONG CDVRMD_FilterCtrl::OpenFile(LPCTSTR bstrFile)
 	
 	m_MainDialog.OpenFile(bstrFile);
 	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::GetRenderWidth(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
+
+	return 0;
+}
+
+
+void CDVRMD_FilterCtrl::SetRenderWidth(ULONG newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your property handler code here
+
+	SetModifiedFlag();
+}
+
+
+ULONG CDVRMD_FilterCtrl::GetRenderHeight(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
+
+	return 0;
+}
+
+
+void CDVRMD_FilterCtrl::SetRenderHeight(ULONG newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your property handler code here
+
+	SetModifiedFlag();
+}
+
+
+BSTR CDVRMD_FilterCtrl::GetMediaServerIP(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult;
+
+	// TODO: Add your dispatch handler code here
+
+	return strResult.AllocSysString();
+}
+
+
+void CDVRMD_FilterCtrl::SetMediaServerIP(LPCTSTR newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your property handler code here
+
+	SetModifiedFlag();
+}
+
+
+LONG CDVRMD_FilterCtrl::GetMediaServerPort(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
+
+	return 0;
+}
+
+
+void CDVRMD_FilterCtrl::SetMediaServerPort(LONG newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your property handler code here
+
+	SetModifiedFlag();
+}
+
+
+VARIANT_BOOL CDVRMD_FilterCtrl::Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, LONG lPort)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
+
+	return VARIANT_TRUE;
+}
+
+
+void CDVRMD_FilterCtrl::Logout(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
 }
