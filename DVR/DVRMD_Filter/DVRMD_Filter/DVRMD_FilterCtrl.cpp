@@ -38,6 +38,12 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "MediaServerPort", dispidMediaServerPort, GetMediaServerPort, SetMediaServerPort, VT_I4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Login", dispidLogin, Login, VT_BOOL, VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Logout", dispidLogout, Logout, VT_EMPTY, VTS_NONE)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "RenderWndNum", dispidRenderWndNum, GetRenderWndNum, SetRenderWndNum, VT_UI4)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "CapturePicType", dispidCapturePicType, GetCapturePicType, SetCapturePicType, VT_UI4)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "CapturePicPath", dispidCapturePicPath, GetCapturePicPath, SetCapturePicPath, VT_BSTR)
+	DISP_PROPERTY_EX_ID(CDVRMD_FilterCtrl, "HighPictureQuality", dispidHighPictureQuality, GetHighPictureQuality, SetHighPictureQuality, VT_BOOL)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "IsChannelEnable", dispidIsChannelEnable, IsChannelEnable, VT_BOOL, VTS_UI4)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "EnableChannel", dispidEnableChannel, EnableChannel, VT_UI4, VTS_UI4 VTS_BOOL)
 END_DISPATCH_MAP()
 
 
@@ -231,9 +237,7 @@ ULONG CDVRMD_FilterCtrl::GetRenderWidth(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
-
-	return 0;
+	return GetDVRSettings().m_nRenderWidth;
 }
 
 
@@ -241,7 +245,7 @@ void CDVRMD_FilterCtrl::SetRenderWidth(ULONG newVal)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your property handler code here
+	GetDVRSettings().m_nRenderWidth = newVal;
 
 	SetModifiedFlag();
 }
@@ -251,9 +255,7 @@ ULONG CDVRMD_FilterCtrl::GetRenderHeight(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
-
-	return 0;
+	return GetDVRSettings().m_nRenderHeight;
 }
 
 
@@ -261,7 +263,7 @@ void CDVRMD_FilterCtrl::SetRenderHeight(ULONG newVal)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your property handler code here
+	GetDVRSettings().m_nRenderHeight = newVal;
 
 	SetModifiedFlag();
 }
@@ -271,9 +273,7 @@ BSTR CDVRMD_FilterCtrl::GetMediaServerIP(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	CString strResult;
-
-	// TODO: Add your dispatch handler code here
+	CString strResult = GetDVRSettings().m_csMediaServerIP;
 
 	return strResult.AllocSysString();
 }
@@ -283,7 +283,7 @@ void CDVRMD_FilterCtrl::SetMediaServerIP(LPCTSTR newVal)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your property handler code here
+	GetDVRSettings().m_csMediaServerIP = newVal;
 
 	SetModifiedFlag();
 }
@@ -293,9 +293,7 @@ LONG CDVRMD_FilterCtrl::GetMediaServerPort(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
-
-	return 0;
+	return GetDVRSettings().m_lPort;
 }
 
 
@@ -303,7 +301,7 @@ void CDVRMD_FilterCtrl::SetMediaServerPort(LONG newVal)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your property handler code here
+	GetDVRSettings().m_lPort = newVal;
 
 	SetModifiedFlag();
 }
@@ -313,9 +311,9 @@ VARIANT_BOOL CDVRMD_FilterCtrl::Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
+	BOOL bRet = GetDVRPlayer()->Login(bstrUsername, bstrPassword, bstrIP, lPort);
 
-	return VARIANT_TRUE;
+	return bRet ? VARIANT_TRUE: VARIANT_FALSE;
 }
 
 
@@ -323,5 +321,103 @@ void CDVRMD_FilterCtrl::Logout(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
+	GetDVRPlayer()->Logout();
+}
+
+
+ULONG CDVRMD_FilterCtrl::GetRenderWndNum(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	return GetDVRSettings().m_nRenderWndNum;
+}
+
+
+void CDVRMD_FilterCtrl::SetRenderWndNum(ULONG newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_nRenderWndNum = newVal;
+
+	SetModifiedFlag();
+}
+
+
+ULONG CDVRMD_FilterCtrl::GetCapturePicType(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	return GetDVRSettings().m_eCapturePicType;
+}
+
+
+void CDVRMD_FilterCtrl::SetCapturePicType(ULONG newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_eCapturePicType = (CDVRSettings::eCapPicType)newVal;
+
+	SetModifiedFlag();
+}
+
+
+BSTR CDVRMD_FilterCtrl::GetCapturePicPath(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult = GetDVRSettings().m_csPicCapturePath;
+
+	return strResult.AllocSysString();
+}
+
+
+void CDVRMD_FilterCtrl::SetCapturePicPath(LPCTSTR newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_csPicCapturePath = newVal;
+
+	SetModifiedFlag();
+}
+
+
+VARIANT_BOOL CDVRMD_FilterCtrl::GetHighPictureQuality(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	return GetDVRSettings().m_bHighPictureQuality? VARIANT_TRUE : VARIANT_FALSE;
+}
+
+
+void CDVRMD_FilterCtrl::SetHighPictureQuality(VARIANT_BOOL newVal)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_bHighPictureQuality = (newVal == VARIANT_TRUE) ? TRUE : FALSE;
+
+	SetModifiedFlag();
+}
+
+
+VARIANT_BOOL CDVRMD_FilterCtrl::IsChannelEnable(ULONG lChannel)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	std::map<int, bool>::iterator it = GetDVRSettings().m_mapEnableChannel.find(lChannel);
+	if (it != GetDVRSettings().m_mapEnableChannel.end())
+	{
+		return it->second ? VARIANT_TRUE : VARIANT_FALSE;
+	}
+
+	return VARIANT_FALSE;
+}
+
+
+ULONG CDVRMD_FilterCtrl::EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_mapEnableChannel[lChannel] = (bEnable == VARIANT_TRUE);
+
+	return 0;
 }

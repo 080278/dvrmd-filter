@@ -151,6 +151,7 @@
 #define IDC_MEDIA_FILEPATH              1111
 #define IDC_COMBO1                      1112
 #define IDC_COMBO_WINNUM                1112
+#define IDC_IPADDRESS1                  1113
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -231,7 +232,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        251
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1113
+#define _APS_NEXT_CONTROL_VALUE         1114
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

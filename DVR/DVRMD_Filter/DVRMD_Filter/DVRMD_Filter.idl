@@ -21,16 +21,22 @@ library DVRMD_FilterLib
 	  helpstring("Dispatch interface for DVRMD_Filter Control")]
 	dispinterface _DDVRMD_Filter
 	{
-		properties:
+	properties:
 			[id(2), helpstring("Set the render window width")] ULONG RenderWidth;
 			[id(3), helpstring("Set the render window height")] ULONG RenderHeight;
 			[id(4), helpstring("Media Server IP")] BSTR MediaServerIP;
 			[id(5), helpstring("Media Server Port")] LONG MediaServerPort;
-		methods:
+			[id(8), helpstring("Set Wnd Num (1, 4, 8, 16...)")] ULONG RenderWndNum;
+			[id(9), helpstring("0: Jpeg, 1: Bmp")] ULONG CapturePicType;
+			[id(10), helpstring("Capture Picture Folder")] BSTR CapturePicPath;
+			[id(11), helpstring("If it's High Picture Quality")] VARIANT_BOOL HighPictureQuality;
+	methods:
 			[id(DISPID_ABOUTBOX)] void AboutBox();
-			[id(1), helpstring("Open MeidaFile")] LONG OpenFile(BSTR bstrFile);
+			[id(1), helpstring("Open Meida File to Play")] LONG OpenFile(BSTR bstrFile);
 			[id(6), helpstring("Login to Media Server")] VARIANT_BOOL Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort);
 			[id(7), helpstring("Logout from Media Server")] void Logout(void);
+			[id(12)] VARIANT_BOOL IsChannelEnable(ULONG lChannel);
+			[id(13)] ULONG EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

@@ -7,6 +7,8 @@ CDVRSettings::CDVRSettings(void)
 	, m_bHighPictureQuality(FALSE)
 	, m_eCapturePicType(eJPEG)
 	, m_nRenderWndNum(1)
+	, m_nRenderWidth(640)
+	, m_nRenderHeight(480)
 {
 }
 
