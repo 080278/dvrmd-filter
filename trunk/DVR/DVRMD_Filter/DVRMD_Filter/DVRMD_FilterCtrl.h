@@ -42,6 +42,8 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidStopMonitor = 11L,
+		dispidStartMonitor = 10L,
 		dispidSetMediaServer = 9L,
 		dispidGetMediaServer = 8L,
 		dispidGetRenderWindowSize = 7L,
@@ -79,5 +81,7 @@ protected:
 	ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
 	ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
 	ULONG SetMediaServer(LPCTSTR bstrMediaServerIP, LONG lPort);
+	ULONG StartMonitor(void);
+	ULONG StopMonitor(void);
 };
 

@@ -34,6 +34,8 @@ library DVRMD_FilterLib
 			[id(7)] ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
 			[id(8)] ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
 			[id(9)] ULONG SetMediaServer(BSTR bstrMediaServerIP, LONG lPort);
+			[id(10)] ULONG StartMonitor(void);
+			[id(11)] ULONG StopMonitor(void);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

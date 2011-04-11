@@ -105,6 +105,7 @@ public:
 	// Real time watching interfaces
 	BOOL StartMonitor();
 	void StopMonitor();
+	BOOL IsMonitoring();
 
 	// Playback by time
 	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);

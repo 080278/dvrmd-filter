@@ -40,6 +40,8 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetRenderWindowSize", dispidGetRenderWindowSize, GetRenderWindowSize, VT_UI4, VTS_PI4 VTS_PI4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetMediaServer", dispidGetMediaServer, GetMediaServer, VT_UI4, VTS_PBSTR VTS_PI4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetMediaServer", dispidSetMediaServer, SetMediaServer, VT_UI4, VTS_BSTR)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StartMonitor", dispidStartMonitor, StartMonitor, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StopMonitor", dispidStopMonitor, StopMonitor, VT_UI4, VTS_NONE)
 END_DISPATCH_MAP()
 
 
@@ -315,6 +317,26 @@ ULONG CDVRMD_FilterCtrl::SetMediaServer(LPCTSTR bstrMediaServerIP, LONG lPort)
 
 	GetDVRSettings().m_csMediaServerIP = bstrMediaServerIP;
 	GetDVRSettings().m_lPort = lPort;
+
+	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::StartMonitor(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
+
+	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::StopMonitor(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	// TODO: Add your dispatch handler code here
 
 	return 0;
 }

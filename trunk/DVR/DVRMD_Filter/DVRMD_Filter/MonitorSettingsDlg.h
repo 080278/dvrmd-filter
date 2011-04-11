@@ -1,6 +1,6 @@
 #pragma once
 
-class CDVRPlayer;
+class CPlayerDlg;
 // CMonitorSettingsDlg dialog
 
 class CMonitorSettingsDlg : public CPropertyPage
@@ -8,7 +8,7 @@ class CMonitorSettingsDlg : public CPropertyPage
 	DECLARE_DYNAMIC(CMonitorSettingsDlg)
 
 public:
-	CMonitorSettingsDlg(CDVRPlayer* pPlayer);
+	CMonitorSettingsDlg(CPlayerDlg* pPlayer);
 	virtual ~CMonitorSettingsDlg();
 
 // Dialog Data
@@ -20,7 +20,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 protected:
-	CDVRPlayer* m_pPlayer;
+	CPlayerDlg* m_pPlayer;
 public:
 	afx_msg void OnBnClickedWatchEnd();
 	afx_msg void OnBnClickedWatchStart();

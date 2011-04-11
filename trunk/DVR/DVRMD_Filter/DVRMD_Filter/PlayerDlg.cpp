@@ -115,7 +115,7 @@ END_MESSAGE_MAP()
 CPlayerDlg::CPlayerDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CPlayerDlg::IDD, pParent)
 	, m_DVRSettingsPage1(GetPlayer())
-	, m_DVRSettingsPage2(GetPlayer())
+	, m_DVRSettingsPage2(this)
 	, m_DVRSettingsPage3(GetPlayer())
 	, m_DVRSettingsPage4(this)
 {
@@ -1359,6 +1359,12 @@ void CPlayerDlg::DrawStatus()
 // set state
 void CPlayerDlg::SetState()
 {
+	if (GetPlayer()->IsMonitoring())
+	{
+		GetDlgItem(IDC_CAPPIC)->EnableWindow(TRUE);
+		return;
+	}
+
 	switch(m_DVRPlayer.GetPlayState())
 	{
 	case CDVRPlayer::eState_Close:
@@ -2565,4 +2571,20 @@ BOOL CPlayerDlg::OnEraseBkgnd(CDC* pDC)
 		return 1;
 	}
 	return CDialog::OnEraseBkgnd(pDC);
+}
+
+bool CPlayerDlg::StartMonitor()
+{
+	BOOL bRet = GetPlayer()->StartMonitor();
+	if (bRet)
+	{
+		//m_
+	}
+	SetState();
+	return bRet;
+}
+void CPlayerDlg::StopMonitor()
+{
+	GetPlayer()->StopMonitor();
+	SetState();
 }
