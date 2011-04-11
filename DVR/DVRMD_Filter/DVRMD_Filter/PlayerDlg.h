@@ -135,6 +135,8 @@ public:
 	void Close();
 	HRESULT OpenFile(LPCTSTR szFile);
 
+	bool StartMonitor();
+	void StopMonitor();
 	// set play state
 	void  DrawStatus();
 	void  SetState();

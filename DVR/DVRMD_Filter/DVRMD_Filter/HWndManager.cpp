@@ -133,7 +133,7 @@ HMODULE ghWndDLL = NULL;
 
 int LoadHWndDll()
 {
-    TCHAR path[_MAX_PATH] = {0X00};
+	TCHAR path[_MAX_PATH] = {0X00};
 	CCommClass::ExtractFilePath( path );
 	_tcscat( path, _T("\\HWndDll.dll"));
     ghWndDLL = LoadLibrary(path);

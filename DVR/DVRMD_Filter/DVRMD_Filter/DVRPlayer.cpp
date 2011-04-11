@@ -195,6 +195,10 @@ BOOL CDVRPlayer::InitForMonitor()
 
 void CDVRPlayer::DestoryMonitor()
 {
+	if (IsMonitoring())
+	{
+		StopMonitor();
+	}
 	m_spPlayerMgr->Clearup();
 	m_spHWndMgr.reset(NULL);
 	m_spPlayerMgr.reset(NULL);
@@ -254,7 +258,9 @@ BOOL CDVRPlayer::StartMonitor()
 			int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
 			if( ret < 0 )
 			{
-				MessageBox(m_hParentWnd, _T("监视出错"), _T("错误"), MB_OK);
+				CString csErr;
+				csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, i);
+				MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
 			}
 			else
 			{
@@ -263,7 +269,11 @@ BOOL CDVRPlayer::StartMonitor()
 		}
 	}
 
-	return FALSE;
+	if (!m_MonitorHandler.empty())
+	{
+		GetPictureSize(&m_nWidth, &m_nHeight);
+	}
+	return !m_MonitorHandler.empty();
 }
 void CDVRPlayer::StopMonitor()
 {
@@ -273,6 +283,11 @@ void CDVRPlayer::StopMonitor()
 	}
 
 	m_MonitorHandler.clear();
+}
+
+BOOL CDVRPlayer::IsMonitoring()
+{
+	return m_MonitorHandler.size() > 0;
 }
 
 BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
@@ -316,7 +331,7 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 #ifdef _DEBUG
 	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
-		TRACE(_T("Attr Key(%s), Value(%s)"), it->first, it->second);
+		TRACE(_T("Attr Key(%s), Value(%s)"), CA2T(it->first.c_str()), CA2T(it->second.c_str()));
 	}
 #endif
 	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 

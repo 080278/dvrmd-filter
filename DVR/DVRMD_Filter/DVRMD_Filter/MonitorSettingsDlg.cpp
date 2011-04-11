@@ -5,14 +5,14 @@
 #include "DVRMD_Filter.h"
 #include "MonitorSettingsDlg.h"
 #include "afxdialogex.h"
-#include "DVRPlayer.h"
+#include "PlayerDlg.h"
 
 
 // CMonitorSettingsDlg dialog
 
 IMPLEMENT_DYNAMIC(CMonitorSettingsDlg, CPropertyPage)
 
-CMonitorSettingsDlg::CMonitorSettingsDlg(CDVRPlayer* pPlayer)
+CMonitorSettingsDlg::CMonitorSettingsDlg(CPlayerDlg* pPlayer)
 	: CPropertyPage(CMonitorSettingsDlg::IDD)
 	, m_pPlayer(pPlayer)
 {
@@ -51,9 +51,9 @@ void CMonitorSettingsDlg::OnBnClickedWatchStart()
 	CString csWndNum;
 	GetDlgItem(IDC_COMBO_WINNUM)->GetWindowText(csWndNum);
 	if (csWndNum.IsEmpty())
-		m_pPlayer->GetDVRSettings().m_nRenderWndNum = 1;
+		m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum = 1;
 	else
-		m_pPlayer->GetDVRSettings().m_nRenderWndNum = _ttoi(csWndNum);
+		m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum = _ttoi(csWndNum);
 
 	m_pPlayer->StartMonitor();
 	SetState();
