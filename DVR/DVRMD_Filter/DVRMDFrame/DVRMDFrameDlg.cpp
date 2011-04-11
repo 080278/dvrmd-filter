@@ -100,7 +100,8 @@ BOOL CDVRMDFrameDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-
+	m_DVRPlayer.SetRenderWindowSize(640, 480);
+	m_DVRPlayer.MoveWindow(0, 0, 800, 600);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -161,13 +162,18 @@ void CDVRMDFrameDlg::OnDestroy()
 
 }
 BEGIN_EVENTSINK_MAP(CDVRMDFrameDlg, CDialog)
-	ON_EVENT(CDVRMDFrameDlg, IDC_DVRMD_FILTERCTRL1, DISPID_DBLCLICK, CDVRMDFrameDlg::DblClickDvrmdFilterctrl1, VTS_NONE)
 END_EVENTSINK_MAP()
 
 
 
-void CDVRMDFrameDlg::DblClickDvrmdFilterctrl1()
+//void CDVRMDFrameDlg::DblClickDvrmdFilterctrl1()
+//{
+//	// TODO: Add your message handler code here
+//	int n = 0;
+//}
+
+
+void CDVRMDFrameDlg::DblClickDvrmdFilterctrl2()
 {
 	// TODO: Add your message handler code here
-	int n = 0;
 }

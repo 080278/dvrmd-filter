@@ -3,8 +3,8 @@
 //
 
 #pragma once
-#include "dvrmd_filterctrl1.h"
-
+//#include "dvrmd_filterctrl1.h"
+#include "CDDVRMD_Filter.h"
 
 // CDVRMDFrameDlg dialog
 class CDVRMDFrameDlg : public CDialog
@@ -31,8 +31,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	CDvrmd_filterctrl1 m_DVRPlayer;
+	//CDvrmd_filterctrl1 m_DVRPlayer;
 	afx_msg void OnDestroy();
 	DECLARE_EVENTSINK_MAP()
-	void DblClickDvrmdFilterctrl1();
+//	void DblClickDvrmdFilterctrl1();
+	void DblClickDvrmdFilterctrl2();
+	CDDVRMD_Filter m_DVRPlayer;
 };

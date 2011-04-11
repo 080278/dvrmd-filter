@@ -42,18 +42,14 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
-		dispidEnableChannel = 13L,
-		dispidIsChannelEnable = 12L,
-		dispidHighPictureQuality = 11,
-		dispidCapturePicPath = 10,
-		dispidCapturePicType = 9,
-		dispidRenderWndNum = 8,
-		dispidLogout = 7L,
-		dispidLogin = 6L,
-		dispidMediaServerPort = 5,
-		dispidMediaServerIP = 4,
-		dispidRenderHeight = 3,
-		dispidRenderWidth = 2,
+		dispidSetMediaServer = 9L,
+		dispidGetMediaServer = 8L,
+		dispidGetRenderWindowSize = 7L,
+		dispidSetRenderWindowSize = 6L,
+		dispidEnableChannel = 5L,
+		dispidIsChannelEnable = 4L,
+		dispidLogout = 3L,
+		dispidLogin = 2L,
 		dispidOpenFile = 1L,
 		IDD = IDD_PLAYER_DIALOG
 	};
@@ -75,25 +71,13 @@ public:
 protected:
 	LONG OpenFile(LPCTSTR bstrFile);
 
-	ULONG GetRenderWidth(void);
-	void SetRenderWidth(ULONG newVal);
-	ULONG GetRenderHeight(void);
-	void SetRenderHeight(ULONG newVal);
-	BSTR GetMediaServerIP(void);
-	void SetMediaServerIP(LPCTSTR newVal);
-	LONG GetMediaServerPort(void);
-	void SetMediaServerPort(LONG newVal);
 	VARIANT_BOOL Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, LONG lPort);
 	void Logout(void);
-	ULONG GetRenderWndNum(void);
-	void SetRenderWndNum(ULONG newVal);
-	ULONG GetCapturePicType(void);
-	void SetCapturePicType(ULONG newVal);
-	BSTR GetCapturePicPath(void);
-	void SetCapturePicPath(LPCTSTR newVal);
-	VARIANT_BOOL GetHighPictureQuality(void);
-	void SetHighPictureQuality(VARIANT_BOOL newVal);
 	VARIANT_BOOL IsChannelEnable(ULONG lChannel);
 	ULONG EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable);
+	ULONG SetRenderWindowSize(ULONG lWidth, LONG lHeight);
+	ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
+	ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
+	ULONG SetMediaServer(LPCTSTR bstrMediaServerIP, LONG lPort);
 };
 

@@ -14,7 +14,12 @@ CDVRPlayer::CDVRPlayer(void)
 	// Initialize GDI+.
 	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
-
+	WSADATA wsaD;
+	WORD wVersion = MAKEWORD(2, 2);
+	if ( WSAStartup( wVersion, &wsaD ) != 0 )
+	{
+		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
+	}
 }
 
 
@@ -22,6 +27,10 @@ CDVRPlayer::~CDVRPlayer(void)
 {
 	Gdiplus::GdiplusShutdown(m_gdiplusToken);
 	m_gdiplusToken = NULL;
+
+	m_spDVRLoginMgr->Clearup();
+	m_spDVRLoginMgr.reset(NULL);
+	WSACleanup();
 }
 
 bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort)
@@ -59,14 +68,6 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	if (m_lPort == -1)
 		NAME(PlayM4_GetPort)(&m_lPort);
 
-	WSADATA wsaD;
-	WORD wVersion = MAKEWORD(2, 2);
-	if ( WSAStartup( wVersion, &wsaD ) != 0 )
-	{
-		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
-		return FALSE;
-	}
-
 	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
 	m_spDVRLoginMgr->Startup();
 
@@ -88,9 +89,7 @@ void CDVRPlayer::Destory()
 	m_MonitorHandler.clear();
 
 
-	//m_spDVRLoginMgr->Clearup();
-	//m_spDVRLoginMgr.reset(NULL);
-	//WSACleanup();
+
 }
 
 BOOL CDVRPlayer::InitForPlayFile()
@@ -255,7 +254,7 @@ BOOL CDVRPlayer::StartMonitor()
 			int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
 			if( ret < 0 )
 			{
-				MessageBox(m_hParentWnd, _T("监视出错"), _T("Error"), MB_OK);
+				MessageBox(m_hParentWnd, _T("监视出错"), _T("错误"), MB_OK);
 			}
 			else
 			{

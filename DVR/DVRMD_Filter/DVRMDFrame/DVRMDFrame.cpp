@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "DVRMDFrame.h"
 #include "DVRMDFrameDlg.h"
+#include "CDDVRMD_Filter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
