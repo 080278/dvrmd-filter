@@ -646,10 +646,10 @@ void CPlayerDlg::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 	// TODO: Add your message handler code here
 	TRACE(_T("OnSize"));
-	if(m_ctrlVideoPic.GetSafeHwnd())
-	{
-		//SortControl();
-	}
+	//if(m_ctrlVideoPic.GetSafeHwnd())
+	//{
+	//	//SortControl();
+	//}
 }
 
 
@@ -672,8 +672,6 @@ void CPlayerDlg::OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI)
 void CPlayerDlg::OnMove(int x, int y) 
 {
 	CDialog::OnMove(x, y);
-
-	return;
 
 	if (::IsWindow(m_DVRSettingsSheet.m_hWnd) && m_DVRSettingsSheet.IsWindowVisible())
 	{
@@ -2555,7 +2553,7 @@ BOOL CPlayerDlg::OnEraseBkgnd(CDC* pDC)
 	// TODO: Add your message handler code here and/or call default
 	if (IsFullScreen())
 	{
-		return 0;
+		return 1;
 	}
 	return CDialog::OnEraseBkgnd(pDC);
 }

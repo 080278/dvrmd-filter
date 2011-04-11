@@ -1,6 +1,6 @@
 #pragma once
 
-//#include <map>
+#include <map>
 
 //连接DVR信息
 struct HHV_CONN_INFO
@@ -39,7 +39,10 @@ public:
 	CTime		m_EndTime;			//Render end time
 	
 	//Render Window Settings
+	int			m_nRenderWidth;
+	int			m_nRenderHeight;
 	int			m_nRenderWndNum;	//Default: 1. 1 , 4, 8, 16
+	std::map<int, bool>	m_mapEnableChannel;
 
 	//Player Settings.
 	BOOL		m_bHighPictureQuality;	//Quality of the picture: default is FALSE;

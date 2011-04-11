@@ -21,7 +21,6 @@ protected:
 
 private:
 	CDVRPlayer*	m_pPlayer;
-
 	void SetState();
 public:
 	virtual BOOL OnInitDialog();

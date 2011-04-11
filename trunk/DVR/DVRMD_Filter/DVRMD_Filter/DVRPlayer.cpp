@@ -309,7 +309,7 @@ void CDVRPlayer::EndPlayback()
 	}
 }
 // Draw Function
-
+	//pen.SetEndCap(LineCapArrowAnchor);
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame)
 {
 	TRACE(_T("Frame Image: width(%d), height(%d)"), frame.displayData.image_width, frame.displayData.image_height);
