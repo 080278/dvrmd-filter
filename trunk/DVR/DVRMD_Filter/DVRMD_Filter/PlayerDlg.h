@@ -60,8 +60,8 @@ public:
 	BOOL		m_bConvertAVI;                  // convert to AVI or not?
 	
 	LONG		m_nSpeed;                       // video play speed
-	LONG		m_nWidth;                       // image width
-	LONG		m_nHeight;                      // image height
+	//LONG		m_nWidth;                       // image width
+	//LONG		m_nHeight;                      // image height
 	LONG		m_nPrePlayPos;                  // pre play slider pos
 	
 	DWORD		m_dwScreenHeight;               // screem height
@@ -102,6 +102,7 @@ public:
 	// view operation:
 	void  ViewFullScreen();
 	void  ViewZoom(UINT nID);
+	void  InitWindowSize();
 	
 	// control operation:
 	void  Repeat();

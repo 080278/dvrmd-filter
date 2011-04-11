@@ -26,6 +26,10 @@ public:
 	CDVRSettings(void);
 	~CDVRSettings(void);
 
+public:
+	bool Save(LPCTSTR szXmlPath = NULL);
+	bool Load(LPCTSTR szXmlPath = NULL);
+
 	enum eCapPicType{eJPEG = 0, eBMP};
 
 public:
@@ -39,8 +43,8 @@ public:
 	CTime		m_EndTime;			//Render end time
 	
 	//Render Window Settings
-	int			m_nRenderWidth;
-	int			m_nRenderHeight;
+	LONG			m_nRenderWidth;
+	LONG			m_nRenderHeight;
 	int			m_nRenderWndNum;	//Default: 1. 1 , 4, 8, 16
 	std::map<int, bool>	m_mapEnableChannel;
 
@@ -48,5 +52,6 @@ public:
 	BOOL		m_bHighPictureQuality;	//Quality of the picture: default is FALSE;
 	CString		m_csPicCapturePath;	//Capture Picture folder
 	eCapPicType	m_eCapturePicType;			//Capture picture type: default is JPEG
+
 };
 

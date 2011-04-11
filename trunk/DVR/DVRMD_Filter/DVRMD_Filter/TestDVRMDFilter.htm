@@ -7,24 +7,47 @@
     <table border="0" cellspacing="0" cellpadding="0" width="100%">
         <tr>
             <td>
-                <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width="800"
-                    height="600">
+                <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width="600" height="450">
+                    <param name="MediaServerIP" value="192.168.0.1" />
                 </object>
+            </td>
+            <td>
+                <div id="divPanel" style="visibility:hidden">
+                    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    	<tr>
+                    		<td>IP:</td><td><input id="txtIP" type="text" /></td>
+                            <td>Port:</td><td><input id="txtPort" type="text" /></td>
+                    	</tr>
+                    </table>
+                </div>
             </td>
         </tr>
         <tr>
             <td>
-                <input id="fileMedia" type="file" onchange="OnOpenFile(this.value)"/>
             </td>
+            <td></td>
         </tr>
     </table>
+    <div>
+        <input id="fileMedia" type="file" onchange="OnOpenFile(this.value)"/>
+        <button id="btnSHPanel" onclick="OnShowHidePanel()">显示/隐藏</button>
+    </div>
     <script language="javascript" type="text/javascript" for="DVRPlayer" event="DBLCLICK">
             MouseDoubleClick();
     </script>
     <script language="javascript" type="text/javascript">
+        function OnShowHidePanel() {
+            if (divPanel.style.visibility != "visible") {
+                divPanel.style.visibility = "visible";
+            }
+            else {
+                divPanel.style.visibility = "hidden";
+            }
+       }
+
         function OnOpenFile(filePath) {
-            if (filePath != null && filePath.length > 0) {
-                alert(filePath);
+            DVRPlayer.SetRenderWindowSize(640, 480);
+           if (filePath != null && filePath.length > 0) {
                 DVRPlayer.OpenFile(filePath);
            }
            else

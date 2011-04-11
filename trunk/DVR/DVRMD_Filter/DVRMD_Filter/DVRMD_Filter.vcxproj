@@ -67,7 +67,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)</Command>
+      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)
+copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -109,7 +110,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
-      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)</Command>
+      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)
+copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

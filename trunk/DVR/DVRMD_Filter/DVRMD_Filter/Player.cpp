@@ -67,9 +67,9 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
         return HHV_ERROR_CONNECT;
     }
 	
-    int   streamHeaderSize = 4*1024;
-    memset( m_streamHeader, 0x00, sizeof(m_streamHeader) );
-	
+	int   streamHeaderSize = 4*1024;
+	memset( m_streamHeader, 0x00, sizeof(m_streamHeader) );
+
     int ret = MonitorStartCmdMT(m_comSocket.m_hSocket, clientInfo, m_streamHeader, streamHeaderSize);
     if( ret < 0 )
     {

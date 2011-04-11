@@ -267,13 +267,14 @@ BOOL CPlayerDlg::OnInitDialog()
 	//m_ctrlPlayText.SetBackgroundColor(RGB(0,0,0), FALSE);
 	//m_ctrlPlayText.SetBold(TRUE, FALSE);
 
-	m_nWidth	= 352;
-	m_nHeight   = 288;
+	//GetPlayer()->GetDVRSettings().m_nRenderWidth	= 352;
+	//GetPlayer()->GetDVRSettings().m_nRenderWidth   = 288;
 
 	RECT rcPos;
 	m_ctrlVideoPic.GetWindowRect(&rcPos);
-	rcPos.right = rcPos.left + m_nWidth;
-	rcPos.bottom = rcPos.top + m_nHeight;
+	rcPos.right = rcPos.left + GetPlayer()->GetDVRSettings().m_nRenderWidth;
+	rcPos.bottom = rcPos.top + GetPlayer()->GetDVRSettings().m_nRenderHeight;
+	InitWindowSize();
 	GetPlayer()->Init(m_ctrlVideoPic.GetSafeHwnd(), &rcPos, m_hWnd); 
 	// init the sub dialogs
 
@@ -1414,9 +1415,9 @@ void CPlayerDlg::SetState()
 		m_SoundSlider.SetPos(0xffff>>1);
 #endif
 		m_SoundSlider.EnableWindow(FALSE);
-		m_ctrlVideoPic.SetBitmap(m_BlackBmp);
+		//m_ctrlVideoPic.SetBitmap(m_BlackBmp);
 
-		InitWindowSize(WIDTH,HEIGHT_PAL);
+		InitWindowSize();
 
 		break;
 
@@ -1493,10 +1494,10 @@ void CPlayerDlg::SetState()
 		m_PlaySlider.RedrawWindow();
 		m_SoundSlider.EnableWindow(TRUE);
 
-		if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
-		{
-			m_ctrlVideoPic.SetBitmap(m_OverlayBmp);
-		}
+		//if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
+		//{
+		//	m_ctrlVideoPic.SetBitmap(m_OverlayBmp);
+		//}
 
 		break;
 
@@ -1600,7 +1601,7 @@ void CPlayerDlg::SetState()
 #endif
 		m_SoundSlider.EnableWindow(FALSE);
 
-		m_ctrlVideoPic.SetBitmap(m_BlackBmp);
+		//m_ctrlVideoPic.SetBitmap(m_BlackBmp);
 
 		break;
 
@@ -1670,10 +1671,10 @@ void CPlayerDlg::SetAVIState()
 	m_PlaySlider.EnableWindow(FALSE);
 
 
-	if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
-	{
-		m_ctrlVideoPic.SetBitmap(m_OverlayBmp);
-	}
+	//if((HBITMAP)m_OverlayBmp != m_ctrlVideoPic.GetBitmap())
+	//{
+	//	m_ctrlVideoPic.SetBitmap(m_OverlayBmp);
+	//}
 }
 
 // get speed modulus to show int the static text control
@@ -1720,17 +1721,17 @@ void CPlayerDlg::SetWindowSize()
 	m_dwDlgTopSize = rcClient.top - rcWin.top;
 
 	TRACE(_T("init window size!\n"));
-	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
+	GetPlayer()->GetPictureSize(&GetPlayer()->GetDVRSettings().m_nRenderWidth, &GetPlayer()->GetDVRSettings().m_nRenderHeight);
 //	m_pDisplayRegion->SetResolution(m_nHeight, m_nWidth);
 	TRACE(_T("get window size ok\n"));
 
-	if (m_nWidth == 704 && (m_nHeight == 288 || m_nHeight == 240))
+	if (GetPlayer()->GetDVRSettings().m_nRenderWidth == 704 && (GetPlayer()->GetDVRSettings().m_nRenderHeight == 288 || GetPlayer()->GetDVRSettings().m_nRenderHeight == 240))
 	{
-		m_nHeight <<= 1;
+		GetPlayer()->GetDVRSettings().m_nRenderHeight <<= 1;
 	}
 
-	DWORD nWindowHeight = m_nHeight + PANNEL_HEIGHT + m_dwDlgTopSize + m_dwDlgEdge + 10;
-	DWORD nWindowWidth  = m_nWidth + (m_dwDlgEdge << 1);
+	DWORD nWindowHeight = GetPlayer()->GetDVRSettings().m_nRenderHeight + PANNEL_HEIGHT + m_dwDlgTopSize + m_dwDlgEdge + 10;
+	DWORD nWindowWidth  = GetPlayer()->GetDVRSettings().m_nRenderWidth + (m_dwDlgEdge << 1);
 
 	nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 	nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
@@ -1751,31 +1752,21 @@ void CPlayerDlg::SetWindowSize()
 // Funtion: sort the controls
 void CPlayerDlg::SortControl()
 {
-	return;
 	TRACE(_T("init SORT\n"));
-
-	// if the dialog doesn't support resizing, return;
-	//if( !(GetStyle() & WS_SIZEBOX) )
-	//{
-	//	return;
-	//}
 
 	CRect rcClient, rcVideo;
 
 	GetClientRect(&rcClient);
-	DWORD x=LEFT_EDGE+10,y=rcClient.bottom-STATE_HEIGHT;
-
-	//STATE 
-	//m_ctrlPlayText.MoveWindow(0,y,rcClient.Width()+1,STATE_HEIGHT,TRUE);
-
+	m_ctrlVideoPic.GetClientRect(&rcVideo);
+	
+	DWORD x=LEFT_EDGE+10,y=rcVideo.bottom+STATE_HEIGHT;
 
 	x=LEFT_EDGE;
-	y-=BUTTON_SIZE+STATE_UP;
 
 	//BUTTON
 	m_ctrlBtnSlow.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
-	m_ctrlBtnPlay.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
+	m_ctrlBtnPlay.SetWindowPos(&CWnd::wndTop, x, y, BUTTON_SIZE,BUTTON_SIZE, SWP_SHOWWINDOW);//MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	m_ctrlBtnPause.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
 	x+=BUTTON_SIZE;
 	m_ctrlBtnStop.MoveWindow(x,y,BUTTON_SIZE,BUTTON_SIZE,TRUE);
@@ -1823,9 +1814,19 @@ void CPlayerDlg::SortControl()
 	//y-=BUTTON_SIZE+BUTTON_UP;
 	////PLAY SLIDER
 	//x=0;
+	CRect rcCtrl;
+	CWnd* pWndTI = GetDlgItem(IDC_PLAY_TIMEINFO);
+	pWndTI->GetClientRect(&rcCtrl);
+	pWndTI->MoveWindow(rcVideo.right-rcCtrl.Width(), y - rcCtrl.Height(), rcCtrl.Width(), rcCtrl.Height());
 	GetDlgItem(IDC_PLAY_RECT_SLIDER)->MoveWindow(x,y,rcClient.Width(),PLAY_SLIDER_HEIGHT,TRUE);
-	m_PlaySlider.MoveWindowEx(x,y,rcClient.Width(),PLAY_SLIDER_HEIGHT,TRUE);
-	y-=PLAY_SLIDER_UP;
+	m_PlaySlider.MoveWindowEx(x,y+4,rcVideo.Width()-x,PLAY_SLIDER_HEIGHT,TRUE);
+
+	CRect rcOpenFileBtn, rcSHBtn;
+	GetDlgItem(IDC_OPENFILE)->GetWindowRect(rcOpenFileBtn);
+	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->GetClientRect(rcSHBtn);
+	GetDlgItem(IDC_OPENFILE)->MoveWindow(rcVideo.right-rcSHBtn.Width()-INTERVAL-rcOpenFileBtn.Width(), y+BUTTON_SIZE, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
+	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->MoveWindow(rcVideo.right-rcSHBtn.Width(),  y+BUTTON_SIZE, rcSHBtn.Width(), rcSHBtn.Height());
+	//y-=PLAY_SLIDER_UP;
 
 	//pic show
 	//m_ctrlVideoPic.MoveWindow(0,0,rcClient.Width(),y,TRUE);
@@ -1834,7 +1835,6 @@ void CPlayerDlg::SortControl()
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
 
 	// redraw whole the dialog rect except the video show rect
-	m_ctrlVideoPic.GetClientRect(&rcVideo);
 	CRect rect;
 	rect.left   = rcClient.left;
 	rect.top    = rcVideo.bottom;
@@ -1862,13 +1862,20 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 	nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 	nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
-	MoveWindow(
-		(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
-		(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
-		nWindowWidth,
-		nWindowHeight,
-		TRUE);
+	//MoveWindow(
+	//	(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
+	//	(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
+	//	nWindowWidth,
+	//	nWindowHeight,
+	//	TRUE);
+	RECT rcRender;
+	m_ctrlVideoPic.GetClientRect(&rcRender);
+	m_ctrlVideoPic.SetBitmap(m_BlackBmp);
+	rcRender.right = rcRender.left + cx;
+	rcRender.bottom = rcRender.top + cy;
 
+	m_ctrlVideoPic.MoveWindow(&rcRender);
+	//m_ctrlVideoPic.SetWindowPos(&CWnd::wndNoTopMost, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER);
 	SortControl();
 
 	//for the small picture size.The menu will be high. 
@@ -1887,12 +1894,12 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 		nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 		nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
-		MoveWindow(
-			(m_dwScreenWidth  - nWindowWidth)  / 2 + m_rcScreen.left,
-			(m_dwScreenHeight - nWindowHeight) / 2 + m_rcScreen.top,
-			nWindowWidth,
-			nWindowHeight,
-			TRUE);
+		//MoveWindow(
+		//	(m_dwScreenWidth  - nWindowWidth)  / 2 + m_rcScreen.left,
+		//	(m_dwScreenHeight - nWindowHeight) / 2 + m_rcScreen.top,
+		//	nWindowWidth,
+		//	nWindowHeight,
+		//	TRUE);
 		SortControl();
 	}
 }
@@ -2035,11 +2042,6 @@ void CPlayerDlg::ViewFullScreen()
 		m_PlaySlider.ModifyStyle(0,WS_VISIBLE,0);
 		m_SoundSlider.ModifyStyle(0,WS_VISIBLE,0);
 
-		//m_ctrlPlayText.ModifyStyle(0,WS_VISIBLE,0);
-
-		//make the window can be resize.
-		//ModifyStyle(0, WS_SIZEBOX, 0);
-		//change the window pos to pre rect.
 		SetWindowPlacement(&m_OldWndpl);
 		m_ctrlVideoPic.MoveWindow(&m_rcOldPicPos,TRUE);
 
@@ -2056,6 +2058,17 @@ void CPlayerDlg::ViewFullScreen()
 	//NAME(PlayM4_RefreshPlay)(m_lPort);
 }
 
+void  CPlayerDlg::InitWindowSize()
+{
+	if(m_bFullScreen)
+	{
+		ViewFullScreen();
+	}
+	else
+	{
+		InitWindowSize(GetPlayer()->GetDVRSettings().m_nRenderWidth, GetPlayer()->GetDVRSettings().m_nRenderHeight);
+	}
+}
 void CPlayerDlg::ViewZoom(UINT nID)
 {
 	if(m_bFullScreen)
@@ -2063,25 +2076,21 @@ void CPlayerDlg::ViewZoom(UINT nID)
 		ViewFullScreen();
 	}
 
-	for(int i = 0; i < 3; i++)
-	{
-		////m_pMainMenu->CheckMenuItem(IDM_VIEW_ZOOM_50 + i, MF_UNCHECKED);
-	}
 
 	int nItem = nID - IDM_VIEW_ZOOM_100;
 
 	switch(nItem)
 	{
 	case 0:
-		InitWindowSize(m_nWidth, m_nHeight);
+		InitWindowSize(GetPlayer()->GetDVRSettings().m_nRenderWidth, GetPlayer()->GetDVRSettings().m_nRenderHeight);
 		break;
 
 	case -1:
-		InitWindowSize(m_nWidth >> 1, m_nHeight >> 1);
+		InitWindowSize(GetPlayer()->GetDVRSettings().m_nRenderWidth >> 1, GetPlayer()->GetDVRSettings().m_nRenderHeight >> 1);
 		break;
 
 	case 1:
-		InitWindowSize(m_nWidth << 1, m_nHeight << 1);
+		InitWindowSize(GetPlayer()->GetDVRSettings().m_nRenderWidth << 1, GetPlayer()->GetDVRSettings().m_nRenderHeight << 1);
 		break;
 
 	default:
@@ -2509,16 +2518,16 @@ void CPlayerDlg::StepForward()
 void CPlayerDlg::Open(LPCTSTR szFile)
 {
 	GetPlayer()->Open(szFile);
-	GetPlayer()->GetPictureSize(&m_nWidth, &m_nHeight);
-	InitWindowSize(m_nWidth, m_nHeight);
+	//GetPlayer()->GetPictureSize(&GetPlayer()->GetDVRSettings().m_nRenderWidth, &GetPlayer()->GetDVRSettings().m_nRenderHeight);
+	InitWindowSize(GetPlayer()->GetDVRSettings().m_nRenderWidth, GetPlayer()->GetDVRSettings().m_nRenderHeight);
 }
 
 void CPlayerDlg::Close()
 {
 	GetPlayer()->Close();
 
-	m_nWidth = 352;
-	m_nHeight = 288;
+	//m_nWidth = 352;
+	//m_nHeight = 288;
 	//m_HikvisionBmp.LoadBitmap(IDB_HIKVISION);
 	//m_ctrlVideoPic.SetBitmap(m_BlackBmp);
 	//m_ctrlVideoPic.ShowWindow(SW_SHOW);
