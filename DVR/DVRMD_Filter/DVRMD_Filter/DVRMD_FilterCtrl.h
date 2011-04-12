@@ -42,6 +42,12 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidSetCapturePath = 16L,
+		dispidGetCapturePath = 15L,
+		dispidCapPic = 14L,
+		dispidStop = 13L,
+		dispidPause = 12L,
+		dispidPlay = 11L,
 		dispidSetWndChannel = 10L,
 		dispidStopMonitor = 9L,
 		dispidStartMonitor = 8L,
@@ -70,8 +76,6 @@ public:
 	
 	afx_msg void OnDestroy();
 protected:
-	LONG OpenFile(LPCTSTR bstrFile);
-
 	VARIANT_BOOL Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, LONG lPort);
 	void Logout(void);
 	ULONG SetRenderWindowSize(ULONG lWidth, LONG lHeight);
@@ -81,5 +85,16 @@ protected:
 	ULONG StartMonitor(LONG lWndNum);
 	ULONG StopMonitor(void);
 	ULONG SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
+
+	LONG OpenFile(LPCTSTR bstrFile);
+	LONG Play(void);
+	ULONG Pause(void);
+	ULONG Stop(void);
+
+	ULONG CapPic(void);
+	BSTR GetCapturePath(void);
+	void SetCapturePath(LPCTSTR bstrPath);
+public:
+	afx_msg void OnMove(int x, int y);
 };
 

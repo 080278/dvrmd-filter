@@ -52,39 +52,25 @@ public:
 	{
 		BOOL result;
 		static BYTE parms[] = VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4 ;
-		InvokeHelper(0x6, DISPATCH_METHOD, VT_BOOL, (void*)&result, parms, bstrUsername, bstrPassword, bstrIP, lPort);
+		InvokeHelper(0x2, DISPATCH_METHOD, VT_BOOL, (void*)&result, parms, bstrUsername, bstrPassword, bstrIP, lPort);
 		return result;
 	}
 	void Logout()
 	{
-		InvokeHelper(0x7, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
-	}
-	BOOL IsChannelEnable(unsigned long lChannel)
-	{
-		BOOL result;
-		static BYTE parms[] = VTS_UI4 ;
-		InvokeHelper(0xc, DISPATCH_METHOD, VT_BOOL, (void*)&result, parms, lChannel);
-		return result;
-	}
-	unsigned long EnableChannel(unsigned long lChannel, BOOL bEnable)
-	{
-		unsigned long result;
-		static BYTE parms[] = VTS_UI4 VTS_BOOL ;
-		InvokeHelper(0xd, DISPATCH_METHOD, VT_UI4, (void*)&result, parms, lChannel, bEnable);
-		return result;
+		InvokeHelper(0x3, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
 	}
 	unsigned long SetRenderWindowSize(unsigned long lWidth, long lHeight)
 	{
 		unsigned long result;
 		static BYTE parms[] = VTS_UI4 VTS_I4 ;
-		InvokeHelper(0xe, DISPATCH_METHOD, VT_UI4, (void*)&result, parms, lWidth, lHeight);
+		InvokeHelper(0x4, DISPATCH_METHOD, VT_UI4, (void*)&result, parms, lWidth, lHeight);
 		return result;
 	}
 	unsigned long GetRenderWindowSize(long * lWidth, long * lHeight)
 	{
 		unsigned long result;
 		static BYTE parms[] = VTS_PI4 VTS_PI4 ;
-		InvokeHelper(0xf, DISPATCH_METHOD, VT_UI4, (void*)&result, parms, lWidth, lHeight);
+		InvokeHelper(0x5, DISPATCH_METHOD, VT_UI4, (void*)&result, parms, lWidth, lHeight);
 		return result;
 	}
 

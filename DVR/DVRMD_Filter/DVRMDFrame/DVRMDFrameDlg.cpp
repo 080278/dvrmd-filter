@@ -100,8 +100,10 @@ BOOL CDVRMDFrameDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-	m_DVRPlayer.SetRenderWindowSize(640, 480);
-	m_DVRPlayer.MoveWindow(0, 0, 800, 600);
+	//m_DVRPlayer.SetRenderWindowSize(640, 480);
+	CRect rcClient;
+	GetClientRect(rcClient);
+	m_DVRPlayer.MoveWindow(0, 0, rcClient.Width(), rcClient.Height()-50);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 

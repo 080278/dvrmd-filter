@@ -1720,6 +1720,7 @@ DWORD CPlayerDlg::GetSpeedModulus()
 // resize the dialog
 void CPlayerDlg::SetWindowSize()
 {
+	return;
 	CRect rcWin, rcClient;
 	GetWindowRect(&rcWin);
 	GetClientRect(&rcClient);
@@ -1869,12 +1870,12 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 	nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 	nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
-	MoveWindow(
-		(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
-		(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
-		nWindowWidth,
-		nWindowHeight,
-		TRUE);
+	//MoveWindow(
+	//	(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
+	//	(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
+	//	nWindowWidth,
+	//	nWindowHeight,
+	//	TRUE);
 	RECT rcRender;
 	m_ctrlVideoPic.GetClientRect(&rcRender);
 	m_ctrlVideoPic.SetBitmap(m_BlackBmp);
