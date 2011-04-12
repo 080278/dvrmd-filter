@@ -3,7 +3,6 @@
 #include "DVRPlayer.h"
 
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
-
 CDVRPlayer::CDVRPlayer(void)
 {
 	m_lPort = -1;
@@ -87,9 +86,6 @@ void CDVRPlayer::Destory()
 
 	m_nPlayType = -1;
 	m_MonitorHandler.clear();
-
-
-
 }
 
 BOOL CDVRPlayer::InitForPlayFile()
@@ -264,7 +260,7 @@ BOOL CDVRPlayer::StartMonitor()
 			}
 			else
 			{
-				m_MonitorHandler.push_back(ret);
+				m_MonitorHandler[i] = ret;
 			}
 		}
 	}
@@ -275,11 +271,43 @@ BOOL CDVRPlayer::StartMonitor()
 	}
 	return !m_MonitorHandler.empty();
 }
+
+BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
+{
+	if (nWndIndex < GetDVRSettings().m_nRenderWndNum && nWndIndex >= 0 && nChannel >= 0 && nChannel < 16)
+	{
+		std::map<int, int>::iterator it = m_MonitorHandler.find(nWndIndex);
+		if (it != m_MonitorHandler.end())
+		{
+			m_spPlayerMgr->StopMonitor(it->second);
+			m_MonitorHandler.erase(it);
+		}
+		HWND hWnd = m_spHWndMgr->GetHWnd(nWndIndex);
+		HHV_CLIENT_INFO	 hhvInfo;
+		strcpy( hhvInfo.connInfo.ip, CT2A(GetDVRSettings().m_csMediaServerIP));
+		hhvInfo.connInfo.port = GetDVRSettings().m_lPort;
+		hhvInfo.channel = nChannel;
+		int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
+		if( ret < 0 )
+		{
+			CString csErr;
+			csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, nChannel);
+			MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
+		}
+		else
+		{
+			m_MonitorHandler[nWndIndex] = ret;
+		}
+
+		return ret >= 0;
+	}
+	return FALSE;
+}
 void CDVRPlayer::StopMonitor()
 {
-	for (std::vector<int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+	for (std::map<int, int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
 	{
-		m_spPlayerMgr->StopMonitor(*it);
+		m_spPlayerMgr->StopMonitor(it->second);
 	}
 
 	m_MonitorHandler.clear();
@@ -287,7 +315,7 @@ void CDVRPlayer::StopMonitor()
 
 BOOL CDVRPlayer::IsMonitoring()
 {
-	return m_MonitorHandler.size() > 0;
+	return !m_MonitorHandler.empty();
 }
 
 BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
@@ -331,14 +359,14 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 #ifdef _DEBUG
 	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
-		TRACE(_T("Attr Key(%s), Value(%s)"), CA2T(it->first.c_str()), CA2T(it->second.c_str()));
+		TRACE(_T("Attr Key(%s), Value(%s)"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
 	}
 #endif
 	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
 		itDspObj != frame.displayData.disp_obj_list.end(); 
 		++itDspObj)
 	{
-		TRACE(_T("Draw DisplayObjectMeta: id=%s"), CA2T(itDspObj->id.c_str()));
+		TRACE(_T("Draw DisplayObjectMeta: id=%s"), (LPTSTR)CA2T(itDspObj->id.c_str()));
 		DrawDisplayObjectMeta(graphics, *itDspObj);
 	}
 

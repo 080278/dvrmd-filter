@@ -7,6 +7,7 @@
 #include "afxdialogex.h"
 #include "PlayerDlg.h"
 
+#define MAX_CHANNEL_NUM		16
 
 // CMonitorSettingsDlg dialog
 
@@ -32,6 +33,7 @@ void CMonitorSettingsDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMonitorSettingsDlg, CPropertyPage)
 	ON_BN_CLICKED(IDC_WATCH_END, &CMonitorSettingsDlg::OnBnClickedWatchEnd)
 	ON_BN_CLICKED(IDC_WATCH_START, &CMonitorSettingsDlg::OnBnClickedWatchStart)
+	ON_BN_CLICKED(IDC_CHANGE_CHANNEL, &CMonitorSettingsDlg::OnBnClickedChangeChannel)
 END_MESSAGE_MAP()
 
 
@@ -64,6 +66,14 @@ BOOL CMonitorSettingsDlg::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
+	CComboBox* pChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL);
+	pChannelComboBox->ResetContent();
+	for (int i = 0; i < MAX_CHANNEL_NUM; ++i)
+	{
+		CString csNum;
+		csNum.Format(_T("%d"), i);
+		pChannelComboBox->AddString(csNum);
+	}
 	SetState();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -71,5 +81,30 @@ BOOL CMonitorSettingsDlg::OnInitDialog()
 
 void CMonitorSettingsDlg::SetState()
 {
+	CComboBox* pWndComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_WININDEX);
 
+	pWndComboBox->ResetContent();
+
+	for (int i = 0; i < m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum; ++i)
+	{
+		CString csNum;
+		csNum.Format(_T("%d"), i);
+		pWndComboBox->AddString(csNum);
+	}
+}
+
+void CMonitorSettingsDlg::OnBnClickedChangeChannel()
+{
+	CComboBox* pWndComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_WININDEX);
+	CComboBox* pChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL);
+	if (pWndComboBox && 
+		pWndComboBox->GetCurSel() != CB_ERR	&& 
+		pChannelComboBox &&
+		pChannelComboBox->GetCurSel() != CB_ERR)
+	{
+		CString csWndIndex, csChannelIndex;
+		pWndComboBox->GetWindowText(csWndIndex);
+		pChannelComboBox->GetWindowText(csChannelIndex);
+		m_pPlayer->GetPlayer()->SetWndChannel(_ttoi(csWndIndex), _ttoi(csChannelIndex));
+	}
 }

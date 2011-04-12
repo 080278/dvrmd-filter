@@ -42,14 +42,13 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
-		dispidStopMonitor = 11L,
-		dispidStartMonitor = 10L,
-		dispidSetMediaServer = 9L,
-		dispidGetMediaServer = 8L,
-		dispidGetRenderWindowSize = 7L,
-		dispidSetRenderWindowSize = 6L,
-		dispidEnableChannel = 5L,
-		dispidIsChannelEnable = 4L,
+		dispidSetWndChannel = 10L,
+		dispidStopMonitor = 9L,
+		dispidStartMonitor = 8L,
+		dispidSetMediaServer = 7L,
+		dispidGetMediaServer = 6L,
+		dispidGetRenderWindowSize = 5L,
+		dispidSetRenderWindowSize = 4L,
 		dispidLogout = 3L,
 		dispidLogin = 2L,
 		dispidOpenFile = 1L,
@@ -75,13 +74,12 @@ protected:
 
 	VARIANT_BOOL Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, LONG lPort);
 	void Logout(void);
-	VARIANT_BOOL IsChannelEnable(ULONG lChannel);
-	ULONG EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable);
 	ULONG SetRenderWindowSize(ULONG lWidth, LONG lHeight);
 	ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
 	ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
 	ULONG SetMediaServer(LPCTSTR bstrMediaServerIP, LONG lPort);
-	ULONG StartMonitor(void);
+	ULONG StartMonitor(LONG lWndNum);
 	ULONG StopMonitor(void);
+	ULONG SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
 };
 

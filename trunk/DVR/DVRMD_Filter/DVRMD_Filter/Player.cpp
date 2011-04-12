@@ -11,6 +11,7 @@
 #include "./NetDef.h"
 #include "./PlayMp4H_fFunDef.h"
 #include "Metadata_Types.h"
+#include "DVRPlayer.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -476,7 +477,6 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 	return HHV_ERROR_CONNECT;
 }
 
-#include "DVRPlayer.h"
 void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 {
 	//if( g_uniSDKDrawFuncCallBack != NULL )

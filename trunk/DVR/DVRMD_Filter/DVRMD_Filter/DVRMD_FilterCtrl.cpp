@@ -34,14 +34,13 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_STOCKFUNC_DOCLICK()
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Login", dispidLogin, Login, VT_BOOL, VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Logout", dispidLogout, Logout, VT_EMPTY, VTS_NONE)
-	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "IsChannelEnable", dispidIsChannelEnable, IsChannelEnable, VT_BOOL, VTS_UI4)
-	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "EnableChannel", dispidEnableChannel, EnableChannel, VT_UI4, VTS_UI4 VTS_BOOL)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetRenderWindowSize", dispidSetRenderWindowSize, SetRenderWindowSize, VT_UI4, VTS_UI4 VTS_I4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetRenderWindowSize", dispidGetRenderWindowSize, GetRenderWindowSize, VT_UI4, VTS_PI4 VTS_PI4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetMediaServer", dispidGetMediaServer, GetMediaServer, VT_UI4, VTS_PBSTR VTS_PI4)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetMediaServer", dispidSetMediaServer, SetMediaServer, VT_UI4, VTS_BSTR)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StartMonitor", dispidStartMonitor, StartMonitor, VT_UI4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StopMonitor", dispidStopMonitor, StopMonitor, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetWndChannel", dispidSetWndChannel, SetWndChannel, VT_UI4, VTS_I4 VTS_I4)
 END_DISPATCH_MAP()
 
 
@@ -248,31 +247,6 @@ void CDVRMD_FilterCtrl::Logout(void)
 	GetDVRPlayer()->Logout();
 }
 
-
-VARIANT_BOOL CDVRMD_FilterCtrl::IsChannelEnable(ULONG lChannel)
-{
-	AFX_MANAGE_STATE(AfxGetStaticModuleState());
-
-	std::map<int, bool>::iterator it = GetDVRSettings().m_mapEnableChannel.find(lChannel);
-	if (it != GetDVRSettings().m_mapEnableChannel.end())
-	{
-		return it->second ? VARIANT_TRUE : VARIANT_FALSE;
-	}
-
-	return VARIANT_FALSE;
-}
-
-
-ULONG CDVRMD_FilterCtrl::EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable)
-{
-	AFX_MANAGE_STATE(AfxGetStaticModuleState());
-
-	GetDVRSettings().m_mapEnableChannel[lChannel] = (bEnable == VARIANT_TRUE);
-
-	return 0;
-}
-
-
 ULONG CDVRMD_FilterCtrl::SetRenderWindowSize(ULONG lWidth, LONG lHeight)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
@@ -322,11 +296,15 @@ ULONG CDVRMD_FilterCtrl::SetMediaServer(LPCTSTR bstrMediaServerIP, LONG lPort)
 }
 
 
-ULONG CDVRMD_FilterCtrl::StartMonitor(void)
+ULONG CDVRMD_FilterCtrl::StartMonitor(LONG lWndNum)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
+	if (lWndNum > 0)
+	{
+		GetDVRSettings().m_nRenderWndNum = lWndNum;
+		m_MainDialog.StartMonitor();
+	}
 
 	return 0;
 }
@@ -336,7 +314,15 @@ ULONG CDVRMD_FilterCtrl::StopMonitor(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	// TODO: Add your dispatch handler code here
+	m_MainDialog.StopMonitor();
 
 	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	return GetDVRPlayer()->SetWndChannel(lWndIndex, lChannelIndex);
 }
