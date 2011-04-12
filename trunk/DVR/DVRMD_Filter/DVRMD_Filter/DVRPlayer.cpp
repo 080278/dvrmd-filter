@@ -881,9 +881,9 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 			return;
 		}
 
-		if(m_strCapPicPath.Compare(_T("")))
+		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), m_strCapPicPath, m_npic_jpeg);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), m_DVRSettings.m_csPicCapturePath, m_npic_jpeg);
 		}
 		else
 		{
@@ -897,9 +897,9 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 			return;
 		}
 
-		if(m_strCapPicPath.Compare(_T("")))
+		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), m_strCapPicPath, m_npic_bmp);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), m_DVRSettings.m_csPicCapturePath, m_npic_bmp);
 		}
 		else
 		{

@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(CDVRMD_FilterCtrl, COleControl)
 	ON_WM_CREATE()
 	
 	ON_WM_DESTROY()
+	ON_WM_MOVE()
 END_MESSAGE_MAP()
 
 
@@ -41,6 +42,12 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StartMonitor", dispidStartMonitor, StartMonitor, VT_UI4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "StopMonitor", dispidStopMonitor, StopMonitor, VT_UI4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetWndChannel", dispidSetWndChannel, SetWndChannel, VT_UI4, VTS_I4 VTS_I4)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Play", dispidPlay, Play, VT_I4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Pause", dispidPause, Pause, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Stop", dispidStop, Stop, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "CapPic", dispidCapPic, CapPic, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetCapturePath", dispidGetCapturePath, GetCapturePath, VT_BSTR, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetCapturePath", dispidSetCapturePath, SetCapturePath, VT_EMPTY, VTS_BSTR)
 END_DISPATCH_MAP()
 
 
@@ -223,7 +230,6 @@ void CDVRMD_FilterCtrl::OnDestroy()
 LONG CDVRMD_FilterCtrl::OpenFile(LPCTSTR bstrFile)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
-
 	
 	m_MainDialog.OpenFile(bstrFile);
 	return 0;
@@ -325,4 +331,71 @@ ULONG CDVRMD_FilterCtrl::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
 	return GetDVRPlayer()->SetWndChannel(lWndIndex, lChannelIndex);
+}
+
+
+LONG CDVRMD_FilterCtrl::Play(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	m_MainDialog.Play();
+
+	return 0;
+}
+
+ULONG CDVRMD_FilterCtrl::Pause(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	m_MainDialog.Pause();
+
+	return 0;
+}
+
+ULONG CDVRMD_FilterCtrl::Stop(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	m_MainDialog.Stop();
+
+	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::CapPic(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	m_MainDialog.GetPlayer()->Cappic();
+
+	return 0;
+}
+
+
+BSTR CDVRMD_FilterCtrl::GetCapturePath(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult = GetDVRSettings().m_csPicCapturePath;
+
+	return strResult.AllocSysString();
+}
+
+
+void CDVRMD_FilterCtrl::SetCapturePath(LPCTSTR bstrPath)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_csPicCapturePath = bstrPath;
+}
+
+
+void CDVRMD_FilterCtrl::OnMove(int x, int y)
+{
+	COleControl::OnMove(x, y);
+
+	CRect rcClient;
+	GetClientRect(rcClient);
+
+	SetRenderWindowSize(rcClient.Width(), rcClient.Height()-65);
 }

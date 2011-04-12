@@ -35,6 +35,12 @@ library DVRMD_FilterLib
 			[id(8)] ULONG StartMonitor(LONG lWndNum);
 			[id(9)] ULONG StopMonitor(void);
 			[id(10)] ULONG SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
+			[id(11)] LONG Play(void);
+			[id(12)] ULONG Pause(void);
+			[id(13)] ULONG Stop(void);
+			[id(14)] ULONG CapPic(void);
+			[id(15)] BSTR GetCapturePath(void);
+			[id(16)] void SetCapturePath(BSTR bstrPath);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

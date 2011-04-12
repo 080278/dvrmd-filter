@@ -8,7 +8,6 @@
         <tr>
             <td>
                 <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width="600" height="450">
-                    <param name="MediaServerIP" value="192.168.0.1" />
                 </object>
             </td>
             <td>
@@ -37,7 +36,8 @@
     </script>
     <script language="javascript" type="text/javascript">
         function OnLoad() {
-            DVRPlayer.SetRenderWindowSize(600, 480);
+            //DVRPlayer.SetRenderWindowSize(600, 480);
+            DVRPlayer.SetCapturePath("D:");
         }
 
         function OnShowHidePanel() {
