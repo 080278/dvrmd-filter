@@ -1361,7 +1361,8 @@ void CPlayerDlg::SetState()
 {
 	if (GetPlayer()->IsMonitoring())
 	{
-		GetDlgItem(IDC_CAPPIC)->EnableWindow(TRUE);
+		m_ctrlBtnCapPic.SetIcon(IDI_CAPPIC_AT, IDI_CAPPIC_ENABLE);
+		m_ctrlBtnCapPic.EnableWindow(TRUE);
 		return;
 	}
 
