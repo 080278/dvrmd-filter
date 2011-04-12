@@ -28,4 +28,6 @@ public:
 
 protected:
 	void SetState();
+public:
+	afx_msg void OnBnClickedChangeChannel();
 };

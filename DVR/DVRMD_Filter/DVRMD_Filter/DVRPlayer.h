@@ -106,6 +106,7 @@ public:
 	BOOL StartMonitor();
 	void StopMonitor();
 	BOOL IsMonitoring();
+	BOOL SetWndChannel(int nWndIndex, int nChannel);
 
 	// Playback by time
 	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);
@@ -286,7 +287,7 @@ private:
 	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
 	int				m_UserID;
 	int				m_nPlaybackIndex;
-	std::vector<int> m_MonitorHandler;
+	std::map<int, int> m_MonitorHandler;
 	BOOL			m_bDrawMetaData;
 
 	ULONG_PTR	m_gdiplusToken;

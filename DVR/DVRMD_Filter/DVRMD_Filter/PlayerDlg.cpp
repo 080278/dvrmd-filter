@@ -1869,12 +1869,12 @@ void CPlayerDlg::InitWindowSize(DWORD cx,DWORD cy)
 	nWindowHeight = min(nWindowHeight, m_dwScreenHeight);
 	nWindowWidth  = min(nWindowWidth,  m_dwScreenWidth);
 
-	//MoveWindow(
-	//	(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
-	//	(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
-	//	nWindowWidth,
-	//	nWindowHeight,
-	//	TRUE);
+	MoveWindow(
+		(m_dwScreenWidth  - nWindowWidth)/2 + m_rcScreen.left,
+		(m_dwScreenHeight - nWindowHeight)/2+ m_rcScreen.top,
+		nWindowWidth,
+		nWindowHeight,
+		TRUE);
 	RECT rcRender;
 	m_ctrlVideoPic.GetClientRect(&rcRender);
 	m_ctrlVideoPic.SetBitmap(m_BlackBmp);
@@ -2471,10 +2471,10 @@ void CPlayerDlg::OnDestroy()
 {
 	CDialog::OnDestroy();
 
-	GetPlayer()->Destory();
 
 	m_DVRSettingsSheet.DestroyWindow();
 
+	GetPlayer()->Destory();
 	if(m_pQcifTempBuf)
 	{
 		delete []m_pQcifTempBuf;
@@ -2577,10 +2577,7 @@ BOOL CPlayerDlg::OnEraseBkgnd(CDC* pDC)
 bool CPlayerDlg::StartMonitor()
 {
 	BOOL bRet = GetPlayer()->StartMonitor();
-	if (bRet)
-	{
-		//m_
-	}
+
 	SetState();
 	return bRet;
 }

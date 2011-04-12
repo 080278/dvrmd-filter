@@ -28,14 +28,13 @@ library DVRMD_FilterLib
 			[id(1), helpstring("Open Meida File to Play")] LONG OpenFile(BSTR bstrFile);
 			[id(2), helpstring("Login to Media Server")] VARIANT_BOOL Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort);
 			[id(3), helpstring("Logout from Media Server")] void Logout(void);
-			[id(4)] VARIANT_BOOL IsChannelEnable(ULONG lChannel);
-			[id(5)] ULONG EnableChannel(ULONG lChannel, VARIANT_BOOL bEnable);
-			[id(6)] ULONG SetRenderWindowSize(ULONG lWidth, LONG lHeight);
-			[id(7)] ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
-			[id(8)] ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
-			[id(9)] ULONG SetMediaServer(BSTR bstrMediaServerIP, LONG lPort);
-			[id(10)] ULONG StartMonitor(void);
-			[id(11)] ULONG StopMonitor(void);
+			[id(4)] ULONG SetRenderWindowSize(ULONG lWidth, LONG lHeight);
+			[id(5)] ULONG GetRenderWindowSize(LONG* lWidth, LONG* lHeight);
+			[id(6)] ULONG GetMediaServer(BSTR* bstrMediaServerIP, LONG* lPort);
+			[id(7)] ULONG SetMediaServer(BSTR bstrMediaServerIP, LONG lPort);
+			[id(8)] ULONG StartMonitor(LONG lWndNum);
+			[id(9)] ULONG StopMonitor(void);
+			[id(10)] ULONG SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl
