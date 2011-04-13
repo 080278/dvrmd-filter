@@ -51,6 +51,17 @@ BOOL CPlaySettingsDlg::OnInitDialog()
 		csPort.Format(_T("%d"), m_pPlayer->GetDVRSettings().m_lPort);
 		GetDlgItem(IDC_MEDIASERVER_PORT)->SetWindowText(csPort);
 	}
+
+	if (m_pPlayer->GetDVRSettings().m_csUsername.GetLength() > 0)
+	{
+		GetDlgItem(IDC_USERNAME)->SetWindowText(m_pPlayer->GetDVRSettings().m_csUsername);
+	}
+
+	if (m_pPlayer->GetDVRSettings().m_csPassword.GetLength() > 0)
+	{
+		GetDlgItem(IDC_PASSWORD)->SetWindowText(m_pPlayer->GetDVRSettings().m_csPassword);
+	}
+
 	SetState();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
