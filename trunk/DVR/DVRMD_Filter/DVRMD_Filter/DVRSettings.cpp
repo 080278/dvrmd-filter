@@ -3,6 +3,8 @@
 #import "msxml6.dll"
 #include "./CommClass.h"
 
+using namespace std;
+
 #define ERROR_RETURN(x) \
 	{\
 	HRESULT __hhrr = (x);\
@@ -33,6 +35,7 @@ CDVRSettings::~CDVRSettings(void)
 	Save();
 	::CoUninitialize();
 }
+
 
 bool CDVRSettings::Save(LPCTSTR szXmlPath)
 {
@@ -76,7 +79,73 @@ bool CDVRSettings::Save(LPCTSTR szXmlPath)
 		spElm->Puttext((LPCTSTR)csPort);
 		spRoot->appendChild(spElm);
 
-		// ...
+		// ´æ´¢MediaLoginUsername
+		spElm = spDoc->createElement(_T("MediaLoginUsername"));
+		spElm->Puttext((LPCTSTR)m_csUsername);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢MediaLoginPassword
+		spElm = spDoc->createElement(_T("MediaLoginPassword"));
+		spElm->Puttext((LPCTSTR)m_csPassword);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢MediaRenderStartTime
+		spElm = spDoc->createElement(_T("MediaRenderStartTime"));
+		CString csStartTime;
+		m_StartTime = CTime::GetCurrentTime();
+		csStartTime = m_StartTime.Format("%Y-%m-%d %H:%M:%S");
+		spElm->Puttext((LPCTSTR)csStartTime);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢MediaRenderEndTime
+		spElm = spDoc->createElement(_T("MediaRenderEndTime"));
+		CString csEndTime;
+		m_EndTime = CTime::GetCurrentTime();
+		csEndTime = m_EndTime.Format("%Y-%m-%d %H:%M:%S");
+		spElm->Puttext((LPCTSTR)csEndTime);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢RenderWidth
+		spElm = spDoc->createElement(_T("RenderWidth"));
+		CString csWidth;
+		csWidth.Format(_T("%d"), m_nRenderWidth);
+		spElm->Puttext((LPCTSTR)csWidth);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢RenderHeight
+		spElm = spDoc->createElement(_T("RenderHeight"));
+		CString csHeight;
+		csHeight.Format(_T("%d"), m_nRenderHeight);
+		spElm->Puttext((LPCTSTR)csHeight);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢RenderWndNum
+		spElm = spDoc->createElement(_T("RenderWndNum"));
+		CString csWndNum;
+		csWndNum.Format(_T("%d"), m_nRenderWndNum);
+		spElm->Puttext((LPCTSTR)csWndNum);
+		spRoot->appendChild(spElm);
+
+		// ²»ÓÃ´æ´¢ReaderEnableChannel£¬ÒÑ¾­É¾³ý¸Ãmap
+		
+		// ´æ´¢PlayerHighPictureQuality
+		spElm = spDoc->createElement(_T("PlayerHighPictureQuality"));
+		CString csHPicQuality;
+		csHPicQuality.Format(_T("%d"), m_bHighPictureQuality);
+		spElm->Puttext((LPCTSTR)csHPicQuality);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢PlayerCapturePicType
+		spElm = spDoc->createElement(_T("PlayerCapturePicType"));
+		CString csCapturePicType;
+		csCapturePicType.Format(_T("%d"), m_eCapturePicType);
+		spElm->Puttext((LPCTSTR)csCapturePicType);
+		spRoot->appendChild(spElm);
+
+		// ´æ´¢PlayersPicCapturePath
+		spElm = spDoc->createElement(_T("PlayersPicCapturePath"));
+		spElm->Puttext((LPCTSTR)m_csPicCapturePath);
+		spRoot->appendChild(spElm);
 
 		ERROR_RETURN(spDoc->save(bstrPath));
 	}
@@ -106,7 +175,6 @@ bool CDVRSettings::Load(LPCTSTR szXmlPath)
 		MSXML2::IXMLDOMDocumentPtr spDoc;
 		MSXML2::IXMLDOMNodePtr spRoot;
 
-		//ERROR_RETURN(spDoc.CreateInstance(__uuidof(MSXML2::DOMDocument40)));
 		HRESULT hr = spDoc.CreateInstance(__uuidof(MSXML2::DOMDocument40));
 		if (FAILED(hr))
 		{
@@ -117,7 +185,8 @@ bool CDVRSettings::Load(LPCTSTR szXmlPath)
 		{
 			CString csMsg;
 			csMsg.Format(_T("¶ÁÈ¡ÎÄ¼þ%sÊ§°Ü£¡"), bstrPath.bstrVal);
-			AfxMessageBox(csMsg);
+			TRACE((LPCTSTR)csMsg);
+			//AfxMessageBox(csMsg);
 			return false;
 		}
 
@@ -132,7 +201,62 @@ bool CDVRSettings::Load(LPCTSTR szXmlPath)
 			{
 				m_lPort = _ttoi(spRoot->childNodes->Getitem(index)->Gettext());
 			}
-			//else if(...)
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("MediaLoginUsername")))
+			{
+				m_csUsername = spRoot->childNodes->Getitem(index)->Gettext().GetBSTR();
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("MediaLoginPassword")))
+			{
+				m_csPassword = spRoot->childNodes->Getitem(index)->Gettext().GetBSTR();
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("MediaRenderStartTime")))
+			{
+				CString cStr =  spRoot->childNodes->Getitem(index)->Gettext().GetBSTR();
+				COleVariant vtime(cStr);
+				vtime.ChangeType(VT_DATE);
+				COleDateTime time4 = vtime;
+				SYSTEMTIME systime;
+				VariantTimeToSystemTime(time4, &systime);
+				CTime startTm(systime);//CString ===> CTime
+				m_StartTime = startTm;
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("MediaRenderEndTime")))
+			{
+				CString cStr =  spRoot->childNodes->Getitem(index)->Gettext().GetBSTR();
+				COleVariant vtime(cStr);
+				vtime.ChangeType(VT_DATE);
+				COleDateTime time4 = vtime;
+				SYSTEMTIME systime;
+				VariantTimeToSystemTime(time4, &systime);
+				CTime endTm(systime);
+				m_EndTime = endTm;
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("RenderWidth")))
+			{
+				m_nRenderWidth =  _ttoi(spRoot->childNodes->Getitem(index)->Gettext());
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("RenderHeight")))
+			{
+				m_nRenderHeight =  _ttoi(spRoot->childNodes->Getitem(index)->Gettext());
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("RenderWndNum")))
+			{
+				m_nRenderWndNum = _ttoi(spRoot->childNodes->Getitem(index)->Gettext());
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("PlayerHighPictureQuality")))
+			{
+				m_bHighPictureQuality = _ttoi(spRoot->childNodes->Getitem(index)->Gettext().GetBSTR());
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("PlayerCapturePicType")))
+			{
+				int capturePicType;
+				capturePicType = _ttoi(spRoot->childNodes->Getitem(index)->Gettext());
+				m_eCapturePicType = eCapPicType(capturePicType);
+			}
+			else if (spRoot->childNodes->Getitem(index)->GetnodeName() == _bstr_t(_T("PlayersPicCapturePath")))
+			{
+				m_csPicCapturePath = spRoot->childNodes->Getitem(index)->Gettext().GetBSTR();
+			}
 		}
 	}
 	catch (CException* e)

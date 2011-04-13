@@ -16,7 +16,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Chinese (Simplified, PRC) resources
+// 中文(简体，中国) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -455,7 +455,15 @@ BEGIN
     BEGIN
     END
 
+    IDD_PROPPAGE_DVRMD_FILTER, DIALOG
+    BEGIN
+    END
+
     IDD_PLAYER_DIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_RANGE, DIALOG
     BEGIN
     END
 
@@ -531,7 +539,7 @@ BEGIN
     IDS_DVRMD_FILTER_PPG_CAPTION "General"
 END
 
-#endif    // Chinese (Simplified, PRC) resources
+#endif    // 中文(简体，中国) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -51,7 +51,8 @@ void CMonitorSettingsDlg::OnBnClickedWatchEnd()
 void CMonitorSettingsDlg::OnBnClickedWatchStart()
 {
 	CString csWndNum;
-	GetDlgItem(IDC_COMBO_WINNUM)->GetWindowText(csWndNum);
+	CWnd* pWnd = GetDlgItem(IDC_COMBO_WINNUM);
+	pWnd->GetWindowText(csWndNum);
 	if (csWndNum.IsEmpty())
 		m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum = 1;
 	else
@@ -73,6 +74,15 @@ BOOL CMonitorSettingsDlg::OnInitDialog()
 		CString csNum;
 		csNum.Format(_T("%d"), i);
 		pChannelComboBox->AddString(csNum);
+	}
+
+	if (m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum > 0)
+	{
+		CString csWndNum;
+		csWndNum.Format(_T("%d"), m_pPlayer->GetPlayer()->GetDVRSettings().m_nRenderWndNum);
+		CComboBox* pComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_WINNUM);
+		pComboBox->SelectString(-1, csWndNum);
+		//GetDlgItem(IDC_COMBO_WINNUM)->SetWindowText(csWndNum);
 	}
 	SetState();
 	return TRUE;  // return TRUE unless you set the focus to a control
