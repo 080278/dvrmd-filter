@@ -41,6 +41,7 @@ library DVRMD_FilterLib
 			[id(14)] ULONG CapPic(void);
 			[id(15)] BSTR GetCapturePath(void);
 			[id(16)] void SetCapturePath(BSTR bstrPath);
+			[id(17), helpstring("加快播放速度")] ULONG Faster(void);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

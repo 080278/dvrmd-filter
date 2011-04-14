@@ -16,7 +16,13 @@
                     	<tr>
                     		<td>IP:</td><td><input id="txtIP" type="text" /></td>
                             <td>Port:</td><td><input id="txtPort" type="text" /></td>
+                            <td><input id="login" onclick="Login('super','uptfp','192.168.99.159','20000')" type="button" value="登录" /></td>
+                            <td><input id="logout" onclick="Logout()" type="button" value="登出" /></td>
                     	</tr>
+                        <tr>
+                           <td><input id="startMonitor" onclick="StartMonitor(4)" type="button" value="启动监视" /></td> 
+                           <td><input id="stopMonitor" onclick="StopMonitor()" type="button" value="停止监控" /></td>
+                        </tr>
                     </table>
                 </div>
             </td>
@@ -47,7 +53,7 @@
             else {
                 divPanel.style.visibility = "hidden";
             }
-       }
+        }
 
         function OnOpenFile(filePath) {
            if (filePath != null && filePath.length > 0) {
@@ -59,7 +65,38 @@
            }
          }
 
-        function MouseDoubleClick() {
+         function Login(userName, passWord, severIP, severPort) {
+             if ((userName != null && userName.length > 0) &&
+                    (passWord != null && passWord.length) > 0 &&
+                    (severIP != null && severIP.length > 0) &&
+                    (severPort != null && severPort.length > 0)) {
+                 return DVRPlayer.Login(userName, passWord, severIP, severPort);
+            }
+            else
+            {
+                alert("请检查登录信息！");
+            }
+        }
+
+        function Logout() {
+            DVRPlayer.Logout();
+        }
+
+        function StartMonitor(wndNum) {
+            if (wndNum > 0) {
+                DVRPlayer.StartMonitor(wndNum);
+            }
+            else 
+            {
+                alert("请输入分割线数！");
+            }
+        }
+
+        function StopMonitor() {
+            DVRPlayer.StopMonitor();
+        }
+
+         function MouseDoubleClick() {
             //                DVRPlayer.style.left = 0;
             //                DVRPlayer.style.top = 0;
             //                DVRPlayer.width = screen.width;

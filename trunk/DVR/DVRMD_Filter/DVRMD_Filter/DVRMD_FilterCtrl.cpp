@@ -48,6 +48,7 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "CapPic", dispidCapPic, CapPic, VT_UI4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetCapturePath", dispidGetCapturePath, GetCapturePath, VT_BSTR, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetCapturePath", dispidSetCapturePath, SetCapturePath, VT_EMPTY, VTS_BSTR)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Faster", dispidFaster, Faster, VT_UI4, VTS_NONE)
 END_DISPATCH_MAP()
 
 
@@ -398,4 +399,15 @@ void CDVRMD_FilterCtrl::OnMove(int x, int y)
 	GetClientRect(rcClient);
 
 	SetRenderWindowSize(rcClient.Width(), rcClient.Height()-65);
+}
+
+
+ULONG CDVRMD_FilterCtrl::Faster(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	m_MainDialog.Play();
+	GetDVRPlayer()->Fast();
+
+	return 0;
 }

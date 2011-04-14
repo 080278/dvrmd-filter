@@ -195,6 +195,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile Include="XScrollBar.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="DVRMD_Filter.def" />
     <None Include="res\+.bmp" />
     <None Include="res\-.bmp" />

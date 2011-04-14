@@ -42,6 +42,7 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidFaster = 17L,
 		dispidSetCapturePath = 16L,
 		dispidGetCapturePath = 15L,
 		dispidCapPic = 14L,
@@ -96,5 +97,7 @@ protected:
 	void SetCapturePath(LPCTSTR bstrPath);
 public:
 	afx_msg void OnMove(int x, int y);
+protected:
+	ULONG Faster(void);
 };
 
