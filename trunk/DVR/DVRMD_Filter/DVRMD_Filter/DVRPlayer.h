@@ -92,6 +92,9 @@ public:
 	~CDVRPlayer(void);
 
 public:
+	// metaData scale
+	static double   m_xScale;
+	static double   m_yScale;
 	// Work flow Interfaces
 	bool Init(HWND hPlayWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort = -1);	//Init method of the Player.
 	void Destory();
@@ -236,6 +239,8 @@ private:
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 	// Draw Meta Data Functions.
 	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame);
+	// Draw Meta Data Scale
+	static void DramFrameMetaDataScale(int renderWndWidth, int renderWndHeight, HHV::FrameMetaDataList metaDataList);
 	static void DrawDisplayObjectMeta(Gdiplus::Graphics& graphics, const HHV::DisplayObjectMeta& dspObj)
 	{
 		DrawObjectType(graphics, dspObj.obj);
@@ -280,6 +285,8 @@ private:
 	DWORD		m_dwMaxFileSize;
 	DWORD		m_dwHeadSize;
 
+
+
 private:
 	CDVRSettings	m_DVRSettings;
 	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
@@ -292,4 +299,6 @@ private:
 
 	ULONG_PTR	m_gdiplusToken;
 	friend class CPlayer;
+
+
 };
