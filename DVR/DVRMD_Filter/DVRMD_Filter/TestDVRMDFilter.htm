@@ -20,8 +20,12 @@
                             <td><input id="logout" onclick="Logout()" type="button" value="登出" /></td>
                     	</tr>
                         <tr>
-                           <td><input id="startMonitor" onclick="StartMonitor(4)" type="button" value="启动监视" /></td> 
+                           <td><input id="startMonitor" onclick="StartMonitor(1)" type="button" value="启动监视" /></td> 
                            <td><input id="stopMonitor" onclick="StopMonitor()" type="button" value="停止监控" /></td>
+                        </tr>
+                        <tr>
+
+                            <td><input id="setWndChannel" onclick="SetWndChannel(0,4)" type="button" value="切换通道" /></td>
                         </tr>
                     </table>
                 </div>
@@ -44,6 +48,10 @@
         function OnLoad() {
             //DVRPlayer.SetRenderWindowSize(600, 480);
             DVRPlayer.SetCapturePath("D:");
+
+            var loginFlag = Login('super', 'uptfp', '192.168.99.159', '20000');
+            if (loginFlag) StartMonitor(4);
+
         }
 
         function OnShowHidePanel() {
@@ -94,6 +102,16 @@
 
         function StopMonitor() {
             DVRPlayer.StopMonitor();
+        }
+
+        function SetWndChannel(lWndIndex, lChannelIndex) {
+            if (lWndIndex >= 0 && lChannelIndex >= 0) {
+                DVRPlayer.SetWndChannel(lWndIndex, lChannelIndex);
+            }
+            else {
+                alert("========>>>Channel"); 
+            }
+            
         }
 
          function MouseDoubleClick() {

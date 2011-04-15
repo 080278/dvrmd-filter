@@ -3,6 +3,11 @@
 #include "DVRPlayer.h"
 
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
+
+// metaData scale
+double   CDVRPlayer::m_xScale;
+double   CDVRPlayer::m_yScale;
+
 CDVRPlayer::CDVRPlayer(void)
 {
 	m_lPort = -1;
@@ -475,7 +480,7 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	switch(obj.type)
 	{
 	case 0:		//line_segment
-		graphics.DrawLine(&gPlusPen, obj.x0, obj.y0, obj.x1, obj.y1);
+		graphics.DrawLine(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), (int)(obj.x1 * m_xScale), (int)(obj.y1 * m_yScale));
 		break;
 	case 1:		//rectangle
 		if (style.bFill)
@@ -485,8 +490,8 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
 
-		graphics.DrawRectangle(&gPlusPen, obj.x0, obj.y0, 
-			obj.x1 - obj.x0, obj.y1 - obj.y0);
+		graphics.DrawRectangle(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), 
+			(int)(obj.x1 * m_xScale) - (int)(obj.x0 * m_xScale), (int)(obj.y1 * m_yScale) - (int)(obj.y0 * m_yScale));
 		break;
 	case 2:		//ellipse
 		if (style.bFill)
@@ -497,8 +502,8 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
 
-		graphics.DrawEllipse(&gPlusPen, obj.x0, obj.y0, 
-			obj.x1 - obj.x0, obj.y1 - obj.y0);
+		graphics.DrawEllipse(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), 
+			(int)(obj.x1 * m_xScale) - (int)(obj.x0 * m_xScale), (int)(obj.y1 * m_yScale) - (int)(obj.y0 * m_yScale));
 		break;
 	case -1:	//no display
 	default:
@@ -511,7 +516,11 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 {
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
-
+	HWND renderWnd = WindowFromDC(hDC);
+	CRect rect;
+	GetWindowRect(renderWnd,rect);
+	int renderWndWidth = rect.Width();
+	int renderWndHeight = rect.Height();
 	if (!pThis || !pThis->m_bDrawMetaData)
 	{
 		return;
@@ -520,11 +529,25 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
+		DramFrameMetaDataScale(renderWndWidth, renderWndHeight, metaDataList);
+		//int width = metaDataList[0].displayData.image_width;
+		//int height = metaDataList[0].displayData.image_height;
+		//pThis->m_xScale = renderWndWidth / width;
+		//pThis->m_yScale = renderWndHeight / height;
 		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
 		{
 			DrawFrameMetaData(graphics, *itFrame);
 		}
+	}
+}
+
+void CDVRPlayer::DramFrameMetaDataScale(int renderWndWidth, int renderWndHeight, HHV::FrameMetaDataList metaDataList)
+{
+	if (metaDataList.size() > 0 && renderWndWidth > 0 && renderWndHeight > 0)
+	{
+		m_xScale = renderWndWidth / metaDataList[0].displayData.image_width;
+		m_yScale = renderWndHeight / metaDataList[0].displayData.image_height;
 	}
 }
 
@@ -536,7 +559,7 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 
 	HHV::DisplayObjectMeta dom1;
 	dom1.id = "0001";
-	dom1.obj.type = 2;
+	dom1.obj.type = 0;
 	dom1.obj.style.color.r = 200;
 	dom1.obj.style.color.g = 100;
 	dom1.obj.style.color.b = 0;

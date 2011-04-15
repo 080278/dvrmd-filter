@@ -503,6 +503,13 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		}
 
 		Gdiplus::Graphics graphics(hDc);
+		HWND renderWnd = WindowFromDC(hDc);
+		CRect rect;
+		GetWindowRect(renderWnd,rect);
+		int renderWndWidth = rect.Width();
+		int renderWndHeight = rect.Height();
+		
+		CDVRPlayer::DramFrameMetaDataScale(renderWndWidth, renderWndHeight, metaList);
 
 		for (HHV::FrameMetaDataList::const_iterator it = metaList.begin(); it != metaList.end(); ++it)
 		{
