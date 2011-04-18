@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CDVRMDFrameDlg, CDialog)
 	ON_WM_QUERYDRAGICON()
 	//}}AFX_MSG_MAP
 	ON_WM_DESTROY()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -178,4 +179,16 @@ END_EVENTSINK_MAP()
 void CDVRMDFrameDlg::DblClickDvrmdFilterctrl2()
 {
 	// TODO: Add your message handler code here
+}
+
+
+void CDVRMDFrameDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialog::OnSize(nType, cx, cy);
+
+	if (::IsWindow(m_DVRPlayer.m_hWnd))
+	{
+		m_DVRPlayer.MoveWindow(0, 0, cx, cy - 50);
+		m_DVRPlayer.SetRenderWindowSize(cx, cy-65);
+	}
 }

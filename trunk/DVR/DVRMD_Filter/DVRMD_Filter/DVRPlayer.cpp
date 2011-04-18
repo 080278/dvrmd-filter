@@ -5,8 +5,7 @@
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 
 // metaData scale
-double   CDVRPlayer::m_xScale;
-double   CDVRPlayer::m_yScale;
+
 
 CDVRPlayer::CDVRPlayer(void)
 {
@@ -355,55 +354,60 @@ void CDVRPlayer::EndPlayback()
 		m_nPlaybackIndex = -1;
 	}
 }
+
+#define INT_SCALE(x, scale)	(x)*scale
 // Draw Function
 	//pen.SetEndCap(LineCapArrowAnchor);
-void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame)
+void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, LONG lWndWidth, LONG lWndHeight)
 {
-	TRACE(_T("Frame Image: width(%d), height(%d)"), frame.displayData.image_width, frame.displayData.image_height);
+	TRACE2("Frame Image: width(%d), height(%d)\n", frame.displayData.image_width, frame.displayData.image_height);
 	TRACE(_T("Frame Attributes:"));
+	DWORD dwBegin = GetTickCount();
 #ifdef _DEBUG
 	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
-		TRACE(_T("Attr Key(%s), Value(%s)"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
+		TRACE(_T("Attr Key(%s), Value(%s)\n"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
 	}
 #endif
 	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
 		itDspObj != frame.displayData.disp_obj_list.end(); 
 		++itDspObj)
 	{
-		TRACE(_T("Draw DisplayObjectMeta: id=%s"), (LPTSTR)CA2T(itDspObj->id.c_str()));
-		DrawDisplayObjectMeta(graphics, *itDspObj);
+		TRACE1("Draw DisplayObjectMeta: id=%s\n", (LPTSTR)CA2T(itDspObj->id.c_str()));
+		DrawDisplayObjectMeta(graphics, *itDspObj, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
 	for (HHV::PolyLines::const_iterator itLine = frame.displayData.line_list.begin(); 
 		itLine != frame.displayData.line_list.end(); 
 		++itLine)
 	{
-		DrawPolyLine(graphics, *itLine);
+		DrawPolyLine(graphics, *itLine, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
 	for (HHV::Texts::const_iterator itTxt = frame.displayData.text_list.begin();
 		itTxt != frame.displayData.text_list.end();
 		++itTxt)
 	{
-		DrawTextMeta(graphics, *itTxt);
+		DrawTextMeta(graphics, *itTxt, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
 	for (HHV::Polygons::const_iterator itPolygon = frame.displayData.polygon_list.begin();
 		itPolygon != frame.displayData.polygon_list.end();
 		++itPolygon)
 	{
-		DrawPolygon(graphics, *itPolygon);
+		DrawPolygon(graphics, *itPolygon, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
 	for (HHV::GUIObjects::const_iterator itGUIObj = frame.displayData.gui_object_list.begin();
 		itGUIObj != frame.displayData.gui_object_list.end();
 		++itGUIObj)
 	{
-		DrawObjectType(graphics, *itGUIObj);
+		DrawObjectType(graphics, *itGUIObj, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
+	DWORD dwEnd = GetTickCount();
+	TRACE1("\nDrawFrameMetaData: %d\n", dwEnd-dwBegin);
 }
-void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line)
+void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
 {
 	if (line.lines.size() > 1)
 	{
@@ -416,10 +420,9 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 			itPt != line.lines.end();
 			++itPt, ++i)
 		{
-			ptLines[i].X = itPt->x;
-			ptLines[i].Y = itPt->y;
+			ptLines[i].X = INT_SCALE(itPt->x, lWndWidth/nImgWidth);
+			ptLines[i].Y = INT_SCALE(itPt->y, lWndHeight/nImgHeight);
 		}
-
 
 		switch(line.end_style)
 		{
@@ -439,18 +442,18 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 	}
 }
 
-void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt)
+void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
 {
-	Gdiplus::Font gPlusFont(L"黑体", txt.size, Gdiplus::FontStyleRegular,Gdiplus::UnitPixel);
+	Gdiplus::Font gPlusFont(L"黑体", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular,Gdiplus::UnitPixel);
 	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(255, txt.color.r, txt.color.g, txt.color.b));
 	int nTxtLen = txt.text.length();
 	WCHAR* pBuf = new WCHAR[nTxtLen+1];
 	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
 	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
-	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(txt.x, txt.y), &gPlushBrush);
+	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(INT_SCALE(txt.x, lWndWidth/nImgWidth), INT_SCALE(txt.y, lWndHeight/nImgHeight)), &gPlushBrush);
 	delete[] pBuf;
 }
-void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon)
+void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
 {
 	const HHV::DrawingStyle& style = polygon.style;
 
@@ -459,8 +462,8 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 	Gdiplus::Point* ptPolygons = new Gdiplus::Point[polygon.points.size()];
 	for (int i = 0; i < polygon.points.size(); ++i)
 	{
-		ptPolygons[i].X = polygon.points[i].x;
-		ptPolygons[i].Y = polygon.points[i].y;
+		ptPolygons[i].X = INT_SCALE(polygon.points[i].x, lWndWidth/nImgWidth);
+		ptPolygons[i].Y = INT_SCALE(polygon.points[i].y, lWndHeight/nImgHeight);
 	}
 	if (polygon.style.bFill)
 	{
@@ -471,7 +474,7 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 	graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
 	delete[] ptPolygons;
 }
-void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj)
+void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
 {
 	const HHV::DrawingStyle& style = obj.style;
 
@@ -480,30 +483,30 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	switch(obj.type)
 	{
 	case 0:		//line_segment
-		graphics.DrawLine(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), (int)(obj.x1 * m_xScale), (int)(obj.y1 * m_yScale));
+		graphics.DrawLine(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), INT_SCALE(obj.x1, lWndWidth/nImgWidth), INT_SCALE(obj.y1, lWndHeight/nImgHeight));
 		break;
 	case 1:		//rectangle
 		if (style.bFill)
 		{
 			Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
-			graphics.FillRectangle(&gPlusBrush, obj.x0 + obj.style.thickness/2, obj.y0 + obj.style.thickness/2, 
-				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
+			graphics.FillRectangle(&gPlusBrush, INT_SCALE(obj.x0 + obj.style.thickness/2, lWndWidth/nImgWidth), INT_SCALE(obj.y0 + obj.style.thickness/2, lWndHeight/nImgHeight), 
+				INT_SCALE(obj.x1 - obj.x0 - obj.style.thickness, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0 - obj.style.thickness, lWndHeight/nImgHeight));
 		}
 
-		graphics.DrawRectangle(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), 
-			(int)(obj.x1 * m_xScale) - (int)(obj.x0 * m_xScale), (int)(obj.y1 * m_yScale) - (int)(obj.y0 * m_yScale));
+		graphics.DrawRectangle(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), 
+			INT_SCALE(obj.x1 - obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0, lWndHeight/nImgHeight));
 		break;
 	case 2:		//ellipse
 		if (style.bFill)
 		{
 			Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
 
-			graphics.FillEllipse(&gPlusBrush, obj.x0 + obj.style.thickness/2, obj.y0 + obj.style.thickness/2, 
-				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
+			graphics.FillEllipse(&gPlusBrush, INT_SCALE((obj.x0 + obj.style.thickness/2), lWndWidth/nImgWidth), INT_SCALE((obj.y0 + obj.style.thickness/2), lWndHeight/nImgHeight), 
+				INT_SCALE((obj.x1 - obj.x0 - obj.style.thickness), lWndWidth/nImgWidth), INT_SCALE((obj.y1 - obj.y0 - obj.style.thickness), lWndHeight/nImgHeight));
 		}
 
-		graphics.DrawEllipse(&gPlusPen, (int)(obj.x0 * m_xScale), (int)(obj.y0 * m_yScale), 
-			(int)(obj.x1 * m_xScale) - (int)(obj.x0 * m_xScale), (int)(obj.y1 * m_yScale) - (int)(obj.y0 * m_yScale));
+		graphics.DrawEllipse(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), 
+			INT_SCALE(obj.x1 - obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0, lWndHeight/nImgHeight));
 		break;
 	case -1:	//no display
 	default:
@@ -515,40 +518,26 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 //	Draw the Meta Data
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 {
+	DWORD dwBegin = GetTickCount();
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
-	HWND renderWnd = WindowFromDC(hDC);
-	CRect rect;
-	GetWindowRect(renderWnd,rect);
-	int renderWndWidth = rect.Width();
-	int renderWndHeight = rect.Height();
 	if (!pThis || !pThis->m_bDrawMetaData)
 	{
 		return;
 	}
+	int renderWndWidth = pThis->GetDVRSettings().m_nRenderWidth;
+	int renderWndHeight = pThis->GetDVRSettings().m_nRenderHeight;
 
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
-		DramFrameMetaDataScale(renderWndWidth, renderWndHeight, metaDataList);
-		//int width = metaDataList[0].displayData.image_width;
-		//int height = metaDataList[0].displayData.image_height;
-		//pThis->m_xScale = renderWndWidth / width;
-		//pThis->m_yScale = renderWndHeight / height;
 		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
 		{
-			DrawFrameMetaData(graphics, *itFrame);
+			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		}
 	}
-}
-
-void CDVRPlayer::DramFrameMetaDataScale(int renderWndWidth, int renderWndHeight, HHV::FrameMetaDataList metaDataList)
-{
-	if (metaDataList.size() > 0 && renderWndWidth > 0 && renderWndHeight > 0)
-	{
-		m_xScale = renderWndWidth / metaDataList[0].displayData.image_width;
-		m_yScale = renderWndHeight / metaDataList[0].displayData.image_height;
-	}
+	DWORD dwEnd = GetTickCount();
+	TRACE1("\n**********OnDrawFun: %d ************\n",dwEnd - dwBegin);
 }
 
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
@@ -610,8 +599,8 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 	txt.color = pg.style.color;
 	txt.size = 30;
 	txt.text = "你好，这是测试用的MetaData！";
-	txt.x = 300;
-	txt.y = 400;
+	txt.x = 200;
+	txt.y = 100;
 
 	fmd1.displayData.disp_obj_list.push_back(dom1);
 	fmd1.displayData.polygon_list.push_back(pg);
@@ -897,7 +886,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 	DWORD   pImageSize	= 0;
 	
-	if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eBMP)
+	if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
 	{
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
@@ -942,11 +931,11 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 		if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
 		{
-			m_npic_bmp++;
+			m_npic_jpeg++;
 		}
 		else
 		{
-			m_npic_jpeg++;
+			m_npic_bmp++;
 		}
 	}
 	catch (CFileException* e) 

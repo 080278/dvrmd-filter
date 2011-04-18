@@ -104,5 +104,7 @@ private:
 	int m_playType;
 
 	CCritSec	m_MetaDataLock;
+
+	RECT m_rcRenderRect;
 };
 #endif // !defined(AFX_PLAYER_H__B22F676B_7805_4359_8D74_B5A63BA0B5F9__INCLUDED_)

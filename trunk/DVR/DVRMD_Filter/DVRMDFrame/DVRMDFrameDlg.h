@@ -37,4 +37,5 @@ public:
 //	void DblClickDvrmdFilterctrl1();
 	void DblClickDvrmdFilterctrl2();
 	CDDVRMD_Filter m_DVRPlayer;
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };
