@@ -43,12 +43,14 @@ void CPlayer::Init(HWND hNotifyWnd, int index_MTManager)
     m_hNotifyWnd  = hNotifyWnd;
     m_index = index_MTManager;
     m_streamParser.ClearBuf();
+	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
 void CPlayer::Clearup()
 {
     m_PlayHandle = -1;
     m_index = -1;
     m_streamParser.ClearBuf();//清除缓冲
+	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
 
 INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
@@ -116,6 +118,8 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 		return -nErr;
 	}
 
+	::GetWindowRect(hWnd, &m_rcRenderRect);
+
     TRACE(_T("(MTVideo)监视 OpenPlayStream成功 m_index = %d dvrIP = %s channel = %d\r\n"),
 		m_index, clientInfo->connInfo.ip, clientInfo->channel);
     //memcpy(&m_clientInfo, clientInfo, sizeof(UNISDK_CLIENT_INFO));
@@ -174,6 +178,7 @@ VOID CPlayer::StopMonitor( )
     //TRACE(_T("(MTVideo)停止监视成功 DvrIP = %s channnel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
 	//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
     m_PlayHandle = -1;
+	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
 
 UINT __stdcall CPlayer::DecoderRoutine( void * dat)
@@ -479,11 +484,16 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 
 void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 {
-	//if( g_uniSDKDrawFuncCallBack != NULL )
-		//g_uniSDKDrawFuncCallBack( nPort, hDc, 0, 0, (void*)nUser );
 	CPlayer* pPlayer = (CPlayer*)nUser;
 	if( pPlayer != NULL )
 	{
+		int renderWndWidth =  pPlayer->m_rcRenderRect.right-pPlayer->m_rcRenderRect.left;
+		int renderWndHeight =  pPlayer->m_rcRenderRect.bottom-pPlayer->m_rcRenderRect.top;
+		if (renderWndWidth <= 0 && renderWndHeight <= 0)
+		{
+			return;
+		}
+
 		BYTE byMetaData[sizeof(pPlayer->m_meta)];
 		U32 metaLen = 0;
 		pPlayer->m_MetaDataLock.Lock();
@@ -503,23 +513,11 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		}
 
 		Gdiplus::Graphics graphics(hDc);
-		HWND renderWnd = WindowFromDC(hDc);
-		CRect rect;
-		GetWindowRect(renderWnd,rect);
-		int renderWndWidth = rect.Width();
-		int renderWndHeight = rect.Height();
-		
-		CDVRPlayer::DramFrameMetaDataScale(renderWndWidth, renderWndHeight, metaList);
 
 		for (HHV::FrameMetaDataList::const_iterator it = metaList.begin(); it != metaList.end(); ++it)
 		{
 			// Now, let's draw the meta data.
-			CDVRPlayer::DrawFrameMetaData(graphics, *it);
-			//SetBkMode(hDc, TRANSPARENT);
-			////SetBkColor(hdc, RGB(0 ,0 ,255));
-			//SetTextColor( hDc, RGB(255 , 0 , 0 ) );
-
-			//::TextOut(hDc, 0, 0, _T("Meta"), 4);
+			CDVRPlayer::DrawFrameMetaData(graphics, *it, renderWndWidth, renderWndHeight);
 		}
 	}
 }
