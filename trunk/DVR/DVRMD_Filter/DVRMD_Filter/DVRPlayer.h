@@ -235,17 +235,17 @@ private:
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 	// Draw Meta Data Functions.
-	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, LONG lWndWidth, LONG lWndHeight);
+	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight);
 	// Draw Meta Data Scale
-	static void DrawDisplayObjectMeta(Gdiplus::Graphics& graphics, const HHV::DisplayObjectMeta& dspObj, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
+	static void DrawDisplayObjectMeta(Gdiplus::Graphics& graphics, const HHV::DisplayObjectMeta& dspObj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 	{
 		DrawObjectType(graphics, dspObj.obj, lWndWidth, lWndHeight, nImgWidth, nImgHeight);
 		DrawPolyLine(graphics, dspObj.track, lWndWidth, lWndHeight, nImgWidth, nImgHeight);
 	}
-	static void inline DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight);
-	static void inline DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight);
-	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight);
-	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight);
+	static void inline DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 private:

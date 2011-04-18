@@ -358,12 +358,13 @@ void CDVRPlayer::EndPlayback()
 #define INT_SCALE(x, scale)	(x)*scale
 // Draw Function
 	//pen.SetEndCap(LineCapArrowAnchor);
-void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, LONG lWndWidth, LONG lWndHeight)
+void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
+#ifdef _DEBUG
 	TRACE2("Frame Image: width(%d), height(%d)\n", frame.displayData.image_width, frame.displayData.image_height);
 	TRACE(_T("Frame Attributes:"));
 	DWORD dwBegin = GetTickCount();
-#ifdef _DEBUG
+
 	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
 		TRACE(_T("Attr Key(%s), Value(%s)\n"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
@@ -404,10 +405,12 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 	{
 		DrawObjectType(graphics, *itGUIObj, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
+#ifdef _DEBUG
 	DWORD dwEnd = GetTickCount();
 	TRACE1("\nDrawFrameMetaData: %d\n", dwEnd-dwBegin);
+#endif
 }
-void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
+void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
 	if (line.lines.size() > 1)
 	{
@@ -442,9 +445,9 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 	}
 }
 
-void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
+void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
-	Gdiplus::Font gPlusFont(L"ºÚÌå", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular,Gdiplus::UnitPixel);
+	Gdiplus::Font gPlusFont(L"ºÚÌå", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(255, txt.color.r, txt.color.g, txt.color.b));
 	int nTxtLen = txt.text.length();
 	WCHAR* pBuf = new WCHAR[nTxtLen+1];
@@ -453,7 +456,7 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(INT_SCALE(txt.x, lWndWidth/nImgWidth), INT_SCALE(txt.y, lWndHeight/nImgHeight)), &gPlushBrush);
 	delete[] pBuf;
 }
-void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
+void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
 	const HHV::DrawingStyle& style = polygon.style;
 
@@ -474,7 +477,7 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 	graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
 	delete[] ptPolygons;
 }
-void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, LONG lWndWidth, LONG lWndHeight, int nImgWidth, int nImgHeight)
+void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
 	const HHV::DrawingStyle& style = obj.style;
 
@@ -518,7 +521,9 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 //	Draw the Meta Data
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 {
+#ifdef _DEBUG
 	DWORD dwBegin = GetTickCount();
+#endif // _DEBUG
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->m_bDrawMetaData)
 	{
@@ -536,8 +541,10 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		}
 	}
+#ifdef _DEBUG
 	DWORD dwEnd = GetTickCount();
-	TRACE1("\n**********OnDrawFun: %d ************\n",dwEnd - dwBegin);
+	TRACE3("\n**********OnDrawFun: (%d) (%d, %d) ************\n",dwEnd - dwBegin, dwBegin, dwEnd);
+#endif
 }
 
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
