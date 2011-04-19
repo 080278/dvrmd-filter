@@ -33,6 +33,8 @@
 #include "DVRSettings.h"
 #include "Sync_Locks.h"
 
+class ScaleFrameMetaDataList;
+
 #define SYN_READ_STREAM
 #define WAIT_THREAD_EXIT_MAX_TIME    (5*1000)
 
@@ -106,5 +108,7 @@ private:
 	CCritSec	m_MetaDataLock;
 
 	RECT m_rcRenderRect;
+
+	std::auto_ptr<ScaleFrameMetaDataList>	m_spScaleMetaData;
 };
 #endif // !defined(AFX_PLAYER_H__B22F676B_7805_4359_8D74_B5A63BA0B5F9__INCLUDED_)
