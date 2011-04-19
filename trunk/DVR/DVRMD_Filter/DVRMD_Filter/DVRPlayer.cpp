@@ -10,9 +10,327 @@
 FreeProfilerImport("FreeProfiler\\Configuration\\FreeProfilerConfig.xml");
 
 #endif
+int ScaleFrameMetaDataList::g_ScaleIndex = 0;
 
+ScaleFrameMetaDataList::ScaleFrameMetaDataList()
+	: m_bScaling(false)
+{
+	CString csEvent;
+	csEvent.Format(_T("ScaleEvent_%d"), g_ScaleIndex);
+	m_hEvent[eScaleEvent] = ::CreateEvent(NULL, TRUE, FALSE, csEvent);
+	csEvent.Format(_T("ExitScaleThread_%d"), g_ScaleIndex);
+	m_hEvent[eExitEvent] = ::CreateEvent(NULL, TRUE, FALSE, csEvent);
+	++g_ScaleIndex;
 
+	m_hThread = (HANDLE)::_beginthreadex(NULL, 0, ScaleCallBack, this, 0, NULL);
+	memset(&m_lWndWidth, 0, sizeof(m_lWndWidth));
+	memset(&m_lWndHeight, 0, sizeof(m_lWndHeight));
+}
 
+ScaleFrameMetaDataList::~ScaleFrameMetaDataList()
+{
+	::SetEvent(m_hEvent[eExitEvent]);
+	::WaitForSingleObject(m_hThread, 10000);
+	::CloseHandle(m_hThread);
+	::CloseHandle(m_hEvent[eScaleEvent]);
+	::CloseHandle(m_hEvent[eExitEvent]);
+}
+void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, HHV::FrameMetaData& attrs, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
+{
+	if (!m_bScaling)
+	{
+		m_TmpLock.Lock();
+		m_TmpMetaDataList = srcFrame;
+		m_lWndWidth = lWndWidth;
+		m_lWndHeight = lWndHeight;
+		SetEvent(m_hEvent[eScaleEvent]);
+		m_TmpLock.Unlock();
+	}
+	m_ScaleLock.Lock();
+	dstFrame = m_FrameMetaDataList;
+	attrs = m_Attributes;
+	m_ScaleLock.Unlock();
+}
+
+unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
+{
+	ScaleFrameMetaDataList* pThis = (ScaleFrameMetaDataList*)pParam;
+	BOOL bExit = FALSE;
+	while(!bExit)
+	{
+		DWORD dwEventIndex = ::WaitForMultipleObjects(sizeof(pThis->m_hEvent)/sizeof(HANDLE), pThis->m_hEvent, FALSE, 1000);
+		switch(dwEventIndex)
+		{
+		case WAIT_TIMEOUT:
+			break;
+		case WAIT_OBJECT_0+eScaleEvent:
+			{
+				pThis->m_TmpLock.Lock();
+				HHV::FrameMetaDataList frame = pThis->m_TmpMetaDataList;
+				HHV::FrameMetaData attributes;
+				LONG lWndWidth = pThis->m_lWndWidth;
+				LONG lWndHeight = pThis->m_lWndHeight;
+				pThis->m_TmpLock.Unlock();
+				if (frame.size() > 0)
+				{
+					for (HHV::FrameMetaDataList::iterator it = frame.begin(); it != frame.end(); ++it)
+					{
+						ScaleAttributes(attributes, it->attributes, lWndWidth, lWndHeight);
+						ScaleFrameMetaData(*it, lWndWidth, lWndHeight);
+					}
+				}
+				pThis->m_ScaleLock.Lock();
+				pThis->m_FrameMetaDataList = frame;
+				pThis->m_Attributes = attributes;
+				pThis->m_ScaleLock.Unlock();
+				ResetEvent(pThis->m_hEvent[eScaleEvent]);
+			}
+			break;
+		case WAIT_OBJECT_0+eExitEvent:
+			bExit = TRUE;
+			break;
+		}
+	}
+	::_endthreadex(0);
+	return 0;
+}
+
+void ScaleFrameMetaDataList::ScaleAttributes(HHV::FrameMetaData& attributes, HHV::Attributes& attrs, LONG lWndWidth, LONG lWndHeight)
+{
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x7, "")
+#endif
+	
+	HHV::Attributes::const_iterator it = attrs.find("NumberOfRegion");
+	if (it != attrs.end() && !it->first.empty())
+	{
+		int nNumberOfRegion = atoi(it->second.c_str());
+		std::vector<int> imgSize = ToArray(attrs, "region.imagesize");
+		if (imgSize.size() == 2)
+		{
+			float xScale = (float)lWndWidth/imgSize[0];
+			float yScale = (float)lWndHeight/imgSize[1];
+			for (int i = 1; i <= nNumberOfRegion; ++i)
+			{
+				std::string shape = ShapeType(attrs, i);
+				if (shape == "rectangle" || shape == "line")
+				{
+					HHV::ObjectType ot = ToObjectType(attrs, i);
+					ScaleObjectType(ot, xScale, yScale);
+					attributes.displayData.gui_object_list.push_back(ot);
+				}
+				else if (shape == "polygon")
+				{
+					HHV::PolygonM pm = ToPolygon(attrs, i);
+					ScalePolygonM(pm, xScale, yScale);
+					attributes.displayData.polygon_list.push_back(pm);
+				}
+				//else if (shape == "line")
+				//{
+				//	CvPoint imgSize = ImageSize(attrs, i);
+				//	if (imgSize.x >0 && imgSize.y > 0 )
+				//	{
+				//		DrawPolyLine(graphics, ToPolyLine(attrs, i), lWndWidht, lWndHeight, imgSize.x, imgSize.y);
+				//	}
+				//}
+			}
+		}
+	}
+}
+
+void ScaleFrameMetaDataList::ScaleFrameDisplayData(HHV::FrameDisplayData& fdd,  LONG lWndWidth, LONG lWndHeight)
+{
+	float xScale = (float)lWndWidth/fdd.image_width;
+	float yScale = (float)lWndHeight/fdd.image_height;
+
+	for (HHV::DisplayObjectMetaList::iterator it = fdd.disp_obj_list.begin(); it != fdd.disp_obj_list.end(); ++it)
+	{
+		ScaleDisplayObjectMeta(*it, xScale, yScale);
+	}
+	
+	for (HHV::PolyLines::iterator it = fdd.line_list.begin(); it != fdd.line_list.end(); ++it)
+	{
+		ScalePolyLine(*it, xScale, yScale);
+	}
+
+	for (HHV::Texts::iterator it = fdd.text_list.begin(); it != fdd.text_list.end(); ++it)
+	{
+		ScaleTextMeta(*it, xScale, yScale);
+	}
+
+	for (HHV::Polygons::iterator it = fdd.polygon_list.begin(); it != fdd.polygon_list.end(); ++it)
+	{
+		ScalePolygonM(*it, xScale, yScale);
+	}
+
+	for (HHV::GUIObjects::iterator it = fdd.gui_object_list.begin(); it != fdd.gui_object_list.end(); ++it)
+	{
+		ScaleObjectType(*it, xScale, yScale);
+	}
+}
+void ScaleFrameMetaDataList::ScaleDisplayObjectMeta(HHV::DisplayObjectMeta& dom, float xScale, float yScale)
+{
+	ScaleObjectType(dom.obj, xScale, yScale);
+	ScalePolyLine(dom.track, xScale, yScale);
+}
+void ScaleFrameMetaDataList::ScalePolyLine(HHV::PolyLine& line, float xScale, float yScale)
+{
+	line.thickness = line.thickness*xScale;
+	for (HHV::Points::iterator it = line.lines.begin(); it != line.lines.end(); ++it)
+	{
+		it->x = it->x * xScale;
+		it->y = it->y * yScale;
+	}
+}
+void ScaleFrameMetaDataList::ScaleTextMeta(HHV::TextMeta& txt, float xScale, float yScale)
+{
+	txt.size *= xScale;
+	txt.x *= xScale;
+	txt.y *= yScale;
+}
+void ScaleFrameMetaDataList::ScalePolygonM(HHV::PolygonM& pg, float xScale, float yScale)
+{
+	pg.style.thickness *= xScale;
+	for (HHV::Points::iterator it = pg.points.begin(); it != pg.points.end(); ++it)
+	{
+		it->x *= xScale;
+		it->y *= yScale;
+	}
+}
+void ScaleFrameMetaDataList::ScaleObjectType(HHV::ObjectType& ot, float xScale, float yScale)
+{
+	ot.style.thickness *= xScale;
+	switch(ot.type)
+	{
+	case 0:
+	case 1:
+		ot.x0 *= xScale;
+		ot.y0 *= yScale;
+		ot.x1 *= xScale;
+		ot.y1 *= yScale;
+		break;
+	case 2:
+		ot.x0 *= xScale;
+		ot.y0 *= yScale;
+		ot.x1 *= xScale;
+		ot.y1 *= yScale;
+		ot.x2 *= xScale;
+		ot.y2 *= yScale;
+		ot.x3 *= xScale;
+		ot.y3 *= yScale;
+		break;
+	default:
+		break;
+	}
+}
+
+std::string ScaleFrameMetaDataList::ToString(LPCSTR prefix, int num)
+{
+	CStringA csRet;
+	csRet.Format("%s.%d", prefix, num);
+	return (LPCSTR)csRet;
+}
+
+std::vector<int> ScaleFrameMetaDataList::ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index)
+{
+	std::vector<int> ary;
+	HHV::Attributes::const_iterator it = attrs.find((index == -1) ? prefix : ToString(prefix, index));
+	if (it != attrs.end())
+	{
+		int nStartPos = 0;
+		int nPos = it->second.find(',', nStartPos);
+		while (nPos != std::string::npos)
+		{
+			ary.push_back(atoi(it->second.substr(nStartPos, nPos).c_str()));
+			nStartPos = nPos+1;
+			nPos = it->second.find(',', nStartPos);
+		}
+		if (nStartPos != 0)
+		{
+			ary.push_back(atoi(it->second.substr(nStartPos, it->second.length()-nStartPos).c_str()));
+		}
+	}
+	return ary;
+}
+std::string ScaleFrameMetaDataList::ShapeType(const HHV::Attributes& attrs, int index)
+{
+	HHV::Attributes::const_iterator it = attrs.find(ToString("shape-type", index));
+	if (it != attrs.end())
+	{
+		return it->second;
+	}
+	return "";
+}
+HHV::PolyLine ScaleFrameMetaDataList::ToPolyLine(const HHV::Attributes& attrs, int index)
+{
+	return HHV::PolyLine();
+}
+HHV::ObjectType ScaleFrameMetaDataList::ToObjectType(const HHV::Attributes& attrs, int index)
+{
+	HHV::ObjectType obj;
+
+	std::string shape = ShapeType(attrs, index);
+	obj.style.bFill = false;
+	obj.type = -1;
+	obj.style.alpha = 100;
+	obj.style.color.r = 0;
+	obj.style.color.g = 0;
+	obj.style.color.b = 0;
+	obj.style.thickness = 2;
+
+	if (shape == "line")
+	{
+		std::vector<int> ary = ToArray(attrs, "coordinate", index);
+		if (ary.size() >= 4)
+		{
+			obj.type = 0;
+			obj.x0 = ary[0];
+			obj.y0 = ary[1];
+			obj.x1 = ary[2];
+			obj.y1 = ary[3];	
+		}
+	}
+	else if (shape == "rectangle")
+	{
+		std::vector<int> ary = ToArray(attrs, "coordinate", index);
+		if (ary.size() >= 4)
+		{
+			obj.type = 1;
+			obj.x0 = ary[0];
+			obj.y0 = ary[1];
+			obj.x1 = ary[2];
+			obj.y1 = ary[3];
+			//obj.x2 = ary[4];
+			//obj.y2 = ary[5];
+			//obj.x3 = ary[6];
+			//obj.y3 = ary[7];
+		}
+	}
+
+	return obj;
+}
+HHV::PolygonM ScaleFrameMetaDataList::ToPolygon(const HHV::Attributes& attrs, int index)
+{
+	HHV::PolygonM pm;
+	pm.style.bFill = false;
+	pm.style.bFlash = false;
+	pm.style.alpha = 100;
+	pm.style.thickness = 2;
+	pm.style.color.r = 0;
+	pm.style.color.g = 0;
+	pm.style.color.b = 0;
+
+	std::vector<int> ary = ToArray(attrs, "coordinate", index);
+	if (0 == (ary.size() & 1))
+	{
+		for (int i = 0; i < ary.size(); i += 2)
+		{
+			pm.points.push_back(cvPoint(ary[i], ary[i+1]));
+		}
+	}
+
+	return pm;
+}
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 
 // metaData scale
@@ -386,184 +704,27 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
-		//HDC hMemDc = ::CreateCompatibleDC(hDC);
-		//Gdiplus::Bitmap bmp(renderWndWidth, renderWndHeight);
-
-		//HBITMAP hTmpBmp = NULL; //::CreateCompatibleBitmap(hMemDc, renderWndWidth, renderWndHeight);
-		//bmp.GetHBITMAP(Gdiplus::Color(255, 255, 255), &hTmpBmp);
-		//HGDIOBJ hOldBmp = ::SelectObject(hMemDc, hTmpBmp);
-		//::SetBkColor(hMemDc, RGB(255, 255, 255));
-		//Gdiplus::Graphics graphics(hMemDc);
-		//graphics.FillRectangle(&Gdiplus::SolidBrush(Gdiplus::Color(255, 255, 255)), 0, 0, renderWndWidth, renderWndHeight);
-
+		HHV::FrameMetaDataList scaledMetaData;
+		HHV::FrameMetaData	attributes;
+		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, attributes, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		Gdiplus::Graphics graphics(hDC);
-		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
+		DrawFrameMetaData(graphics, attributes, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+		for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
 		{
-			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+			DrawFrameMetaData(graphics, *itFrame, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		}
-		//::BitBlt(hDC, 0, 0, renderWndWidth, renderWndHeight, hMemDc, 0, 0, SRCAND);
-		//::SelectObject(hMemDc, hOldBmp);
-		//::DeleteObject(hTmpBmp);
-		//::DeleteDC(hMemDc);
-
 	}
 #ifdef _DEBUG
 	DWORD dwEnd = GetTickCount();
 	TRACE3("\n**********OnDrawFun: (%d) (%d, %d) ************\n",dwEnd - dwBegin, dwBegin, dwEnd);
 #endif
 }
-#define INT_SCALE(x, scale)	(x)*scale
+#define INT_SCALE(x, scale)	(x)
 // Draw Function
 
-void CDVRPlayer::DrawAttributes(Gdiplus::Graphics& graphics, const HHV::Attributes& attrs, const LONG& lWndWidht, const LONG& lWndHeight)
-{
-#ifdef TEST_PERFORMANCE
-	FreeProfilerRecordCodeBlock(0x7, "")
-#endif
-	HHV::Attributes::const_iterator it = attrs.find("NumberOfRegion");
-	if (it != attrs.end() && !it->first.empty())
-	{
-		int nNumberOfRegion = atoi(it->second.c_str());
-		std::vector<int> imgSize = ToArray(attrs, "region.imagesize");
-		if (imgSize.size() == 2)
-		{
-			for (int i = 1; i <= nNumberOfRegion; ++i)
-			{
-				std::string shape = ShapeType(attrs, i);
-				if (shape == "rectangle" || shape == "line")
-				{
-					if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
-					{
-						DrawObjectType(graphics, ToObjectType(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
-					}
-				}
-				else if (shape == "polygon")
-				{
-					if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
-					{
-						DrawPolygon(graphics, ToPolygon(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
-					}
-				}
-				//else if (shape == "line")
-				//{
-				//	CvPoint imgSize = ImageSize(attrs, i);
-				//	if (imgSize.x >0 && imgSize.y > 0 )
-				//	{
-				//		DrawPolyLine(graphics, ToPolyLine(attrs, i), lWndWidht, lWndHeight, imgSize.x, imgSize.y);
-				//	}
-				//}
-			}
-		}
-	}
-}
 
-std::string CDVRPlayer::ToString(LPCSTR prefix, int num)
-{
-	CStringA csRet;
-	csRet.Format("%s.%d", prefix, num);
-	return (LPCSTR)csRet;
-}
 
-std::vector<int> CDVRPlayer::ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index)
-{
-	std::vector<int> ary;
-	HHV::Attributes::const_iterator it = attrs.find((index == -1) ? prefix : ToString(prefix, index));
-	if (it != attrs.end())
-	{
-		int nStartPos = 0;
-		int nPos = it->second.find(',', nStartPos);
-		while (nPos != std::string::npos)
-		{
-			ary.push_back(atoi(it->second.substr(nStartPos, nPos).c_str()));
-			nStartPos = nPos+1;
-			nPos = it->second.find(',', nStartPos);
-		}
-		if (nStartPos != 0)
-		{
-			ary.push_back(atoi(it->second.substr(nStartPos, it->second.length()-nStartPos).c_str()));
-		}
-	}
-	return ary;
-}
-std::string CDVRPlayer::ShapeType(const HHV::Attributes& attrs, int index)
-{
-	HHV::Attributes::const_iterator it = attrs.find(ToString("shape-type", index));
-	if (it != attrs.end())
-	{
-		return it->second;
-	}
-	return "";
-}
-HHV::PolyLine CDVRPlayer::ToPolyLine(const HHV::Attributes& attrs, int index)
-{
-	return HHV::PolyLine();
-}
-HHV::ObjectType CDVRPlayer::ToObjectType(const HHV::Attributes& attrs, int index)
-{
-	HHV::ObjectType obj;
 
-	std::string shape = ShapeType(attrs, index);
-	obj.style.bFill = false;
-	obj.type = -1;
-	obj.style.alpha = 100;
-	obj.style.color.r = 0;
-	obj.style.color.g = 0;
-	obj.style.color.b = 0;
-	obj.style.thickness = 2;
-
-	if (shape == "line")
-	{
-		std::vector<int> ary = ToArray(attrs, "coordinate", index);
-		if (ary.size() >= 4)
-		{
-			obj.type = 0;
-			obj.x0 = ary[0];
-			obj.y0 = ary[1];
-			obj.x1 = ary[2];
-			obj.y1 = ary[3];	
-		}
-	}
-	else if (shape == "rectangle")
-	{
-		std::vector<int> ary = ToArray(attrs, "coordinate", index);
-		if (ary.size() >= 4)
-		{
-			obj.type = 1;
-			obj.x0 = ary[0];
-			obj.y0 = ary[1];
-			obj.x1 = ary[2];
-			obj.y1 = ary[3];
-			//obj.x2 = ary[4];
-			//obj.y2 = ary[5];
-			//obj.x3 = ary[6];
-			//obj.y3 = ary[7];
-		}
-	}
-
-	return obj;
-}
-HHV::PolygonM CDVRPlayer::ToPolygon(const HHV::Attributes& attrs, int index)
-{
-	HHV::PolygonM pm;
-	pm.style.bFill = false;
-	pm.style.bFlash = false;
-	pm.style.alpha = 100;
-	pm.style.thickness = 2;
-	pm.style.color.r = 0;
-	pm.style.color.g = 0;
-	pm.style.color.b = 0;
-
-	std::vector<int> ary = ToArray(attrs, "coordinate", index);
-	if (0 == (ary.size() & 1))
-	{
-		for (int i = 0; i < ary.size(); i += 2)
-		{
-			pm.points.push_back(cvPoint(ary[i], ary[i+1]));
-		}
-	}
-
-	return pm;
-}
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
 #ifdef TEST_PERFORMANCE
@@ -574,12 +735,12 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 	TRACE(_T("Frame Attributes:"));
 	DWORD dwBegin = GetTickCount();
 #endif
-	DrawAttributes(graphics, frame.attributes, lWndWidth, lWndHeight);
+	//DrawAttributes(graphics, frame.attributes, lWndWidth, lWndHeight);
 
-	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
-	{
-		TRACE(_T("Attr Key(%s), Value(%s)\n"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
-	}
+	//for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
+	//{
+	//	TRACE(_T("Attr Key(%s), Value(%s)\n"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
+	//}
 	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
 		itDspObj != frame.displayData.disp_obj_list.end(); 
 		++itDspObj)

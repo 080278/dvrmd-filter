@@ -85,6 +85,49 @@ void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
 #define HIK_STD_STREAM_TYPE_MPG2_TS		7    	/* TSÁ÷           */
 #define HIK_STD_STREAM_TYPE_MPG2_PS     8       /* PSÁ÷           */
 
+class ScaleFrameMetaDataList
+{
+public:
+	ScaleFrameMetaDataList();
+	~ScaleFrameMetaDataList();
+
+	void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, HHV::FrameMetaData& attrs, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
+private:
+	static	int g_ScaleIndex;
+	HHV::FrameMetaDataList	m_FrameMetaDataList;
+	HHV::FrameMetaDataList	m_TmpMetaDataList;
+	HHV::FrameMetaData		m_Attributes;
+
+	LONG	m_lWndWidth, m_lWndHeight;
+	bool	m_bScaling;
+	CCritSec	m_ScaleLock;
+	CCritSec	m_TmpLock;
+	enum	eEvent{eScaleEvent = 0, eExitEvent = 1};
+	HANDLE		m_hEvent[2];
+	HANDLE		m_hThread;
+
+	static unsigned __stdcall ScaleCallBack(void* pParam);
+
+	static void ScaleFrameMetaData(HHV::FrameMetaData& frame, LONG lWndWidth, LONG lWndHeight)
+	{
+		ScaleFrameDisplayData(frame.displayData, lWndWidth, lWndHeight);
+	}
+	static void ScaleAttributes(HHV::FrameMetaData& attributes, HHV::Attributes& attrs, LONG lWndWidth, LONG lWndHeight);
+	static void ScaleFrameDisplayData(HHV::FrameDisplayData& fdd,  LONG lWndWidth, LONG lWndHeight);
+	static void ScaleDisplayObjectMeta(HHV::DisplayObjectMeta& dom, float xScale, float yScale);
+	static void ScalePolyLine(HHV::PolyLine& line, float xScale, float yScale);
+	static void ScaleTextMeta(HHV::TextMeta& txt, float xScale, float yScale);
+	static void ScalePolygonM(HHV::PolygonM& pg, float xScale, float yScale);
+	static void ScaleObjectType(HHV::ObjectType& ot, float xScale, float yScale);
+
+	static std::string ToString(LPCSTR, int num);
+	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index = -1);
+	static std::string ShapeType(const HHV::Attributes& attrs, int index);
+	static HHV::PolyLine ToPolyLine(const HHV::Attributes& attrs, int index);
+	static HHV::ObjectType ToObjectType(const HHV::Attributes& attrs, int index);
+	static HHV::PolygonM	ToPolygon(const HHV::Attributes& attrs, int index);
+};
+
 class CDVRPlayer
 {
 public:
@@ -234,7 +277,6 @@ private:
 	//OnDrawFun
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
-	static void DrawAttributes(Gdiplus::Graphics& graphics, const HHV::Attributes& attrs, const LONG& lWndWidht, const LONG& lWndHeight);
 	// Draw Meta Data Functions.
 	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight);
 	// Draw Meta Data Scale
@@ -248,12 +290,7 @@ private:
 	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 
-	static std::string ToString(LPCSTR, int num);
-	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index = -1);
-	static std::string ShapeType(const HHV::Attributes& attrs, int index);
-	static HHV::PolyLine ToPolyLine(const HHV::Attributes& attrs, int index);
-	static HHV::ObjectType ToObjectType(const HHV::Attributes& attrs, int index);
-	static HHV::PolygonM	ToPolygon(const HHV::Attributes& attrs, int index);
+
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 private:
 	ePlayState	m_enumState;              // now the play state
@@ -303,5 +340,5 @@ private:
 	ULONG_PTR	m_gdiplusToken;
 	friend class CPlayer;
 
-
+	ScaleFrameMetaDataList	m_ScaleMetaData;
 };
