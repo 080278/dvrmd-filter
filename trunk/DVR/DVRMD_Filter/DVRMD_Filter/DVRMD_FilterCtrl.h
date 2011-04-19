@@ -92,7 +92,7 @@ protected:
 	ULONG Pause(void);
 	ULONG Stop(void);
 
-	ULONG CapPic(void);
+	BSTR CapPic(void);
 	BSTR GetCapturePath(void);
 	void SetCapturePath(LPCTSTR bstrPath);
 public:

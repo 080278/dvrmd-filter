@@ -886,7 +886,7 @@ bool CDVRPlayer::GetPictureSize(LONG* plWidth, LONG* plHeight)
 	return NAME(PlayM4_GetPictureSize)(m_lPort, plWidth, plHeight) == TRUE;
 }
 
-void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
+CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 {
 	CString sFilePath;
 	CFile	clsFile;
@@ -897,7 +897,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	{
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
-			return;
+			return CString();
 		}
 
 		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
@@ -913,7 +913,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	{
 		if( !NAME(PlayM4_GetBMP)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
-			return;
+			return CString();
 		}
 
 		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
@@ -928,7 +928,7 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	
 	if(!clsFile.Open(sFilePath,CFile::modeCreate|CFile::modeWrite))
 	{
-		return;
+		return CString();
 	}
 
 	try							
@@ -950,10 +950,12 @@ void CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		e->ReportError();
 		e->Delete();
 	}
+
+	return sFilePath;
 }
 
 
-void CDVRPlayer::Cappic() 
+CString CDVRPlayer::Cappic() 
 {
 	// TODO: Add your control notification handler code here
 	PBYTE	pImage		= NULL;
@@ -964,13 +966,16 @@ void CDVRPlayer::Cappic()
 		pImage = new BYTE[nBufSize];
 		if(NULL == pImage)
 		{
-			throw 0;
+			//throw 0;
+			return CString();
 		}
 		
-		GetPic(pImage, nBufSize);
+		CString picPath = GetPic(pImage, nBufSize);
+		return picPath;
 	}
 	catch(...)
 	{
+		return CString();
 	}
 
 	if(pImage != NULL)

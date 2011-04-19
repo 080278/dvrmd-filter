@@ -38,7 +38,7 @@ library DVRMD_FilterLib
 			[id(11)] LONG Play(void);
 			[id(12)] ULONG Pause(void);
 			[id(13)] ULONG Stop(void);
-			[id(14)] ULONG CapPic(void);
+			[id(14)] BSTR CapPic(void);
 			[id(15)] BSTR GetCapturePath(void);
 			[id(16)] void SetCapturePath(BSTR bstrPath);
 			[id(17), helpstring("加快播放速度")] ULONG Faster(void);

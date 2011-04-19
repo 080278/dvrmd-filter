@@ -173,7 +173,7 @@ public:
 		m_bDeflash = bDeflash;
 	}
 	bool  GetPictureSize(LONG* plWidth, LONG* plHeight);
-	void  Cappic();
+	CString  Cappic();
 	void  SetCapturePicType(CDVRSettings::eCapPicType eType)
 	{
 		m_DVRSettings.m_eCapturePicType = eType;
@@ -227,7 +227,7 @@ private:
 	void  DestoryMonitor();
 	void  OpenFile();
 	void  CloseFile();
-	void  GetPic(PBYTE pImage, DWORD nBufSize);
+	CString  GetPic(PBYTE pImage, DWORD nBufSize);
 
 	// callback function
 
