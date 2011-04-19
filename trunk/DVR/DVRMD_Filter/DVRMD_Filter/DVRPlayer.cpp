@@ -2,6 +2,17 @@
 #include "Player.h"
 #include "DVRPlayer.h"
 
+//#define TEST_PERFORMANCE
+
+#ifdef TEST_PERFORMANCE
+#include "FreeProfiler.h"
+
+FreeProfilerImport("FreeProfiler\\Configuration\\FreeProfilerConfig.xml");
+
+#endif
+
+
+
 WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 
 // metaData scale
@@ -355,21 +366,203 @@ void CDVRPlayer::EndPlayback()
 	}
 }
 
+//	Draw the Meta Data
+void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
+{
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x1, "OnDrawFun")
+#endif
+#ifdef _DEBUG
+		DWORD dwBegin = GetTickCount();
+#endif // _DEBUG
+	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
+	if (!pThis || !pThis->m_bDrawMetaData)
+	{
+		return;
+	}
+	int renderWndWidth = pThis->GetDVRSettings().m_nRenderWidth;
+	int renderWndHeight = pThis->GetDVRSettings().m_nRenderHeight;
+
+	HHV::FrameMetaDataList metaDataList;
+	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
+	{
+		Gdiplus::Graphics graphics(hDC);
+		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
+		{
+			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+		}
+	}
+#ifdef _DEBUG
+	DWORD dwEnd = GetTickCount();
+	TRACE3("\n**********OnDrawFun: (%d) (%d, %d) ************\n",dwEnd - dwBegin, dwBegin, dwEnd);
+#endif
+}
 #define INT_SCALE(x, scale)	(x)*scale
 // Draw Function
-	//pen.SetEndCap(LineCapArrowAnchor);
+
+void CDVRPlayer::DrawAttributes(Gdiplus::Graphics& graphics, const HHV::Attributes& attrs, const LONG& lWndWidht, const LONG& lWndHeight)
+{
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x7, "")
+#endif
+	HHV::Attributes::const_iterator it = attrs.find("NumberOfRegion");
+	if (it != attrs.end() && !it->first.empty())
+	{
+		int nNumberOfRegion = atoi(it->second.c_str());
+		for (int i = 1; i <= nNumberOfRegion; ++i)
+		{
+			std::string shape = ShapeType(attrs, i);
+			if (shape == "rectangle" || shape == "line")
+			{
+				std::vector<int> imgSize = ToArray(attrs, "region.imagesize", i);
+				if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+				{
+					DrawObjectType(graphics, ToObjectType(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+				}
+			}
+			else if (shape == "polygon")
+			{
+				std::vector<int> imgSize = ToArray(attrs, "region.imagesize", i);
+				if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+				{
+					DrawPolygon(graphics, ToPolygon(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+				}
+			}
+			//else if (shape == "line")
+			//{
+			//	CvPoint imgSize = ImageSize(attrs, i);
+			//	if (imgSize.x >0 && imgSize.y > 0 )
+			//	{
+			//		DrawPolyLine(graphics, ToPolyLine(attrs, i), lWndWidht, lWndHeight, imgSize.x, imgSize.y);
+			//	}
+			//}
+		}
+	}
+}
+
+std::string CDVRPlayer::ToString(LPCSTR prefix, int num)
+{
+	CStringA csRet;
+	csRet.Format("%s.%d", prefix, num);
+	return (LPCSTR)csRet;
+}
+
+std::vector<int> CDVRPlayer::ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index)
+{
+	std::vector<int> ary;
+	HHV::Attributes::const_iterator it = attrs.find(ToString(prefix, index));
+	if (it != attrs.end())
+	{
+		int nStartPos = 0;
+		int nPos = it->second.find(',', nStartPos);
+		while (nPos != std::string::npos)
+		{
+			ary.push_back(atoi(it->second.substr(nStartPos, nPos).c_str()));
+			nStartPos = nPos+1;
+			nPos = it->second.find(',', nStartPos);
+		}
+		if (nStartPos != 0)
+		{
+			ary.push_back(atoi(it->second.substr(nStartPos, it->second.length()-nStartPos).c_str()));
+		}
+	}
+	return ary;
+}
+std::string CDVRPlayer::ShapeType(const HHV::Attributes& attrs, int index)
+{
+	HHV::Attributes::const_iterator it = attrs.find(ToString("shape-type", index));
+	if (it != attrs.end())
+	{
+		return it->second;
+	}
+	return "";
+}
+HHV::PolyLine CDVRPlayer::ToPolyLine(const HHV::Attributes& attrs, int index)
+{
+	return HHV::PolyLine();
+}
+HHV::ObjectType CDVRPlayer::ToObjectType(const HHV::Attributes& attrs, int index)
+{
+	HHV::ObjectType obj;
+
+	std::string shape = ShapeType(attrs, index);
+	obj.style.bFill = false;
+	obj.type = -1;
+	obj.style.alpha = 100;
+	obj.style.color.r = 0;
+	obj.style.color.g = 0;
+	obj.style.color.b = 0;
+	obj.style.thickness = 2;
+
+	if (shape == "line")
+	{
+		std::vector<int> ary = ToArray(attrs, "coordinate", index);
+		if (ary.size() >= 4)
+		{
+			obj.type = 0;
+			obj.x0 = ary[0];
+			obj.y0 = ary[1];
+			obj.x1 = ary[2];
+			obj.y1 = ary[3];	
+		}
+	}
+	else if (shape == "rectangle")
+	{
+		std::vector<int> ary = ToArray(attrs, "coordinate", index);
+		if (ary.size() >= 4)
+		{
+			obj.type = 1;
+			obj.x0 = ary[0];
+			obj.y0 = ary[1];
+			obj.x1 = ary[2];
+			obj.y1 = ary[3];
+			//obj.x2 = ary[4];
+			//obj.y2 = ary[5];
+			//obj.x3 = ary[6];
+			//obj.y3 = ary[7];
+		}
+	}
+
+	return obj;
+}
+HHV::PolygonM CDVRPlayer::ToPolygon(const HHV::Attributes& attrs, int index)
+{
+	HHV::PolygonM pm;
+	pm.style.bFill = false;
+	pm.style.bFlash = false;
+	pm.style.alpha = 100;
+	pm.style.thickness = 2;
+	pm.style.color.r = 0;
+	pm.style.color.g = 0;
+	pm.style.color.b = 0;
+
+	std::vector<int> ary = ToArray(attrs, "coordinate", index);
+	if (0 == (ary.size() & 1))
+	{
+		for (int i = 0; i < ary.size(); i += 2)
+		{
+			pm.points.push_back(cvPoint(ary[i], ary[i+1]));
+		}
+	}
+
+	return pm;
+}
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x6, "")
+#endif
 #ifdef _DEBUG
 	TRACE2("Frame Image: width(%d), height(%d)\n", frame.displayData.image_width, frame.displayData.image_height);
 	TRACE(_T("Frame Attributes:"));
 	DWORD dwBegin = GetTickCount();
+#endif
+	DrawAttributes(graphics, frame.attributes, lWndWidth, lWndHeight);
 
 	for (HHV::Attributes::const_iterator it = frame.attributes.begin(); it != frame.attributes.end(); ++it)
 	{
 		TRACE(_T("Attr Key(%s), Value(%s)\n"), (LPTSTR)CA2T(it->first.c_str()), (LPTSTR)CA2T(it->second.c_str()));
 	}
-#endif
 	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
 		itDspObj != frame.displayData.disp_obj_list.end(); 
 		++itDspObj)
@@ -412,6 +605,9 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 }
 void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x5, "")
+#endif
 	if (line.lines.size() > 1)
 	{
 		Gdiplus::Pen gPlusPen(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b), line.thickness);
@@ -447,6 +643,9 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 
 void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x4, "")
+#endif
 	Gdiplus::Font gPlusFont(L"黑体", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(255, txt.color.r, txt.color.g, txt.color.b));
 	int nTxtLen = txt.text.length();
@@ -458,6 +657,9 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x3, "")
+#endif
 	const HHV::DrawingStyle& style = polygon.style;
 
 	Gdiplus::Pen gPlusPen(Gdiplus::Color(style.alpha*255/100, style.color.r, style.color.g, style.color.b), style.thickness);
@@ -479,6 +681,9 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+#ifdef TEST_PERFORMANCE
+	FreeProfilerRecordCodeBlock(0x2, "")
+#endif
 	const HHV::DrawingStyle& style = obj.style;
 
 	Gdiplus::Pen gPlusPen(Gdiplus::Color(style.alpha*255/100, style.color.r, style.color.g, style.color.b), style.thickness);
@@ -518,108 +723,124 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	}
 }
 
-//	Draw the Meta Data
-void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
-{
-#ifdef _DEBUG
-	DWORD dwBegin = GetTickCount();
-#endif // _DEBUG
-	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
-	if (!pThis || !pThis->m_bDrawMetaData)
-	{
-		return;
-	}
-	int renderWndWidth = pThis->GetDVRSettings().m_nRenderWidth;
-	int renderWndHeight = pThis->GetDVRSettings().m_nRenderHeight;
 
-	HHV::FrameMetaDataList metaDataList;
-	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
-	{
-		Gdiplus::Graphics graphics(hDC);
-		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
-		{
-			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
-		}
-	}
-#ifdef _DEBUG
-	DWORD dwEnd = GetTickCount();
-	TRACE3("\n**********OnDrawFun: (%d) (%d, %d) ************\n",dwEnd - dwBegin, dwBegin, dwEnd);
-#endif
-}
+
+//// 将传入engine的Region信息写入meta
+//if(meta.size()==0)
+//{
+//	// 没有meta数据时，添加一个空的FrameMetaData
+//	HHV::FrameMetaData data;
+//	meta.push_back(data);
+//}
+//
+//// 找到Region数量
+//string s = m_attributes["NumberOfRegion"]; 
+//int iNumberOfRegion = atoi(s.c_str());
+//meta[0].attributes["NumberOfRegion"] = m_attributes["NumberOfRegion"];
+//
+//// 循环写入各个Region的信息
+//for(int i=1;i<=iNumberOfRegion;i++)
+//{
+//	CString strNo;
+//	strNo.Format(".%d", i);
+//	meta[0].attributes[(const char *)("regionName" + strNo)] = m_attributes[(const char *)("regionName" + strNo)];
+//	meta[0].attributes[(const char *)("region-types" + strNo)] = m_attributes[(const char *)("region-types" + strNo)];
+//	meta[0].attributes[(const char *)("security-level" + strNo)] = m_attributes[(const char *)("security-level" + strNo)];
+//	meta[0].attributes[(const char *)("shape-type" + strNo)] = m_attributes[(const char *)("shape-type" + strNo)];
+//	meta[0].attributes[(const char *)("coordinate" + strNo)] = m_attributes[(const char *)("coordinate" + strNo)];
+//	meta[0].attributes[(const char *)("object" + strNo)] = m_attributes[(const char *)("object" + strNo)];
+//}
 
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 {
 	HHV::FrameMetaData fmd1;
-	fmd1.displayData.image_width = 376;
-	fmd1.displayData.image_height = 258;
+	fmd1.attributes["NumberOfRegion"] = "2";
+	fmd1.attributes["regionName.1"] = "regionName1";
+	fmd1.attributes["region-types.1"] = "Monitoring";
+	fmd1.attributes["security-level.1"] = "serious";
+	fmd1.attributes["shape-type.1"] = "rectangle";
+	fmd1.attributes["coordinate.1"] = "10,3,5,16";
+	fmd1.attributes["object.1"] = "Human";
+	fmd1.attributes["region.imagesize.1"] = "400,300";
+	fmd1.attributes["regionName.2"] = "regionName2";
+	fmd1.attributes["region-types.2"] = "Effective";
+	fmd1.attributes["security-level.2"] = "serious";
+	fmd1.attributes["shape-type.2"] = "rectangle";
+	fmd1.attributes["coordinate.2"] = "0,0,299,299";
+	fmd1.attributes["object.2"] = "Human";
+	fmd1.attributes["region.imagesize.2"] = "400,300";
 
-	HHV::DisplayObjectMeta dom1;
-	dom1.id = "0001";
-	dom1.obj.type = 0;
-	dom1.obj.style.color.r = 200;
-	dom1.obj.style.color.g = 100;
-	dom1.obj.style.color.b = 0;
-	dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
-	dom1.obj.style.thickness = 10;
-	dom1.obj.style.fill_color.r = 0;
-	dom1.obj.style.fill_color.g = 255;
-	dom1.obj.style.fill_color.b = 0;
-	dom1.obj.style.alpha = 50;
-	dom1.obj.x0 = 10;
-	dom1.obj.y0 = 20;
-	dom1.obj.x1 = 110;
-	dom1.obj.y1 = 100;
-	dom1.obj.x2 = 150;
-	dom1.obj.y2 = 30;
-	dom1.obj.x3 = 300;
-	dom1.obj.y3 = 100;
 
-	dom1.track.color.r = 100;
-	dom1.track.color.g = 200;
-	dom1.track.color.b = 255;
-	dom1.track.thickness = 2;
-	dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
-	dom1.track.arrow_width = 4;
-	dom1.track.arrow_length = 5;
-	dom1.track.lines.push_back(cvPoint(150, 20));
-	dom1.track.lines.push_back(cvPoint(110, 40));
-	dom1.track.lines.push_back(cvPoint(250, 60));
-	dom1.track.lines.push_back(cvPoint(315, 80));
-	dom1.track.lines.push_back(cvPoint(150, 100));
+	//fmd1.displayData.image_width = 376;
+	//fmd1.displayData.image_height = 258;
 
-	HHV::PolygonM pg;
-	pg.style.color.r = 0;
-	pg.style.color.g = 255;
-	pg.style.color.b = 0;
-	pg.style.alpha = 50;
-	pg.style.bFill = true;
-	pg.style.fill_color.r = 255;
-	pg.style.fill_color.g = 255;
-	pg.style.fill_color.b = 0; 
-	pg.style.thickness = 5;
-	pg.points.push_back(cvPoint(50, 200));
-	pg.points.push_back(cvPoint(200, 200));
-	pg.points.push_back(cvPoint(200, 250));
-	pg.points.push_back(cvPoint(50, 250));
+	//HHV::DisplayObjectMeta dom1;
+	//dom1.id = "0001";
+	//dom1.obj.type = 0;
+	//dom1.obj.style.color.r = 200;
+	//dom1.obj.style.color.g = 100;
+	//dom1.obj.style.color.b = 0;
+	//dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
+	//dom1.obj.style.thickness = 10;
+	//dom1.obj.style.fill_color.r = 0;
+	//dom1.obj.style.fill_color.g = 255;
+	//dom1.obj.style.fill_color.b = 0;
+	//dom1.obj.style.alpha = 50;
+	//dom1.obj.x0 = 10;
+	//dom1.obj.y0 = 20;
+	//dom1.obj.x1 = 110;
+	//dom1.obj.y1 = 100;
+	//dom1.obj.x2 = 150;
+	//dom1.obj.y2 = 30;
+	//dom1.obj.x3 = 300;
+	//dom1.obj.y3 = 100;
 
-	HHV::TextMeta txt;
-	txt.color = pg.style.color;
-	txt.size = 30;
-	txt.text = "你好，这是测试用的MetaData！";
-	txt.x = 200;
-	txt.y = 100;
+	//dom1.track.color.r = 100;
+	//dom1.track.color.g = 200;
+	//dom1.track.color.b = 255;
+	//dom1.track.thickness = 2;
+	//dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
+	//dom1.track.arrow_width = 4;
+	//dom1.track.arrow_length = 5;
+	//dom1.track.lines.push_back(cvPoint(150, 20));
+	//dom1.track.lines.push_back(cvPoint(110, 40));
+	//dom1.track.lines.push_back(cvPoint(250, 60));
+	//dom1.track.lines.push_back(cvPoint(315, 80));
+	//dom1.track.lines.push_back(cvPoint(150, 100));
 
-	fmd1.displayData.disp_obj_list.push_back(dom1);
-	fmd1.displayData.polygon_list.push_back(pg);
-	pg.style.bFill = false;
-	pg.points.clear();
-	pg.points.push_back(cvPoint(250, 200));
-	pg.points.push_back(cvPoint(300, 200));
-	pg.points.push_back(cvPoint(300, 250));
-	pg.points.push_back(cvPoint(50, 250));
-	fmd1.displayData.polygon_list.push_back(pg);
+	//HHV::PolygonM pg;
+	//pg.style.color.r = 0;
+	//pg.style.color.g = 255;
+	//pg.style.color.b = 0;
+	//pg.style.alpha = 50;
+	//pg.style.bFill = true;
+	//pg.style.fill_color.r = 255;
+	//pg.style.fill_color.g = 255;
+	//pg.style.fill_color.b = 0; 
+	//pg.style.thickness = 5;
+	//pg.points.push_back(cvPoint(50, 200));
+	//pg.points.push_back(cvPoint(200, 200));
+	//pg.points.push_back(cvPoint(200, 250));
+	//pg.points.push_back(cvPoint(50, 250));
 
-	fmd1.displayData.text_list.push_back(txt);
+	//HHV::TextMeta txt;
+	//txt.color = pg.style.color;
+	//txt.size = 30;
+	//txt.text = "你好，这是测试用的MetaData！";
+	//txt.x = 200;
+	//txt.y = 100;
+
+	//fmd1.displayData.disp_obj_list.push_back(dom1);
+	//fmd1.displayData.polygon_list.push_back(pg);
+	//pg.style.bFill = false;
+	//pg.points.clear();
+	//pg.points.push_back(cvPoint(250, 200));
+	//pg.points.push_back(cvPoint(300, 200));
+	//pg.points.push_back(cvPoint(300, 250));
+	//pg.points.push_back(cvPoint(50, 250));
+	//fmd1.displayData.polygon_list.push_back(pg);
+
+	//fmd1.displayData.text_list.push_back(txt);
 
 
 	metaDataList.push_back(fmd1);
