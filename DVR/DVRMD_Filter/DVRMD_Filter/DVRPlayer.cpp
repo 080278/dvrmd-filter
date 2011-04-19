@@ -1181,6 +1181,7 @@ CString CDVRPlayer::Cappic()
 	// TODO: Add your control notification handler code here
 	PBYTE	pImage		= NULL;
 	DWORD   nBufSize	= m_nWidth * m_nHeight * 5;  // 保证足够大即可(不会小于一幅bmp或者jpeg图像大小)
+	CString picPath; 
 
 	try
 	{
@@ -1191,8 +1192,7 @@ CString CDVRPlayer::Cappic()
 			return CString();
 		}
 		
-		CString picPath = GetPic(pImage, nBufSize);
-		return picPath;
+		picPath = GetPic(pImage, nBufSize);
 	}
 	catch(...)
 	{
@@ -1204,6 +1204,7 @@ CString CDVRPlayer::Cappic()
 		delete []pImage;
 		pImage = NULL;
 	}
+	return picPath;
 }
 
 // close or open sound
