@@ -195,3 +195,8 @@ int CPlayerMgr::StopPlayBackByTime(int handle)
 	TRACE(_T("³É¹¦ÍË³öCPlayerMgr::StopPlayBackByTime\r\n\r\n"));
 	return 0;
 }
+
+void CPlayerMgr::ResetRenderWindow(LONG lWidth, LONG lHeight)
+{
+
+}
