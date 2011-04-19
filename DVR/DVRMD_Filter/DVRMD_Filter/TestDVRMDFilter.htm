@@ -24,8 +24,10 @@
                            <td><input id="stopMonitor" onclick="StopMonitor()" type="button" value="停止监控" /></td>
                         </tr>
                         <tr>
-
                             <td><input id="setWndChannel" onclick="SetWndChannel(0,4)" type="button" value="切换通道" /></td>
+                        </tr>
+                        <tr>
+                            <td><input id="capPic" onclick="CapPic()" type="button" value="截图" /></td>
                         </tr>
                     </table>
                 </div>
@@ -46,11 +48,11 @@
     </script>
     <script language="javascript" type="text/javascript">
         function OnLoad() {
-            //DVRPlayer.SetRenderWindowSize(600, 480);
-            DVRPlayer.SetCapturePath("D:");
+            //DVRPlayer.SetRenderWindowSize(352, 288);
+            DVRPlayer.SetCapturePath("C:");
 
-            var loginFlag = Login('super', 'uptfp', '192.168.99.159', '20000');
-            if (loginFlag) StartMonitor(4);
+            //var loginFlag = Login('super', 'uptfp', '192.168.99.203', '20000');
+            //if (loginFlag) StartMonitor(1);
 
         }
 
@@ -111,7 +113,15 @@
             else {
                 alert("========>>>Channel"); 
             }
-            
+
+        }
+
+        function CapPic() {
+            DVRPlayer.CapPic();
+        }
+
+        function GetCapturePath() {
+            DVRPlayer.GetCapturePath();
         }
 
          function MouseDoubleClick() {

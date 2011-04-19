@@ -45,7 +45,7 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Play", dispidPlay, Play, VT_I4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Pause", dispidPause, Pause, VT_UI4, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Stop", dispidStop, Stop, VT_UI4, VTS_NONE)
-	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "CapPic", dispidCapPic, CapPic, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "CapPic", dispidCapPic, CapPic, VT_BSTR, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetCapturePath", dispidGetCapturePath, GetCapturePath, VT_BSTR, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetCapturePath", dispidSetCapturePath, SetCapturePath, VT_EMPTY, VTS_BSTR)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Faster", dispidFaster, Faster, VT_UI4, VTS_NONE)
@@ -363,13 +363,13 @@ ULONG CDVRMD_FilterCtrl::Stop(void)
 }
 
 
-ULONG CDVRMD_FilterCtrl::CapPic(void)
+BSTR CDVRMD_FilterCtrl::CapPic(void)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	m_MainDialog.GetPlayer()->Cappic();
+	CString picPath = m_MainDialog.GetPlayer()->Cappic();
 
-	return 0;
+	return picPath.AllocSysString();
 }
 
 
