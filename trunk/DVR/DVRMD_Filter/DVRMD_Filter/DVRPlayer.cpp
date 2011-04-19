@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "atlimage.h"
 #include "Player.h"
 #include "DVRPlayer.h"
 
@@ -1331,6 +1332,21 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	{
 		clsFile.Write(pImage, pImageSize);
 		clsFile.Close();
+		CImage m_image;
+		CImage m_imgDest;
+		HRESULT hr = m_image.Load((LPCTSTR)sFilePath);
+		if (S_OK == hr)
+		{
+			if(DeleteFile((LPCTSTR)sFilePath))
+			{
+				m_imgDest.Create(352, 288, 24);
+				HDC hdc = m_imgDest.GetDC();
+				SetStretchBltMode(hdc, COLORONCOLOR);
+				m_image.StretchBlt(hdc, 0, 0, 352, 288);
+				m_imgDest.Save((LPCTSTR)sFilePath);
+				m_imgDest.ReleaseDC();	
+			}
+		}
 
 		if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
 		{
