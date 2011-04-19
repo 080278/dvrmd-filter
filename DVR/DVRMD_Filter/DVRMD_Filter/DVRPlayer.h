@@ -234,6 +234,7 @@ private:
 	//OnDrawFun
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
+	static void DrawAttributes(Gdiplus::Graphics& graphics, const HHV::Attributes& attrs, const LONG& lWndWidht, const LONG& lWndHeight);
 	// Draw Meta Data Functions.
 	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight);
 	// Draw Meta Data Scale
@@ -247,6 +248,12 @@ private:
 	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 
+	static std::string ToString(LPCSTR, int num);
+	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index);
+	static std::string ShapeType(const HHV::Attributes& attrs, int index);
+	static HHV::PolyLine ToPolyLine(const HHV::Attributes& attrs, int index);
+	static HHV::ObjectType ToObjectType(const HHV::Attributes& attrs, int index);
+	static HHV::PolygonM	ToPolygon(const HHV::Attributes& attrs, int index);
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 private:
 	ePlayState	m_enumState;              // now the play state
