@@ -249,7 +249,7 @@ private:
 	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 
 	static std::string ToString(LPCSTR, int num);
-	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index);
+	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index = -1);
 	static std::string ShapeType(const HHV::Attributes& attrs, int index);
 	static HHV::PolyLine ToPolyLine(const HHV::Attributes& attrs, int index);
 	static HHV::ObjectType ToObjectType(const HHV::Attributes& attrs, int index);

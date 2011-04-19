@@ -1998,6 +1998,8 @@ void CPlayerDlg::ViewFullScreen()
 		GetClientRect(&rc);
 		m_ctrlVideoPic.GetClientRect(&m_rcOldPicPos);
 		m_ctrlVideoPic.MoveWindow(&rc,TRUE);
+		GetPlayer()->GetDVRSettings().m_nRenderWidth = rc.right - rc.left;
+		GetPlayer()->GetDVRSettings().m_nRenderHeight = rc.bottom - rc.top;
 
 		//Remove WS_VISIBLE window style.
 		m_ctrlBtnPlay.ModifyStyle(WS_VISIBLE, 0, 0);
@@ -2052,6 +2054,9 @@ void CPlayerDlg::ViewFullScreen()
 
 		SetWindowPlacement(&m_OldWndpl);
 		m_ctrlVideoPic.MoveWindow(&m_rcOldPicPos,TRUE);
+		GetPlayer()->GetDVRSettings().m_nRenderWidth = m_rcOldPicPos.right - m_rcOldPicPos.left;
+		GetPlayer()->GetDVRSettings().m_nRenderHeight = m_rcOldPicPos.bottom - m_rcOldPicPos.top;
+
 
 		GetDlgItem(IDC_OPENFILE)->ShowWindow(SW_SHOW);
 		GetDlgItem(IDC_SHOWHIDE_SETTINGS)->ShowWindow(SW_SHOW);

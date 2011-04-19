@@ -31,7 +31,7 @@ public:
 								char* ssIP, int ssPort);
 	int StopPlayBackByTime(int realHandle);
 
-
+	void ResetRenderWindow(LONG lWidth, LONG lHeight);
 private:
 	int	GetIdlePlayer();
 private:

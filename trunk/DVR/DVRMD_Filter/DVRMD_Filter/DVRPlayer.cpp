@@ -386,11 +386,26 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
+		//HDC hMemDc = ::CreateCompatibleDC(hDC);
+		//Gdiplus::Bitmap bmp(renderWndWidth, renderWndHeight);
+
+		//HBITMAP hTmpBmp = NULL; //::CreateCompatibleBitmap(hMemDc, renderWndWidth, renderWndHeight);
+		//bmp.GetHBITMAP(Gdiplus::Color(255, 255, 255), &hTmpBmp);
+		//HGDIOBJ hOldBmp = ::SelectObject(hMemDc, hTmpBmp);
+		//::SetBkColor(hMemDc, RGB(255, 255, 255));
+		//Gdiplus::Graphics graphics(hMemDc);
+		//graphics.FillRectangle(&Gdiplus::SolidBrush(Gdiplus::Color(255, 255, 255)), 0, 0, renderWndWidth, renderWndHeight);
+
 		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = metaDataList.begin(); itFrame != metaDataList.end(); ++itFrame)
 		{
 			DrawFrameMetaData(graphics, *itFrame,pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		}
+		//::BitBlt(hDC, 0, 0, renderWndWidth, renderWndHeight, hMemDc, 0, 0, SRCAND);
+		//::SelectObject(hMemDc, hOldBmp);
+		//::DeleteObject(hTmpBmp);
+		//::DeleteDC(hMemDc);
+
 	}
 #ifdef _DEBUG
 	DWORD dwEnd = GetTickCount();
@@ -409,33 +424,35 @@ void CDVRPlayer::DrawAttributes(Gdiplus::Graphics& graphics, const HHV::Attribut
 	if (it != attrs.end() && !it->first.empty())
 	{
 		int nNumberOfRegion = atoi(it->second.c_str());
-		for (int i = 1; i <= nNumberOfRegion; ++i)
+		std::vector<int> imgSize = ToArray(attrs, "region.imagesize");
+		if (imgSize.size() == 2)
 		{
-			std::string shape = ShapeType(attrs, i);
-			if (shape == "rectangle" || shape == "line")
+			for (int i = 1; i <= nNumberOfRegion; ++i)
 			{
-				std::vector<int> imgSize = ToArray(attrs, "region.imagesize", i);
-				if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+				std::string shape = ShapeType(attrs, i);
+				if (shape == "rectangle" || shape == "line")
 				{
-					DrawObjectType(graphics, ToObjectType(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+					if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+					{
+						DrawObjectType(graphics, ToObjectType(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+					}
 				}
-			}
-			else if (shape == "polygon")
-			{
-				std::vector<int> imgSize = ToArray(attrs, "region.imagesize", i);
-				if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+				else if (shape == "polygon")
 				{
-					DrawPolygon(graphics, ToPolygon(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+					if (imgSize.size() == 2 && imgSize[0] >0 && imgSize[1] > 0 )
+					{
+						DrawPolygon(graphics, ToPolygon(attrs, i), lWndWidht, lWndHeight, imgSize[0], imgSize[1]);
+					}
 				}
+				//else if (shape == "line")
+				//{
+				//	CvPoint imgSize = ImageSize(attrs, i);
+				//	if (imgSize.x >0 && imgSize.y > 0 )
+				//	{
+				//		DrawPolyLine(graphics, ToPolyLine(attrs, i), lWndWidht, lWndHeight, imgSize.x, imgSize.y);
+				//	}
+				//}
 			}
-			//else if (shape == "line")
-			//{
-			//	CvPoint imgSize = ImageSize(attrs, i);
-			//	if (imgSize.x >0 && imgSize.y > 0 )
-			//	{
-			//		DrawPolyLine(graphics, ToPolyLine(attrs, i), lWndWidht, lWndHeight, imgSize.x, imgSize.y);
-			//	}
-			//}
 		}
 	}
 }
@@ -450,7 +467,7 @@ std::string CDVRPlayer::ToString(LPCSTR prefix, int num)
 std::vector<int> CDVRPlayer::ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index)
 {
 	std::vector<int> ary;
-	HHV::Attributes::const_iterator it = attrs.find(ToString(prefix, index));
+	HHV::Attributes::const_iterator it = attrs.find((index == -1) ? prefix : ToString(prefix, index));
 	if (it != attrs.end())
 	{
 		int nStartPos = 0;
@@ -610,8 +627,8 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 #endif
 	if (line.lines.size() > 1)
 	{
-		Gdiplus::Pen gPlusPen(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b), line.thickness);
-		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(255, line.color.r, line.color.g, line.color.b));
+		Gdiplus::Pen gPlusPen(Gdiplus::Color(line.color.r, line.color.g, line.color.b), line.thickness);
+		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(line.color.r, line.color.g, line.color.b));
 
 		Gdiplus::Point* ptLines = new Gdiplus::Point[line.lines.size()];
 		int i = 0;
@@ -647,7 +664,7 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 	FreeProfilerRecordCodeBlock(0x4, "")
 #endif
 	Gdiplus::Font gPlusFont(L"黑体", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
-	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(255, txt.color.r, txt.color.g, txt.color.b));
+	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(txt.color.r, txt.color.g, txt.color.b));
 	int nTxtLen = txt.text.length();
 	WCHAR* pBuf = new WCHAR[nTxtLen+1];
 	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
@@ -723,8 +740,6 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	}
 }
 
-
-
 //// 将传入engine的Region信息写入meta
 //if(meta.size()==0)
 //{
@@ -759,16 +774,15 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 	fmd1.attributes["region-types.1"] = "Monitoring";
 	fmd1.attributes["security-level.1"] = "serious";
 	fmd1.attributes["shape-type.1"] = "rectangle";
-	fmd1.attributes["coordinate.1"] = "10,3,5,16";
-	fmd1.attributes["object.1"] = "Human";
-	fmd1.attributes["region.imagesize.1"] = "400,300";
+	fmd1.attributes["coordinate.1"] = "5,5,300,270";
+	fmd1.attributes["object.1"] = "Object";
+	fmd1.attributes["region.imagesize"] = "352,288";
 	fmd1.attributes["regionName.2"] = "regionName2";
 	fmd1.attributes["region-types.2"] = "Effective";
 	fmd1.attributes["security-level.2"] = "serious";
 	fmd1.attributes["shape-type.2"] = "rectangle";
-	fmd1.attributes["coordinate.2"] = "0,0,299,299";
+	fmd1.attributes["coordinate.2"] = "0,0,350,280";
 	fmd1.attributes["object.2"] = "Human";
-	fmd1.attributes["region.imagesize.2"] = "400,300";
 
 
 	//fmd1.displayData.image_width = 376;

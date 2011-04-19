@@ -95,7 +95,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
@@ -139,7 +139,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -160,6 +160,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="CommClass.cpp" />
     <ClCompile Include="ComSocket.cpp" />
+    <ClCompile Include="DVRGraphMgr.cpp" />
     <ClCompile Include="DVRMD_Filter.cpp" />
     <ClCompile Include="DVRMD_FilterCtrl.cpp" />
     <ClCompile Include="DVRMD_FilterPropPage.cpp" />
@@ -263,6 +264,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClInclude Include="CommClass.h" />
     <ClInclude Include="commdef.h" />
     <ClInclude Include="ComSocket.h" />
+    <ClInclude Include="DVRGraphMgr.h" />
     <ClInclude Include="DVRMD_Filter.h" />
     <ClInclude Include="DVRMD_FilterCtrl.h" />
     <ClInclude Include="DVRMD_FilterPropPage.h" />
