@@ -42,6 +42,7 @@ library DVRMD_FilterLib
 			[id(15)] BSTR GetCapturePath(void);
 			[id(16)] void SetCapturePath(BSTR bstrPath);
 			[id(17), helpstring("加快播放速度")] ULONG Faster(void);
+			[id(18), helpstring("Show/Hide the metadata")] ULONG ShowMetaData(VARIANT_BOOL bShow);
 	};
 
 	//  Event dispatch interface for CDVRMD_FilterCtrl

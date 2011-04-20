@@ -51,8 +51,9 @@
             //DVRPlayer.SetRenderWindowSize(352, 288);
             DVRPlayer.SetCapturePath("C:");
 
-            //var loginFlag = Login('super', 'uptfp', '192.168.99.203', '20000');
-            //if (loginFlag) StartMonitor(1);
+            var loginFlag = Login('super', 'uptfp', '192.168.99.159', '20000');
+            if (loginFlag) StartMonitor(1);
+            //ShowMetaData(true);
 
         }
 
@@ -122,6 +123,10 @@
 
         function GetCapturePath() {
             DVRPlayer.GetCapturePath();
+        }
+
+        function ShowMetaData(bShow) {
+            DVRPlayer.ShowMetaData(bShow);
         }
 
          function MouseDoubleClick() {

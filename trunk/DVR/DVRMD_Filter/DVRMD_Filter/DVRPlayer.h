@@ -335,7 +335,7 @@ private:
 	int				m_UserID;
 	int				m_nPlaybackIndex;
 	std::map<int, int> m_MonitorHandler;
-	BOOL			m_bDrawMetaData;
+	//BOOL			m_bDrawMetaData;
 
 	ULONG_PTR	m_gdiplusToken;
 	friend class CPlayer;

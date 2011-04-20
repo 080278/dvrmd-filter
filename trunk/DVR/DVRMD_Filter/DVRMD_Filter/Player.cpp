@@ -485,6 +485,11 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 
 void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 {
+	CDVRPlayer* pDVRPlayer = (CDVRPlayer*)nUser;
+	if (!pDVRPlayer || !pDVRPlayer->GetDVRSettings().m_bDrawMetaData) // show/hide metadata
+	{
+		return;
+	}
 	CPlayer* pPlayer = (CPlayer*)nUser;
 	if( pPlayer != NULL )
 	{
