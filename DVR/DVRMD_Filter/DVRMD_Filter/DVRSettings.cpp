@@ -24,10 +24,17 @@ CDVRSettings::CDVRSettings(void)
 	, m_nRenderWndNum(1)
 	, m_nRenderWidth(352)
 	, m_nRenderHeight(288)
+	, m_bDrawMetaData(false)
 {
 	::CoInitialize(NULL);
 	Load();
 }
+
+CDVRSettings *CDVRSettings::GetDVRSettings()  
+{  
+    static CDVRSettings obj;  
+    return &obj;  
+} 
 
 
 CDVRSettings::~CDVRSettings(void)
@@ -36,6 +43,7 @@ CDVRSettings::~CDVRSettings(void)
 	::CoUninitialize();
 }
 
+//auto_ptr<CDVRSettings> CDVRSettings::m_Instance;
 
 bool CDVRSettings::Save(LPCTSTR szXmlPath)
 {
@@ -155,6 +163,7 @@ bool CDVRSettings::Save(LPCTSTR szXmlPath)
 	}
 	return true;
 }
+
 bool CDVRSettings::Load(LPCTSTR szXmlPath)
 {
 	CComVariant bstrPath;

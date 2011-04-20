@@ -42,6 +42,7 @@ protected:
 // Dispatch and event IDs
 public:
 	enum {
+		dispidShowMetaData = 18L,
 		dispidFaster = 17L,
 		dispidSetCapturePath = 16L,
 		dispidGetCapturePath = 15L,
@@ -99,5 +100,6 @@ public:
 	afx_msg void OnMove(int x, int y);
 protected:
 	ULONG Faster(void);
+	ULONG ShowMetaData(VARIANT_BOOL bShow);
 };
 

@@ -49,6 +49,7 @@ BEGIN_DISPATCH_MAP(CDVRMD_FilterCtrl, COleControl)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "GetCapturePath", dispidGetCapturePath, GetCapturePath, VT_BSTR, VTS_NONE)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "SetCapturePath", dispidSetCapturePath, SetCapturePath, VT_EMPTY, VTS_BSTR)
 	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "Faster", dispidFaster, Faster, VT_UI4, VTS_NONE)
+	DISP_FUNCTION_ID(CDVRMD_FilterCtrl, "ShowMetaData", dispidShowMetaData, ShowMetaData, VT_UI4, VTS_BOOL)
 END_DISPATCH_MAP()
 
 
@@ -408,6 +409,16 @@ ULONG CDVRMD_FilterCtrl::Faster(void)
 
 	m_MainDialog.Play();
 	GetDVRPlayer()->Fast();
+
+	return 0;
+}
+
+
+ULONG CDVRMD_FilterCtrl::ShowMetaData(VARIANT_BOOL bShow)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	GetDVRSettings().m_bDrawMetaData = bShow;
 
 	return 0;
 }

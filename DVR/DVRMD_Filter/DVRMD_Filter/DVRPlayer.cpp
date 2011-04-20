@@ -396,7 +396,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_bStreamType = FALSE;
 	m_nPlayType = -1;
 	m_nPlaybackIndex = -1;
-	m_bDrawMetaData = TRUE;
+	//m_bDrawMetaData = TRUE;
 
 	if (m_lPort == -1)
 		NAME(PlayM4_GetPort)(&m_lPort);
@@ -695,7 +695,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 		DWORD dwBegin = GetTickCount();
 #endif // _DEBUG
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
-	if (!pThis || !pThis->m_bDrawMetaData)
+	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
 		return;
 	}
@@ -931,6 +931,7 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 {
 	HHV::FrameMetaData fmd1;
+	/*
 	fmd1.attributes["NumberOfRegion"] = "2";
 	fmd1.attributes["regionName.1"] = "regionName1";
 	fmd1.attributes["region-types.1"] = "Monitoring";
@@ -945,78 +946,79 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 	fmd1.attributes["shape-type.2"] = "rectangle";
 	fmd1.attributes["coordinate.2"] = "0,0,350,280";
 	fmd1.attributes["object.2"] = "Human";
+	*/
 
 
-	//fmd1.displayData.image_width = 376;
-	//fmd1.displayData.image_height = 258;
+	fmd1.displayData.image_width = 376;
+	fmd1.displayData.image_height = 258;
 
-	//HHV::DisplayObjectMeta dom1;
-	//dom1.id = "0001";
-	//dom1.obj.type = 0;
-	//dom1.obj.style.color.r = 200;
-	//dom1.obj.style.color.g = 100;
-	//dom1.obj.style.color.b = 0;
-	//dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
-	//dom1.obj.style.thickness = 10;
-	//dom1.obj.style.fill_color.r = 0;
-	//dom1.obj.style.fill_color.g = 255;
-	//dom1.obj.style.fill_color.b = 0;
-	//dom1.obj.style.alpha = 50;
-	//dom1.obj.x0 = 10;
-	//dom1.obj.y0 = 20;
-	//dom1.obj.x1 = 110;
-	//dom1.obj.y1 = 100;
-	//dom1.obj.x2 = 150;
-	//dom1.obj.y2 = 30;
-	//dom1.obj.x3 = 300;
-	//dom1.obj.y3 = 100;
+	HHV::DisplayObjectMeta dom1;
+	dom1.id = "0001";
+	dom1.obj.type = 0;
+	dom1.obj.style.color.r = 200;
+	dom1.obj.style.color.g = 100;
+	dom1.obj.style.color.b = 0;
+	dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
+	dom1.obj.style.thickness = 10;
+	dom1.obj.style.fill_color.r = 0;
+	dom1.obj.style.fill_color.g = 255;
+	dom1.obj.style.fill_color.b = 0;
+	dom1.obj.style.alpha = 50;
+	dom1.obj.x0 = 10;
+	dom1.obj.y0 = 20;
+	dom1.obj.x1 = 110;
+	dom1.obj.y1 = 100;
+	dom1.obj.x2 = 150;
+	dom1.obj.y2 = 30;
+	dom1.obj.x3 = 300;
+	dom1.obj.y3 = 100;
 
-	//dom1.track.color.r = 100;
-	//dom1.track.color.g = 200;
-	//dom1.track.color.b = 255;
-	//dom1.track.thickness = 2;
-	//dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
-	//dom1.track.arrow_width = 4;
-	//dom1.track.arrow_length = 5;
-	//dom1.track.lines.push_back(cvPoint(150, 20));
-	//dom1.track.lines.push_back(cvPoint(110, 40));
-	//dom1.track.lines.push_back(cvPoint(250, 60));
-	//dom1.track.lines.push_back(cvPoint(315, 80));
-	//dom1.track.lines.push_back(cvPoint(150, 100));
+	dom1.track.color.r = 100;
+	dom1.track.color.g = 200;
+	dom1.track.color.b = 255;
+	dom1.track.thickness = 2;
+	dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
+	dom1.track.arrow_width = 4;
+	dom1.track.arrow_length = 5;
+	dom1.track.lines.push_back(cvPoint(150, 20));
+	dom1.track.lines.push_back(cvPoint(110, 40));
+	dom1.track.lines.push_back(cvPoint(250, 60));
+	dom1.track.lines.push_back(cvPoint(315, 80));
+	dom1.track.lines.push_back(cvPoint(150, 100));
 
-	//HHV::PolygonM pg;
-	//pg.style.color.r = 0;
-	//pg.style.color.g = 255;
-	//pg.style.color.b = 0;
-	//pg.style.alpha = 50;
-	//pg.style.bFill = true;
-	//pg.style.fill_color.r = 255;
-	//pg.style.fill_color.g = 255;
-	//pg.style.fill_color.b = 0; 
-	//pg.style.thickness = 5;
-	//pg.points.push_back(cvPoint(50, 200));
-	//pg.points.push_back(cvPoint(200, 200));
-	//pg.points.push_back(cvPoint(200, 250));
-	//pg.points.push_back(cvPoint(50, 250));
+	HHV::PolygonM pg;
+	pg.style.color.r = 0;
+	pg.style.color.g = 255;
+	pg.style.color.b = 0;
+	pg.style.alpha = 50;
+	pg.style.bFill = true;
+	pg.style.fill_color.r = 255;
+	pg.style.fill_color.g = 255;
+	pg.style.fill_color.b = 0; 
+	pg.style.thickness = 5;
+	pg.points.push_back(cvPoint(50, 200));
+	pg.points.push_back(cvPoint(200, 200));
+	pg.points.push_back(cvPoint(200, 250));
+	pg.points.push_back(cvPoint(50, 250));
 
-	//HHV::TextMeta txt;
-	//txt.color = pg.style.color;
-	//txt.size = 30;
-	//txt.text = "你好，这是测试用的MetaData！";
-	//txt.x = 200;
-	//txt.y = 100;
+	HHV::TextMeta txt;
+	txt.color = pg.style.color;
+	txt.size = 30;
+	txt.text = "你好，这是测试用的MetaData！";
+	txt.x = 200;
+	txt.y = 100;
 
-	//fmd1.displayData.disp_obj_list.push_back(dom1);
-	//fmd1.displayData.polygon_list.push_back(pg);
-	//pg.style.bFill = false;
-	//pg.points.clear();
-	//pg.points.push_back(cvPoint(250, 200));
-	//pg.points.push_back(cvPoint(300, 200));
-	//pg.points.push_back(cvPoint(300, 250));
-	//pg.points.push_back(cvPoint(50, 250));
-	//fmd1.displayData.polygon_list.push_back(pg);
+	fmd1.displayData.disp_obj_list.push_back(dom1);
+	fmd1.displayData.polygon_list.push_back(pg);
+	pg.style.bFill = false;
+	pg.points.clear();
+	pg.points.push_back(cvPoint(250, 200));
+	pg.points.push_back(cvPoint(300, 200));
+	pg.points.push_back(cvPoint(300, 250));
+	pg.points.push_back(cvPoint(50, 250));
+	fmd1.displayData.polygon_list.push_back(pg);
 
-	//fmd1.displayData.text_list.push_back(txt);
+	fmd1.displayData.text_list.push_back(txt);
 
 
 	metaDataList.push_back(fmd1);
@@ -1289,7 +1291,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	CFile	clsFile;
 
 	DWORD   pImageSize	= 0;
-	
+
 	if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
 	{
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
