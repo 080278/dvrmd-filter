@@ -200,7 +200,7 @@ void ScaleFrameMetaDataList::ScalePolygonM(HHV::PolygonM& pg, float xScale, floa
 }
 void ScaleFrameMetaDataList::ScaleObjectType(HHV::ObjectType& ot, float xScale, float yScale)
 {
-	ot.style.thickness *= xScale;
+	//ot.style.thickness *= xScale;
 	switch(ot.type)
 	{
 	case 0:
@@ -274,10 +274,10 @@ HHV::ObjectType ScaleFrameMetaDataList::ToObjectType(const HHV::Attributes& attr
 	obj.style.bFill = false;
 	obj.type = -1;
 	obj.style.alpha = 100;
-	obj.style.color.r = 0;
-	obj.style.color.g = 0;
-	obj.style.color.b = 0;
-	obj.style.thickness = 2;
+	obj.style.color.r = 1;
+	obj.style.color.g = 162;
+	obj.style.color.b = 232;
+	obj.style.thickness = 1;
 
 	if (shape == "line")
 	{
@@ -299,8 +299,8 @@ HHV::ObjectType ScaleFrameMetaDataList::ToObjectType(const HHV::Attributes& attr
 			obj.type = 1;
 			obj.x0 = ary[0];
 			obj.y0 = ary[1];
-			obj.x1 = ary[2];
-			obj.y1 = ary[3];
+			obj.x1 = ary[0] + ary[2];
+			obj.y1 = ary[1] + ary[3];
 			//obj.x2 = ary[4];
 			//obj.y2 = ary[5];
 			//obj.x3 = ary[6];
