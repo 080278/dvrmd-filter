@@ -1,7 +1,7 @@
 #pragma once
 
 #include <map>
-
+#include "Sync_Locks.h"
 //连接DVR信息
 /*
 struct HHV_CONN_INFO
@@ -83,7 +83,7 @@ struct HHV_CLIENT_INFO
 class CDVRSettings
 {
 public:
-	static CDVRSettings *GetDVRSettings();  
+	static CDVRSettings *GetInstance();  
 //连接DVR信息
 
 public:
@@ -116,13 +116,13 @@ public:
 	// Show/Hide MetaData
 	bool    	m_bDrawMetaData; //Show/Hide MetaData: default is TRUE;
 	
-public:
+protected:
 	CDVRSettings(void);
 	~CDVRSettings(void);
 
-protected:
-	//friend class auto_ptr<CDVRSettings>;
-	//static  auto_ptr<CDVRSettings> m_Instance;
+	static CCritSec	g_InstanceLock;
+	static std::auto_ptr<CDVRSettings> m_Instance;
+	friend class std::auto_ptr<CDVRSettings>;
 };
 
 	

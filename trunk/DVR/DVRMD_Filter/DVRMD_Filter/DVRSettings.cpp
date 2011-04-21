@@ -17,6 +17,9 @@ using namespace std;
 	}\
 }
 
+CCritSec CDVRSettings::g_InstanceLock;
+std::auto_ptr<CDVRSettings> CDVRSettings::m_Instance;
+
 CDVRSettings::CDVRSettings(void)
 	: m_lPort(-1)
 	, m_bHighPictureQuality(FALSE)
@@ -30,12 +33,20 @@ CDVRSettings::CDVRSettings(void)
 	Load();
 }
 
-CDVRSettings *CDVRSettings::GetDVRSettings()  
+CDVRSettings *CDVRSettings::GetInstance()  
 {  
-    static CDVRSettings obj;  
-    return &obj;  
+	if (m_Instance.get() == NULL)
+	{
+		// For multi-thread safe
+		g_InstanceLock.Lock();
+		if (m_Instance.get() == NULL)
+		{
+			m_Instance.reset(new CDVRSettings());
+		}
+		g_InstanceLock.Unlock();
+	}
+    return m_Instance.get();  
 } 
-
 
 CDVRSettings::~CDVRSettings(void)
 {
