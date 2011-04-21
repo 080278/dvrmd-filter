@@ -24,7 +24,7 @@ CDVRSettings::CDVRSettings(void)
 	, m_nRenderWndNum(1)
 	, m_nRenderWidth(352)
 	, m_nRenderHeight(288)
-	, m_bDrawMetaData(false)
+	, m_bDrawMetaData(true)
 {
 	::CoInitialize(NULL);
 	Load();
