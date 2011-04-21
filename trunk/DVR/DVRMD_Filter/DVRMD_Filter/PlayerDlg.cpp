@@ -1159,10 +1159,11 @@ void CALLBACK EncChange(LONG lPort, LONG dwUser)
 #define BUF_SIZE 3008
 DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 {
-	CPlayerDlg* pOwner = (CPlayerDlg*)lpParameter;
+	//CPlayerDlg* pOwner = (CPlayerDlg*)lpParameter;
+	CDVRPlayer* pThis = (CDVRPlayer*)lpParameter;
 	HANDLE hMulEvents[2];
-	hMulEvents[0] = pOwner->GetPlayer()->m_hEventKill;
-	hMulEvents[1] = pOwner->GetPlayer()->m_hEventInput;
+	hMulEvents[0] = pThis->m_hEventKill;
+	hMulEvents[1] = pThis->m_hEventInput;
 	BYTE pBuf[BUF_SIZE];
 	DWORD nRealRead;
 	BOOL bBufFull = FALSE;
@@ -1175,14 +1176,14 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 		if(!bBufFull)
 		{
 			// TRACE(_T("Read file and put it input into the stream buffer.\n");
-			if(pOwner->m_dwSysFormat != SYSTEM_RTP)
+			if(TRUE)//pOwner->m_dwSysFormat != SYSTEM_RTP)
 			{
-				if(!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+				if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				{
 					//File end;
-					pOwner->m_bFileEnd = TRUE;
+					//pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+					ResetEvent(pThis->m_hEventInput);
 				}
 				dwDataLen = nRealRead;
 			}
@@ -1190,37 +1191,37 @@ DWORD WINAPI InputStreamThread( LPVOID lpParameter)
 			{
 				//先读出4字节rtp包长
 
-				if (!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
+				if (!(ReadFile(pThis->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
 				{
 					//File end;
-					pOwner->m_bFileEnd = TRUE;
+					//pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+					ResetEvent(pThis->m_hEventInput);
 				}
 
 				dwSize = pBuf[0] + (pBuf[1] << 8) + (pBuf[2] << 16) + (pBuf[3] << 24);
 
-				if (!(ReadFile(pOwner->GetPlayer()->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+				if (!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				{
 					//File end;
-					pOwner->m_bFileEnd = TRUE;
+					//pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
-					ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+					ResetEvent(pThis->m_hEventInput);
 				}
 
 				dwDataLen = nRealRead;
 			}
 
-			while ( !NAME(PlayM4_InputData)(pOwner->GetPlayer()->GetPort(), pBuf, dwDataLen) )
+			while ( !NAME(PlayM4_InputData)(pThis->GetPort(), pBuf, dwDataLen) )
 			{
-				if ( PlayM4_GetLastError(pOwner->GetPlayer()->GetPort()) == PLAYM4_BUF_OVER )
+				if ( PlayM4_GetLastError(pThis->GetPort()) == PLAYM4_BUF_OVER )
 				{
 					Sleep(10);
 					continue;
 				}
 
 				bBufFull = TRUE;
-				ResetEvent(pOwner->GetPlayer()->m_hEventInput);
+				ResetEvent(pThis->m_hEventInput);
 				break;
 			}
 		}
@@ -1253,7 +1254,7 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 		_T("mpg"),
 		NULL, 
 		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
+		_T("File(*.mp4;*.264)|*.mp4;*.264|DVR File(*.vs)|*.vs|All Files(*.*)|*.*||"), this);
 #endif
 
 	if(dlg.DoModal() == IDCANCEL)
@@ -1276,6 +1277,7 @@ void CPlayerDlg::DrawStatus()
 	DWORD nCurrentTime = GetPlayer()->GetCurrentPosition();
 	DWORD nDuration	= GetPlayer()->GetDuration();
 
+	if (nDuration <= 0) return;
 	m_PlaySlider.SetScrollPos(PLAYER_SLIDER_MAX * nCurrentTime / nDuration);
 
 	CString csPlayTime;

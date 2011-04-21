@@ -168,6 +168,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile Include="DVRPlayer.cpp" />
     <ClCompile Include="DVRSettings.cpp" />
     <ClCompile Include="FilePlaybackSettings.cpp" />
+    <ClCompile Include="FileStreamParser.cpp" />
     <ClCompile Include="HWndManager.cpp" />
     <ClCompile Include="LoginDvr.cpp" />
     <ClCompile Include="LoginDvrMgr.cpp" />
@@ -272,6 +273,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClInclude Include="DVRPlayer.h" />
     <ClInclude Include="DVRSettings.h" />
     <ClInclude Include="FilePlaybackSettings.h" />
+    <ClInclude Include="FileStreamParser.h" />
     <ClInclude Include="HWndManager.h" />
     <ClInclude Include="LoginDvr.h" />
     <ClInclude Include="LoginDvrMgr.h" />
