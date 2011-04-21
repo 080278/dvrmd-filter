@@ -8,6 +8,7 @@
 #include "HWndManager.h"
 #include "Metadata_Types.h"
 #include <gdiplus.h>
+#include "FileStreamParser.h"
 
 static UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the file is end.
 static UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
@@ -286,8 +287,14 @@ private:
 	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
 
-
+	CHAR m_meta[10*1024];
+	CHAR m_buffer[MAX_FRAME_LENGTH];
+	FRAME_HEADER m_frameHeader;
+	CFileStreamParser	m_StreamParser;
+	CCritSec m_MetaDataLock;
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
+
+	static DWORD WINAPI InputStreamThread( LPVOID lpParameter);
 private:
 	ePlayState	m_enumState;              // now the play state
 	LONG		m_lPort;

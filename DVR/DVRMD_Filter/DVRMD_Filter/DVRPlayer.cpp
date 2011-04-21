@@ -393,7 +393,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_hEventInput = NULL;
 	m_hThread = NULL;    
 	m_hStreamFile = NULL;
-	m_bStreamType = FALSE;
+	m_bStreamType = TRUE;
 	m_nPlayType = -1;
 	m_nPlaybackIndex = -1;
 	//m_bDrawMetaData = TRUE;
@@ -431,7 +431,9 @@ BOOL CDVRPlayer::InitForPlayFile()
 	HMONITOR hMonitor;
 	char chDriverDesp[50];
 	char chDriverName[50];
-
+	memset(m_meta, 0, sizeof(m_meta));
+	memset(m_buffer, 0, sizeof(m_buffer));
+	memset(&m_frameHeader, 0, sizeof(m_frameHeader));
 	NAME(PlayM4_InitDDrawDevice)();
 	DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
 	if(nVal > 1)
@@ -462,8 +464,6 @@ BOOL CDVRPlayer::InitForPlayFile()
 	NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
 	// Test adapter Capability;
 	NAME(PlayM4_SetVolume)(m_lPort, 0);
-
-	NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
 
 	return TRUE;
 }
@@ -699,8 +699,6 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	{
 		return;
 	}
-	int renderWndWidth = pThis->GetDVRSettings().m_nRenderWidth;
-	int renderWndHeight = pThis->GetDVRSettings().m_nRenderHeight;
 
 	HHV::FrameMetaDataList metaDataList;
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
@@ -720,11 +718,8 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	TRACE3("\n**********OnDrawFun: (%d) (%d, %d) ************\n",dwEnd - dwBegin, dwBegin, dwEnd);
 #endif
 }
-#define INT_SCALE(x, scale)	(x)
-// Draw Function
 
-
-
+// Draw Functions
 
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
@@ -798,8 +793,8 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 			itPt != line.lines.end();
 			++itPt, ++i)
 		{
-			ptLines[i].X = INT_SCALE(itPt->x, lWndWidth/nImgWidth);
-			ptLines[i].Y = INT_SCALE(itPt->y, lWndHeight/nImgHeight);
+			ptLines[i].X = itPt->x;
+			ptLines[i].Y = itPt->y;
 		}
 
 		switch(line.end_style)
@@ -825,13 +820,13 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x4, "")
 #endif
-	Gdiplus::Font gPlusFont(L"黑体", INT_SCALE(txt.size, lWndWidth/nImgWidth), Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
+	Gdiplus::Font gPlusFont(L"黑体", txt.size, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(txt.color.r, txt.color.g, txt.color.b));
 	int nTxtLen = txt.text.length();
 	WCHAR* pBuf = new WCHAR[nTxtLen+1];
 	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
 	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
-	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(INT_SCALE(txt.x, lWndWidth/nImgWidth), INT_SCALE(txt.y, lWndHeight/nImgHeight)), &gPlushBrush);
+	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(txt.x, txt.y), &gPlushBrush);
 	delete[] pBuf;
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
@@ -841,22 +836,41 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 #endif
 	const HHV::DrawingStyle& style = polygon.style;
 
-	Gdiplus::Pen gPlusPen(Gdiplus::Color(style.alpha*255/100, style.color.r, style.color.g, style.color.b), style.thickness);
+	if (style.alpha == 100 && !polygon.style.bFill)
+	{
+		HDC dc = graphics.GetHDC();
+		CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
+		HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+		POINT* ptPolygons = new POINT[polygon.points.size()];
+		for (int i = 0; i < polygon.points.size(); ++i)
+		{
+			ptPolygons[i].x = polygon.points[i].x;
+			ptPolygons[i].y = polygon.points[i].y;
+		}		
+		::Polyline(dc, ptPolygons, polygon.points.size());
+		::SelectObject(dc, hOldPen);
+		graphics.ReleaseHDC(dc);
+		delete[] ptPolygons;
+	}
+	else
+	{
+		Gdiplus::Pen gPlusPen(Gdiplus::Color(style.alpha*255/100, style.color.r, style.color.g, style.color.b), style.thickness);
 
-	Gdiplus::Point* ptPolygons = new Gdiplus::Point[polygon.points.size()];
-	for (int i = 0; i < polygon.points.size(); ++i)
-	{
-		ptPolygons[i].X = INT_SCALE(polygon.points[i].x, lWndWidth/nImgWidth);
-		ptPolygons[i].Y = INT_SCALE(polygon.points[i].y, lWndHeight/nImgHeight);
+		Gdiplus::Point* ptPolygons = new Gdiplus::Point[polygon.points.size()];
+		for (int i = 0; i < polygon.points.size(); ++i)
+		{
+			ptPolygons[i].X = polygon.points[i].x;
+			ptPolygons[i].Y = polygon.points[i].y;
+		}
+		if (polygon.style.bFill)
+		{
+			Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
+			graphics.FillPolygon(&gPlusBrush, ptPolygons, polygon.points.size());
+		}
+
+		graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
+		delete[] ptPolygons;
 	}
-	if (polygon.style.bFill)
-	{
-		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
-		graphics.FillPolygon(&gPlusBrush, ptPolygons, polygon.points.size());
-	}
-	
-	graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
-	delete[] ptPolygons;
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -870,30 +884,57 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	switch(obj.type)
 	{
 	case 0:		//line_segment
-		graphics.DrawLine(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), INT_SCALE(obj.x1, lWndWidth/nImgWidth), INT_SCALE(obj.y1, lWndHeight/nImgHeight));
+		if (style.alpha == 100)
+		{
+			HDC dc = graphics.GetHDC();
+			CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
+			HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+			::MoveToEx(dc, obj.x0, obj.y0, NULL);
+			::LineTo(dc, obj.x1, obj.y1);
+			::SelectObject(dc, hOldPen);
+			graphics.ReleaseHDC(dc);
+		}
+		else
+		{
+			graphics.DrawLine(&gPlusPen, obj.x0, obj.y0, obj.x1, obj.y1);
+		}
 		break;
 	case 1:		//rectangle
 		if (style.bFill)
 		{
 			Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
-			graphics.FillRectangle(&gPlusBrush, INT_SCALE(obj.x0 + obj.style.thickness/2, lWndWidth/nImgWidth), INT_SCALE(obj.y0 + obj.style.thickness/2, lWndHeight/nImgHeight), 
-				INT_SCALE(obj.x1 - obj.x0 - obj.style.thickness, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0 - obj.style.thickness, lWndHeight/nImgHeight));
+			graphics.FillRectangle(&gPlusBrush, obj.x0 + obj.style.thickness/2, obj.y0 + obj.style.thickness/2, 
+				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
 
-		graphics.DrawRectangle(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), 
-			INT_SCALE(obj.x1 - obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0, lWndHeight/nImgHeight));
+		if (style.alpha == 100)
+		{
+			HDC dc = graphics.GetHDC();
+			CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
+			HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+			::MoveToEx(dc, obj.x0, obj.y0, NULL);
+			::LineTo(dc, obj.x1, obj.y0);
+			::LineTo(dc, obj.x1, obj.y1);
+			::LineTo(dc, obj.x0, obj.y1);
+			::LineTo(dc, obj.x0, obj.y0);
+			::SelectObject(dc, hOldPen);
+			graphics.ReleaseHDC(dc);
+		}
+		else
+		{
+			graphics.DrawRectangle(&gPlusPen, obj.x0, obj.y0, obj.x1 - obj.x0, obj.y1 - obj.y0);	
+		}
 		break;
 	case 2:		//ellipse
 		if (style.bFill)
 		{
 			Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(style.alpha*255/100, style.fill_color.r, style.fill_color.g, style.fill_color.b));
 
-			graphics.FillEllipse(&gPlusBrush, INT_SCALE((obj.x0 + obj.style.thickness/2), lWndWidth/nImgWidth), INT_SCALE((obj.y0 + obj.style.thickness/2), lWndHeight/nImgHeight), 
-				INT_SCALE((obj.x1 - obj.x0 - obj.style.thickness), lWndWidth/nImgWidth), INT_SCALE((obj.y1 - obj.y0 - obj.style.thickness), lWndHeight/nImgHeight));
+			graphics.FillEllipse(&gPlusBrush, (obj.x0 + obj.style.thickness/2), (obj.y0 + obj.style.thickness/2), 
+				(obj.x1 - obj.x0 - obj.style.thickness), (obj.y1 - obj.y0 - obj.style.thickness));
 		}
 
-		graphics.DrawEllipse(&gPlusPen, INT_SCALE(obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y0, lWndHeight/nImgHeight), 
-			INT_SCALE(obj.x1 - obj.x0, lWndWidth/nImgWidth), INT_SCALE(obj.y1 - obj.y0, lWndHeight/nImgHeight));
+		graphics.DrawEllipse(&gPlusPen, obj.x0, obj.y0, obj.x1 - obj.x0, obj.y1 - obj.y0);
 		break;
 	case -1:	//no display
 	default:
@@ -902,127 +943,117 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	}
 }
 
-//// 将传入engine的Region信息写入meta
-//if(meta.size()==0)
-//{
-//	// 没有meta数据时，添加一个空的FrameMetaData
-//	HHV::FrameMetaData data;
-//	meta.push_back(data);
-//}
-//
-//// 找到Region数量
-//string s = m_attributes["NumberOfRegion"]; 
-//int iNumberOfRegion = atoi(s.c_str());
-//meta[0].attributes["NumberOfRegion"] = m_attributes["NumberOfRegion"];
-//
-//// 循环写入各个Region的信息
-//for(int i=1;i<=iNumberOfRegion;i++)
-//{
-//	CString strNo;
-//	strNo.Format(".%d", i);
-//	meta[0].attributes[(const char *)("regionName" + strNo)] = m_attributes[(const char *)("regionName" + strNo)];
-//	meta[0].attributes[(const char *)("region-types" + strNo)] = m_attributes[(const char *)("region-types" + strNo)];
-//	meta[0].attributes[(const char *)("security-level" + strNo)] = m_attributes[(const char *)("security-level" + strNo)];
-//	meta[0].attributes[(const char *)("shape-type" + strNo)] = m_attributes[(const char *)("shape-type" + strNo)];
-//	meta[0].attributes[(const char *)("coordinate" + strNo)] = m_attributes[(const char *)("coordinate" + strNo)];
-//	meta[0].attributes[(const char *)("object" + strNo)] = m_attributes[(const char *)("object" + strNo)];
-//}
-
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 {
-	HHV::FrameMetaData fmd1;
-	/*
-	fmd1.attributes["NumberOfRegion"] = "2";
-	fmd1.attributes["regionName.1"] = "regionName1";
-	fmd1.attributes["region-types.1"] = "Monitoring";
-	fmd1.attributes["security-level.1"] = "serious";
-	fmd1.attributes["shape-type.1"] = "rectangle";
-	fmd1.attributes["coordinate.1"] = "5,5,300,270";
-	fmd1.attributes["object.1"] = "Object";
-	fmd1.attributes["region.imagesize"] = "352,288";
-	fmd1.attributes["regionName.2"] = "regionName2";
-	fmd1.attributes["region-types.2"] = "Effective";
-	fmd1.attributes["security-level.2"] = "serious";
-	fmd1.attributes["shape-type.2"] = "rectangle";
-	fmd1.attributes["coordinate.2"] = "0,0,350,280";
-	fmd1.attributes["object.2"] = "Human";
-	*/
+	BYTE byMetaData[sizeof(m_meta)];
+	U32 metaLen = 0;
+	m_MetaDataLock.Lock();
+	memcpy(&metaLen, m_meta, sizeof(U32));
+	memcpy(byMetaData, m_meta+sizeof(U32), metaLen);
+	m_MetaDataLock.Unlock();
 
+	U32 readSize = 0;
+	BYTE* pFMDStartPos = byMetaData;
+	while(readSize < metaLen)
+	{
+		HHV::FrameMetaData fmd;
+		pFMDStartPos = fmd.FromMemory(pFMDStartPos);
+		metaDataList.push_back(fmd);
+		readSize += fmd.memsize();
+	}
 
-	fmd1.displayData.image_width = 376;
-	fmd1.displayData.image_height = 258;
-
-	HHV::DisplayObjectMeta dom1;
-	dom1.id = "0001";
-	dom1.obj.type = 0;
-	dom1.obj.style.color.r = 200;
-	dom1.obj.style.color.g = 100;
-	dom1.obj.style.color.b = 0;
-	dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
-	dom1.obj.style.thickness = 10;
-	dom1.obj.style.fill_color.r = 0;
-	dom1.obj.style.fill_color.g = 255;
-	dom1.obj.style.fill_color.b = 0;
-	dom1.obj.style.alpha = 50;
-	dom1.obj.x0 = 10;
-	dom1.obj.y0 = 20;
-	dom1.obj.x1 = 110;
-	dom1.obj.y1 = 100;
-	dom1.obj.x2 = 150;
-	dom1.obj.y2 = 30;
-	dom1.obj.x3 = 300;
-	dom1.obj.y3 = 100;
-
-	dom1.track.color.r = 100;
-	dom1.track.color.g = 200;
-	dom1.track.color.b = 255;
-	dom1.track.thickness = 2;
-	dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
-	dom1.track.arrow_width = 4;
-	dom1.track.arrow_length = 5;
-	dom1.track.lines.push_back(cvPoint(150, 20));
-	dom1.track.lines.push_back(cvPoint(110, 40));
-	dom1.track.lines.push_back(cvPoint(250, 60));
-	dom1.track.lines.push_back(cvPoint(315, 80));
-	dom1.track.lines.push_back(cvPoint(150, 100));
-
-	HHV::PolygonM pg;
-	pg.style.color.r = 0;
-	pg.style.color.g = 255;
-	pg.style.color.b = 0;
-	pg.style.alpha = 50;
-	pg.style.bFill = true;
-	pg.style.fill_color.r = 255;
-	pg.style.fill_color.g = 255;
-	pg.style.fill_color.b = 0; 
-	pg.style.thickness = 5;
-	pg.points.push_back(cvPoint(50, 200));
-	pg.points.push_back(cvPoint(200, 200));
-	pg.points.push_back(cvPoint(200, 250));
-	pg.points.push_back(cvPoint(50, 250));
-
-	HHV::TextMeta txt;
-	txt.color = pg.style.color;
-	txt.size = 30;
-	txt.text = "你好，这是测试用的MetaData！";
-	txt.x = 200;
-	txt.y = 100;
-
-	fmd1.displayData.disp_obj_list.push_back(dom1);
-	fmd1.displayData.polygon_list.push_back(pg);
-	pg.style.bFill = false;
-	pg.points.clear();
-	pg.points.push_back(cvPoint(250, 200));
-	pg.points.push_back(cvPoint(300, 200));
-	pg.points.push_back(cvPoint(300, 250));
-	pg.points.push_back(cvPoint(50, 250));
-	fmd1.displayData.polygon_list.push_back(pg);
-
-	fmd1.displayData.text_list.push_back(txt);
-
-
-	metaDataList.push_back(fmd1);
 	return (int)metaDataList.size();
+	//HHV::FrameMetaData fmd1;
+
+	//fmd1.attributes["NumberOfRegion"] = "2";
+	//fmd1.attributes["regionName.1"] = "regionName1";
+	//fmd1.attributes["region-types.1"] = "Monitoring";
+	//fmd1.attributes["security-level.1"] = "serious";
+	//fmd1.attributes["shape-type.1"] = "rectangle";
+	//fmd1.attributes["coordinate.1"] = "5,5,300,270";
+	//fmd1.attributes["object.1"] = "Object";
+	//fmd1.attributes["region.imagesize"] = "352,288";
+	//fmd1.attributes["regionName.2"] = "regionName2";
+	//fmd1.attributes["region-types.2"] = "Effective";
+	//fmd1.attributes["security-level.2"] = "serious";
+	//fmd1.attributes["shape-type.2"] = "rectangle";
+	//fmd1.attributes["coordinate.2"] = "0,0,350,280";
+	//fmd1.attributes["object.2"] = "Human";
+
+	//fmd1.displayData.image_width = 376;
+	//fmd1.displayData.image_height = 258;
+
+	//HHV::DisplayObjectMeta dom1;
+	//dom1.id = "0001";
+	//dom1.obj.type = 0;
+	//dom1.obj.style.color.r = 200;
+	//dom1.obj.style.color.g = 100;
+	//dom1.obj.style.color.b = 0;
+	//dom1.obj.style.bFill = true;//GetTickCount() % 10 > 5;
+	//dom1.obj.style.thickness = 10;
+	//dom1.obj.style.fill_color.r = 0;
+	//dom1.obj.style.fill_color.g = 255;
+	//dom1.obj.style.fill_color.b = 0;
+	//dom1.obj.style.alpha = 50;
+	//dom1.obj.x0 = 10;
+	//dom1.obj.y0 = 20;
+	//dom1.obj.x1 = 110;
+	//dom1.obj.y1 = 100;
+	//dom1.obj.x2 = 150;
+	//dom1.obj.y2 = 30;
+	//dom1.obj.x3 = 300;
+	//dom1.obj.y3 = 100;
+
+	//dom1.track.color.r = 100;
+	//dom1.track.color.g = 200;
+	//dom1.track.color.b = 255;
+	//dom1.track.thickness = 2;
+	//dom1.track.end_style = 2; // 0 no style; 1: arrow solid, 2: arrow line
+	//dom1.track.arrow_width = 4;
+	//dom1.track.arrow_length = 5;
+	//dom1.track.lines.push_back(cvPoint(150, 20));
+	//dom1.track.lines.push_back(cvPoint(110, 40));
+	//dom1.track.lines.push_back(cvPoint(250, 60));
+	//dom1.track.lines.push_back(cvPoint(315, 80));
+	//dom1.track.lines.push_back(cvPoint(150, 100));
+
+	//HHV::PolygonM pg;
+	//pg.style.color.r = 0;
+	//pg.style.color.g = 255;
+	//pg.style.color.b = 0;
+	//pg.style.alpha = 50;
+	//pg.style.bFill = true;
+	//pg.style.fill_color.r = 255;
+	//pg.style.fill_color.g = 255;
+	//pg.style.fill_color.b = 0; 
+	//pg.style.thickness = 5;
+	//pg.points.push_back(cvPoint(50, 200));
+	//pg.points.push_back(cvPoint(200, 200));
+	//pg.points.push_back(cvPoint(200, 250));
+	//pg.points.push_back(cvPoint(50, 250));
+
+	//HHV::TextMeta txt;
+	//txt.color = pg.style.color;
+	//txt.size = 30;
+	//txt.text = "你好，这是测试用的MetaData！";
+	//txt.x = 200;
+	//txt.y = 100;
+
+	//fmd1.displayData.disp_obj_list.push_back(dom1);
+	//fmd1.displayData.polygon_list.push_back(pg);
+	//pg.style.bFill = false;
+	//pg.points.clear();
+	//pg.points.push_back(cvPoint(250, 200));
+	//pg.points.push_back(cvPoint(300, 200));
+	//pg.points.push_back(cvPoint(300, 250));
+	//pg.points.push_back(cvPoint(50, 250));
+	//fmd1.displayData.polygon_list.push_back(pg);
+
+	//fmd1.displayData.text_list.push_back(txt);
+
+
+	//metaDataList.push_back(fmd1);
+	//return (int)metaDataList.size();
 }
 void CDVRPlayer::RefreshPlay()
 {
@@ -1458,7 +1489,7 @@ void CDVRPlayer::Open(LPCTSTR szFile)
 	InitForPlayFile();
 
 	Close();
-//	SetState();
+
 	if (szFile != NULL)
 		m_strPlayFileName = szFile;
 
@@ -1469,8 +1500,12 @@ void CDVRPlayer::Open(LPCTSTR szFile)
 
 	try
 	{
+		NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
+
 		NAME(PlayM4_SetEncChangeMsg)(m_lPort, m_hParentWnd, WM_ENC_CHANGE);
 		NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
+
+		m_bStreamType = m_strPlayFileName.Right(3).CompareNoCase(_T(".vs")) == 0;
 
 		if(m_bStreamType)
 		{
@@ -1690,6 +1725,7 @@ void CDVRPlayer::OpenStream()
 		MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
 		throw 0;
 	}
+	m_StreamParser.SetFileStreamHandle(m_hStreamFile);
 	m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
 	//	NAME(PlayM4_SetSourceBufCallBack)(m_lPort, 6000000, SourceBufFun, (DWORD)this, NULL);
 	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
@@ -1817,7 +1853,7 @@ void CDVRPlayer::CloseStream()
 		m_hEventKill = NULL;
 	}
 
-	Destory();
+	//Destory();
 	m_bOpen = FALSE;
 	m_bFileRefCreated =	FALSE;		
 }
@@ -1933,4 +1969,87 @@ LPCTSTR CDVRPlayer::MyErrorToString(DWORD error)
 	default:
 		return _T("Unrecognized error value.\0");
 	}
+}
+
+#define BUF_SIZE 3008
+DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
+{
+	//CPlayerDlg* pOwner = (CPlayerDlg*)lpParameter;
+	CDVRPlayer* pThis = (CDVRPlayer*)lpParameter;
+	HANDLE hMulEvents[2];
+	hMulEvents[0] = pThis->m_hEventKill;
+	hMulEvents[1] = pThis->m_hEventInput;
+	BYTE pBuf[BUF_SIZE];
+	DWORD nRealRead;
+	BOOL bBufFull = FALSE;
+	DWORD dwSize = BUF_SIZE;
+	unsigned char chType;
+	DWORD	dwDataLen = 0;
+
+	while (WAIT_OBJECT_0 != WaitForMultipleObjects(2, hMulEvents, FALSE, INFINITE))
+	{	
+		if(!bBufFull)
+		{
+			// TRACE(_T("Read file and put it input into the stream buffer.\n");
+			int nRet = 0;
+			if(TRUE)//pOwner->m_dwSysFormat != SYSTEM_RTP)
+			{
+				nRet = pThis->m_StreamParser.GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+				if (nRet <= 0)
+				{
+					//File end;
+					//pOwner->m_bFileEnd = TRUE;
+					bBufFull = FALSE;
+					ResetEvent(pThis->m_hEventInput);
+				}
+				dwDataLen = nRet;
+			}
+			else
+			{
+				//先读出4字节rtp包长
+
+				if (!(ReadFile(pThis->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
+				{
+					//File end;
+					//pOwner->m_bFileEnd = TRUE;
+					bBufFull = FALSE;
+					ResetEvent(pThis->m_hEventInput);
+				}
+
+				dwSize = pBuf[0] + (pBuf[1] << 8) + (pBuf[2] << 16) + (pBuf[3] << 24);
+
+				if (!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
+				{
+					//File end;
+					//pOwner->m_bFileEnd = TRUE;
+					bBufFull = FALSE;
+					ResetEvent(pThis->m_hEventInput);
+				}
+
+				dwDataLen = nRealRead;
+			}
+			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
+			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
+			{
+				int nErr = PlayM4_GetLastError(pThis->GetPort());
+				if (nErr  == PLAYM4_BUF_OVER )
+				{
+					Sleep(10);
+					continue;
+				}
+
+				bBufFull = TRUE;
+				ResetEvent(pThis->m_hEventInput);
+				continue;
+			}
+
+			pThis->m_MetaDataLock.Lock();
+			memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
+			memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+			pThis->m_MetaDataLock.Unlock();
+		}
+	}
+
+	return 1;
 }
