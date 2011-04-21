@@ -374,7 +374,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 	m_rcDisplayRegion = *rcDisplayRegion;
 	m_dwMaxFileTime = 0;
 	m_bFileRefCreated = false;
-	//m_DVRSettings.m_eCapturePicType = CDVRSettings::eBMP;
+	//GetDVRSettings().m_eCapturePicType = CDVRSettings::eBMP;
 	m_npic_jpeg = 0;
 	m_npic_bmp = 0;
 	m_hParentWnd = hParentWnd;
@@ -535,12 +535,12 @@ void CDVRPlayer::DestoryMonitor()
 }
 BOOL CDVRPlayer::Login()
 {
-	if (m_DVRSettings.m_csUsername.GetLength() > 0 && 
-		m_DVRSettings.m_csPassword.GetLength() > 0 &&
-		m_DVRSettings.m_csMediaServerIP.GetLength() > 0 &&
-		m_DVRSettings.m_lPort != -1)
+	if (GetDVRSettings().m_csUsername.GetLength() > 0 && 
+		GetDVRSettings().m_csPassword.GetLength() > 0 &&
+		GetDVRSettings().m_csMediaServerIP.GetLength() > 0 &&
+		GetDVRSettings().m_lPort != -1)
 	{
-		return Login(m_DVRSettings.m_csUsername, m_DVRSettings.m_csPassword, m_DVRSettings.m_csMediaServerIP, m_DVRSettings.m_lPort);
+		return Login(GetDVRSettings().m_csUsername, GetDVRSettings().m_csPassword, GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort);
 	}
 
 	return FALSE;
@@ -550,10 +550,10 @@ BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPor
 	m_UserID = m_spDVRLoginMgr->Login(szUsername, szPwd, szIP, nPort);
 	if (m_UserID >= 0)
 	{
-		m_DVRSettings.m_csUsername = szUsername;
-		m_DVRSettings.m_csPassword = szPwd;
-		m_DVRSettings.m_csMediaServerIP = szIP;
-		m_DVRSettings.m_lPort = nPort;
+		GetDVRSettings().m_csUsername = szUsername;
+		GetDVRSettings().m_csPassword = szPwd;
+		GetDVRSettings().m_csMediaServerIP = szIP;
+		GetDVRSettings().m_lPort = nPort;
 
 		return TRUE;
 	}
@@ -660,7 +660,7 @@ BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 		{
 			InitForMonitor();
 		}
-		m_nPlaybackIndex = m_spPlayerMgr->StartPlayBackByTime(m_hRenderWnd, &sysFile, CT2A(m_DVRSettings.m_csMediaServerIP), m_DVRSettings.m_lPort);
+		m_nPlaybackIndex = m_spPlayerMgr->StartPlayBackByTime(m_hRenderWnd, &sysFile, CT2A(GetDVRSettings().m_csMediaServerIP), GetDVRSettings().m_lPort);
 		if (m_nPlaybackIndex < 0)
 		{
 			::MessageBox(m_hParentWnd, _T("¼àÊÓ³ö´í"), _T("Error"), MB_OK);
@@ -1292,16 +1292,16 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 	DWORD   pImageSize	= 0;
 
-	if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
+	if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 	{
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
 			return CString();
 		}
 
-		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
+		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), m_DVRSettings.m_csPicCapturePath, m_npic_jpeg);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
 		}
 		else
 		{
@@ -1315,9 +1315,9 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 			return CString();
 		}
 
-		if(m_DVRSettings.m_csPicCapturePath.Compare(_T("")))
+		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), m_DVRSettings.m_csPicCapturePath, m_npic_bmp);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
 		}
 		else
 		{
@@ -1350,7 +1350,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 			}
 		}
 
-		if(m_DVRSettings.m_eCapturePicType == CDVRSettings::eJPEG)
+		if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 		{
 			m_npic_jpeg++;
 		}

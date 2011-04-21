@@ -184,11 +184,7 @@ public:
 public:
 	//Setting Interfaces.
 	CDVRSettings&	GetDVRSettings(){
-		return m_DVRSettings;
-	}
-	void SetDVRSettings(CDVRSettings& settings)
-	{
-		m_DVRSettings = settings;
+		return *CDVRSettings::GetInstance();
 	}
 
 	void SetStreamType(BOOL bStream)	//TRUE: Stream; FALSE: File
@@ -219,7 +215,7 @@ public:
 	CString  Cappic();
 	void  SetCapturePicType(CDVRSettings::eCapPicType eType)
 	{
-		m_DVRSettings.m_eCapturePicType = eType;
+		GetDVRSettings().m_eCapturePicType = eType;
 	}
 	void SetCapturePath(LPCTSTR szFolder)
 	{
@@ -328,7 +324,7 @@ private:
 
 
 private:
-	CDVRSettings	m_DVRSettings;
+	//CDVRSettings	m_DVRSettings;
 	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
 	std::auto_ptr<CHWndManager>	m_spHWndMgr;
 	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
