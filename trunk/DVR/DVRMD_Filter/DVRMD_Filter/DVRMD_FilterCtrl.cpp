@@ -418,7 +418,7 @@ ULONG CDVRMD_FilterCtrl::ShowMetaData(VARIANT_BOOL bShow)
 {
 	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	GetDVRSettings().m_bDrawMetaData = bShow;
+	GetDVRSettings().m_bDrawMetaData = bShow == VARIANT_TRUE;
 
 	return 0;
 }
