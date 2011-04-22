@@ -519,9 +519,9 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 
 		Gdiplus::Graphics graphics(hDc);
 		HHV::FrameMetaDataList scaledMetaData;
-		HHV::FrameMetaData attributes;
-		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(scaledMetaData, attributes, metaList, renderWndWidth, renderWndHeight);
-		CDVRPlayer::DrawFrameMetaData(graphics, attributes, renderWndWidth, renderWndHeight);
+
+		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(scaledMetaData, metaList, renderWndWidth, renderWndHeight);
+
 		for (HHV::FrameMetaDataList::const_iterator it = scaledMetaData.begin(); it != scaledMetaData.end(); ++it)
 		{
 			// Now, let's draw the meta data.

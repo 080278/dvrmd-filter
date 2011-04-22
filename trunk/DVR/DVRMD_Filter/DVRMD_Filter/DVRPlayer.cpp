@@ -36,7 +36,7 @@ ScaleFrameMetaDataList::~ScaleFrameMetaDataList()
 	::CloseHandle(m_hEvent[eScaleEvent]);
 	::CloseHandle(m_hEvent[eExitEvent]);
 }
-void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, HHV::FrameMetaData& attrs, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
+void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
 {
 	if (!m_bScaling)
 	{
@@ -49,7 +49,6 @@ void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& 
 	}
 	m_ScaleLock.Lock();
 	dstFrame = m_FrameMetaDataList;
-	attrs = m_Attributes;
 	m_ScaleLock.Unlock();
 }
 
@@ -74,15 +73,27 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 				pThis->m_TmpLock.Unlock();
 				if (frame.size() > 0)
 				{
+					pThis->m_bScaling = true;
 					for (HHV::FrameMetaDataList::iterator it = frame.begin(); it != frame.end(); ++it)
 					{
 						ScaleAttributes(attributes, it->attributes, lWndWidth, lWndHeight);
 						ScaleFrameMetaData(*it, lWndWidth, lWndHeight);
 					}
 				}
+
+				if (attributes.displayData.disp_obj_list.size() > 0 ||
+					attributes.displayData.gui_object_list.size() > 0 ||
+					attributes.displayData.line_list.size() > 0 ||
+					attributes.displayData.polygon_list.size() > 0 ||
+					attributes.displayData.text_list.size() > 0)
+				{
+					attributes.displayData.image_width = lWndWidth;
+					attributes.displayData.image_height = lWndHeight;
+					frame.push_back(attributes);
+				}
 				pThis->m_ScaleLock.Lock();
 				pThis->m_FrameMetaDataList = frame;
-				pThis->m_Attributes = attributes;
+				//pThis->m_Attributes = attributes;
 				pThis->m_ScaleLock.Unlock();
 				ResetEvent(pThis->m_hEvent[eScaleEvent]);
 			}
@@ -91,6 +102,7 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 			bExit = TRUE;
 			break;
 		}
+		pThis->m_bScaling = false;
 	}
 	::_endthreadex(0);
 	return 0;
@@ -168,6 +180,9 @@ void ScaleFrameMetaDataList::ScaleFrameDisplayData(HHV::FrameDisplayData& fdd,  
 	{
 		ScaleObjectType(*it, xScale, yScale);
 	}
+
+	fdd.image_width = lWndWidth;
+	fdd.image_height = lWndHeight;
 }
 void ScaleFrameMetaDataList::ScaleDisplayObjectMeta(HHV::DisplayObjectMeta& dom, float xScale, float yScale)
 {
@@ -461,6 +476,11 @@ BOOL CDVRPlayer::InitForPlayFile()
 	// set the wave audio call back function;
 	//	NAME(PlayM4_SetAudioCallBack)(m_lPort, WaveCBFun, (long)this);
 
+	if (m_lPort == -1)
+	{
+		NAME(PlayM4_GetPort)(&m_lPort);
+	}
+
 	NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
 	// Test adapter Capability;
 	NAME(PlayM4_SetVolume)(m_lPort, 0);
@@ -704,10 +724,9 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
 		HHV::FrameMetaDataList scaledMetaData;
-		HHV::FrameMetaData	attributes;
-		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, attributes, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+		
 		Gdiplus::Graphics graphics(hDC);
-		DrawFrameMetaData(graphics, attributes, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
 		{
 			DrawFrameMetaData(graphics, *itFrame, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
@@ -784,34 +803,54 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 #endif
 	if (line.lines.size() > 1)
 	{
-		Gdiplus::Pen gPlusPen(Gdiplus::Color(line.color.r, line.color.g, line.color.b), line.thickness);
-		Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(line.color.r, line.color.g, line.color.b));
-
-		Gdiplus::Point* ptLines = new Gdiplus::Point[line.lines.size()];
-		int i = 0;
-		for (HHV::Points::const_iterator itPt = line.lines.begin();
-			itPt != line.lines.end();
-			++itPt, ++i)
+		if (line.end_style == 0)
 		{
-			ptLines[i].X = itPt->x;
-			ptLines[i].Y = itPt->y;
+			HDC dc = graphics.GetHDC();
+			CPen gdiPen(PS_SOLID, line.thickness, RGB(line.color.r, line.color.g, line.color.b));
+			HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+			POINT* ptLines = new POINT[line.lines.size()];
+			for (int i = 0; i < line.lines.size(); ++i)
+			{
+				ptLines[i].x = line.lines[i].x;
+				ptLines[i].y = line.lines[i].y;
+			}		
+			::Polyline(dc, ptLines, line.lines.size());
+			::SelectObject(dc, hOldPen);
+			graphics.ReleaseHDC(dc);
+			delete[] ptLines;
+		}
+		else
+		{
+			Gdiplus::Pen gPlusPen(Gdiplus::Color(line.color.r, line.color.g, line.color.b), line.thickness);
+			//Gdiplus::SolidBrush gPlusBrush(Gdiplus::Color(line.color.r, line.color.g, line.color.b));
+
+			Gdiplus::Point* ptLines = new Gdiplus::Point[line.lines.size()];
+			int i = 0;
+			for (HHV::Points::const_iterator itPt = line.lines.begin();
+				itPt != line.lines.end();
+				++itPt, ++i)
+			{
+				ptLines[i].X = itPt->x;
+				ptLines[i].Y = itPt->y;
+			}
+
+			switch(line.end_style)
+			{
+			case 1:
+				gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, FALSE));
+				break;
+			case 2:
+				gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, TRUE));
+				break;
+			case 0:
+			default:
+				break;
+			}
+			graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
+
+			delete[] ptLines;
 		}
 
-		switch(line.end_style)
-		{
-		case 1:
-			gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, FALSE));
-			break;
-		case 2:
-			gPlusPen.SetCustomEndCap(&Gdiplus::AdjustableArrowCap(line.arrow_length, line.arrow_width, TRUE));
-			break;
-		case 0:
-		default:
-			break;
-		}
-		graphics.DrawLines(&gPlusPen, ptLines, line.lines.size());
-
-		delete[] ptLines;
 	}
 }
 
@@ -1486,17 +1525,13 @@ CString CDVRPlayer::Cappic()
 // file operation:
 void CDVRPlayer::Open(LPCTSTR szFile) 
 {
-	InitForPlayFile();
-
 	Close();
+
+	InitForPlayFile();
 
 	if (szFile != NULL)
 		m_strPlayFileName = szFile;
 
-	if (m_lPort == -1)
-	{
-		PlayM4_GetPort(&m_lPort);
-	}
 
 	try
 	{

@@ -92,12 +92,12 @@ public:
 	ScaleFrameMetaDataList();
 	~ScaleFrameMetaDataList();
 
-	void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, HHV::FrameMetaData& attrs, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
+	void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
 private:
 	static	int g_ScaleIndex;
 	HHV::FrameMetaDataList	m_FrameMetaDataList;
 	HHV::FrameMetaDataList	m_TmpMetaDataList;
-	HHV::FrameMetaData		m_Attributes;
+	//HHV::FrameMetaData		m_Attributes;
 
 	LONG	m_lWndWidth, m_lWndHeight;
 	bool	m_bScaling;
