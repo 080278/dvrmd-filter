@@ -3,6 +3,13 @@
 #import "msxml6.dll"
 #include "./CommClass.h"
 
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
 using namespace std;
 
 #define ERROR_RETURN(x) \

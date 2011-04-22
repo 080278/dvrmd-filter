@@ -3,6 +3,13 @@
 #include "Player.h"
 #include "DVRPlayer.h"
 
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#endif
+
 //#define TEST_PERFORMANCE
 
 #ifdef TEST_PERFORMANCE
@@ -1538,7 +1545,7 @@ void CDVRPlayer::Open(LPCTSTR szFile)
 		NAME(PlayM4_RegisterDrawFun)(m_lPort, OnDrawFun, (LONG)this);
 
 		NAME(PlayM4_SetEncChangeMsg)(m_lPort, m_hParentWnd, WM_ENC_CHANGE);
-		NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
+		//NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
 
 		m_bStreamType = m_strPlayFileName.Right(3).CompareNoCase(_T(".vs")) == 0;
 
