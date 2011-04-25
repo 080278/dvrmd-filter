@@ -866,14 +866,12 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x4, "")
 #endif
-	Gdiplus::Font gPlusFont(L"ºÚÌå", txt.size, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
-	Gdiplus::SolidBrush gPlushBrush(Gdiplus::Color(txt.color.r, txt.color.g, txt.color.b));
+	HDC dc = graphics.GetHDC();
 	int nTxtLen = txt.text.length();
-	WCHAR* pBuf = new WCHAR[nTxtLen+1];
-	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
-	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
-	graphics.DrawString(pBuf, nTxtLen, &gPlusFont, Gdiplus::PointF(txt.x, txt.y), &gPlushBrush);
-	delete[] pBuf;
+	::SetBkMode(dc, TRANSPARENT);
+	::SetTextColor(dc, RGB(txt.color.r, txt.color.g, txt.color.b));
+	::TextOut(dc, txt.x, txt.y, (LPCTSTR)txt.text.c_str(), nTxtLen);
+	graphics.ReleaseHDC(dc);
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
