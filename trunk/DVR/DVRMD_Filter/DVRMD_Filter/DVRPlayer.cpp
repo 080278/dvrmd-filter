@@ -868,10 +868,22 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 #endif
 	HDC dc = graphics.GetHDC();
 	int nTxtLen = txt.text.length();
+	WCHAR* pBuf = new WCHAR[nTxtLen+1];
+	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
+	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
+	CFont hFont;
+	LOGFONT lf;
+	memset(&lf, 0, sizeof(lf));
+	lf.lfHeight = FW_NORMAL;   
+	lf.lfWeight = FW_NORMAL;
+	if(!hFont.CreateFontIndirect(&lf))
+	return;
+	::SelectObject(dc, &hFont);
 	::SetBkMode(dc, TRANSPARENT);
 	::SetTextColor(dc, RGB(txt.color.r, txt.color.g, txt.color.b));
-	::TextOut(dc, txt.x, txt.y, (LPCTSTR)txt.text.c_str(), nTxtLen);
+	::TextOutW(dc, txt.x, txt.y, pBuf, nTxtLen);
 	graphics.ReleaseHDC(dc);
+	delete[] pBuf;
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
