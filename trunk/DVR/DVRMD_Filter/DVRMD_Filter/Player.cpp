@@ -589,6 +589,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 		return -nErr;
 	}
 
+	::GetWindowRect(hWnd, &m_rcRenderRect);
     //开启线程, 接收视频流
     m_exit = false;
     UINT threadid(0);
@@ -607,7 +608,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 }
 void CPlayer::StopPlayBackByTime(int realHandle)
 {
-
+	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
 
 
