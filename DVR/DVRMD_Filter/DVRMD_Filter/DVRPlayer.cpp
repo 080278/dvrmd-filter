@@ -2039,6 +2039,8 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 	unsigned char chType;
 	DWORD	dwDataLen = 0;
 
+	const int nMaxNumNoMetaDataFrame = 4; //There are about 10 MetaData per second. 
+	int nCountNoMetaData = 0;
 	while (WAIT_OBJECT_0 != WaitForMultipleObjects(2, hMulEvents, FALSE, INFINITE))
 	{	
 		if(!bBufFull)
@@ -2097,10 +2099,29 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				continue;
 			}
 
-			pThis->m_MetaDataLock.Lock();
-			memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
-			memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
-			pThis->m_MetaDataLock.Unlock();
+			if (pThis->m_frameHeader.MetaLength == 0)
+			{
+				++nCountNoMetaData;
+			}
+			else
+			{
+				nCountNoMetaData = 0;
+			}
+
+			if (pThis->m_frameHeader.MetaLength > 0 || 
+				nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
+			{
+				pThis->m_MetaDataLock.Lock();
+				memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
+				memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+				pThis->m_MetaDataLock.Unlock();
+
+			}
+
+			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
+			{
+				::Sleep(10);
+			}
 		}
 	}
 
