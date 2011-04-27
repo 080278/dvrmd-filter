@@ -608,7 +608,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 }
 void CPlayer::StopPlayBackByTime(int realHandle)
 {
-	memset(&m_rcRenderRect, 0, sizeof(RECT));
+	StopMonitor();
 }
 
 
