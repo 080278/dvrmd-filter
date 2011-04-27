@@ -431,6 +431,8 @@ bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, i
 
 void CDVRPlayer::Destory()
 {
+	StopPlayback();
+
 	if (m_nPlayType == 0)
 	{
 		DestoryPlayFile();
@@ -439,6 +441,7 @@ void CDVRPlayer::Destory()
 	{
 		DestoryMonitor();
 	}
+
 
 	m_nPlayType = -1;
 	m_MonitorHandler.clear();
@@ -692,6 +695,7 @@ BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 		{
 			::MessageBox(m_hParentWnd, _T("¼àÊÓ³ö´í"), _T("Error"), MB_OK);
 		}
+
 		return m_nPlaybackIndex >= 0;
 	}
 	else
@@ -702,7 +706,7 @@ BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 	return FALSE;
 }
 
-void CDVRPlayer::EndPlayback()
+void CDVRPlayer::StopPlayback()
 {
 	if (IsLogined() && m_nPlaybackIndex >= 0)
 	{

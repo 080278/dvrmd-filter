@@ -154,7 +154,7 @@ public:
 
 	// Playback by time
 	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);
-	void EndPlayback();
+	void StopPlayback();
 
 	// Play file interfaces
 	void  Open(LPCTSTR szFile = NULL);
