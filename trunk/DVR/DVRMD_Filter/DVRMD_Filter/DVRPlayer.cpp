@@ -866,22 +866,23 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x4, "")
 #endif
-	HDC dc = graphics.GetHDC();
-	int nTxtLen = txt.text.length();
-	WCHAR* pBuf = new WCHAR[nTxtLen+1];
-	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
-	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
 	CFont hFont;
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(lf));
 	lf.lfHeight = FW_NORMAL;   
 	lf.lfWeight = FW_NORMAL;
 	if(!hFont.CreateFontIndirect(&lf))
-	return;
-	::SelectObject(dc, &hFont);
+		return;
+	HDC dc = graphics.GetHDC();
+	int nTxtLen = txt.text.length();
+	WCHAR* pBuf = new WCHAR[nTxtLen+1];
+	memset(pBuf, 0, sizeof(WCHAR)*(nTxtLen+1));
+	::MultiByteToWideChar(CP_ACP, 0, txt.text.c_str(), -1, pBuf, nTxtLen+1);
+	HGDIOBJ hOldFont = ::SelectObject(dc, &hFont);
 	::SetBkMode(dc, TRANSPARENT);
 	::SetTextColor(dc, RGB(txt.color.r, txt.color.g, txt.color.b));
 	::TextOutW(dc, txt.x, txt.y, pBuf, nTxtLen);
+	::SelectObject(dc, hOldFont);
 	graphics.ReleaseHDC(dc);
 	delete[] pBuf;
 }
