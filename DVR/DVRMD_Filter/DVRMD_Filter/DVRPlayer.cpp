@@ -546,6 +546,12 @@ BOOL CDVRPlayer::InitForMonitor()
 	default:
 		splitMode = SPLIT_1;
 	}
+
+	if (m_lPort == -1)
+	{
+		NAME(PlayM4_GetPort)(&m_lPort);
+	}
+
 	m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
 	m_spPlayerMgr->Init(NULL);
 	//m_spDVRLoginMgr->Startup();
