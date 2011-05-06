@@ -338,10 +338,10 @@ HHV::PolygonM ScaleFrameMetaDataList::ToPolygon(const HHV::Attributes& attrs, in
 	pm.style.bFill = false;
 	pm.style.bFlash = false;
 	pm.style.alpha = 100;
-	pm.style.thickness = 2;
-	pm.style.color.r = 0;
-	pm.style.color.g = 0;
-	pm.style.color.b = 0;
+	pm.style.thickness = 1;
+	pm.style.color.r = 237;
+	pm.style.color.g = 28;
+	pm.style.color.b = 36;
 
 	std::vector<int> ary = ToArray(attrs, "coordinate", index);
 	if (0 == (ary.size() & 1))
