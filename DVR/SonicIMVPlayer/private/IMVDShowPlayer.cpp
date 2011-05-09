@@ -361,7 +361,11 @@ void CIMVDShowPlayer::TearDownGraph()
 {
     IMV_TRACE(_T("CIMVDShowPlayer::TearDownGraph()\n"));
 
-	m_spDVRPlayer.reset(0);
+	if (m_spDVRPlayer.get() != NULL)
+	{
+		m_spDVRPlayer->Destory();
+		m_spDVRPlayer.reset(0);
+	}
     // Stop sending event messages
     if (m_pMediaEvent)
     {
@@ -423,12 +427,12 @@ HRESULT CIMVDShowPlayer::Open(LPCWSTR moviePath)
 		IMV_TRACE(_T("CIMVDShowPlayer::InitializeGraph() OK ! \n"));
 
 		m_spDVRPlayer->Open(CW2T(moviePath));
+		m_spDVRPlayer->RefreshPlay();
 
 		m_state = m_spDVRPlayer->GetPlayState() == CDVRPlayer::eState_Play ? PlayerState_Playing : PlayerState_Uninitialized;
 		if (m_state == PlayerState_Playing)
 		{
 			m_spDVRPlayer->GetPictureSize(&m_videoWidth, &m_videoHeight);
-			m_spDVRPlayer->RefreshPlay();
 			return S_OK;
 		}
 		return E_FAIL;
@@ -1458,6 +1462,9 @@ VOID CIMVDShowPlayer::SetWindow(HWND hWnd)
 		if(SUCCEEDED(hr))
 		{
 			m_hVideoWnd = hWnd;
+			if (m_spDVRPlayer.get() == NULL)
+				m_spDVRPlayer.reset(new CDVRPlayer);
+			m_spDVRPlayer->Init(m_hVideoWnd, m_hVideoWnd);
 		}
 	}
 }
