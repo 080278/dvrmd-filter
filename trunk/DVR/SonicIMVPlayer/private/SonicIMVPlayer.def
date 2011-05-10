@@ -1,9 +1,0 @@
-; SonicIMVPlayer.def : Declares the module parameters.
-
-LIBRARY      "SonicIMVPlayer.DLL"
-
-EXPORTS
-	DllCanUnloadNow		PRIVATE
-	DllGetClassObject	PRIVATE
-	DllRegisterServer	PRIVATE
-	DllUnregisterServer	PRIVATE
