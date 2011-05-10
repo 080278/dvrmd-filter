@@ -72,6 +72,15 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\DVRMD_Filter\Include\opencv\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\DVRMD_Filter\Include\opencv\include\opencv;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\DVRMD_Filter\Include\opencv\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='DevRelease|Win32'">..\DVRMD_Filter\Include\opencv\bin;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\DVRMD_Filter\Include\opencv\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='DevRelease|Win32'">..\DVRMD_Filter\Include\opencv\include\opencv;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='DevRelease|Win32'">..\DVRMD_Filter\Include\opencv\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\DVRMD_Filter\Include\opencv\include\opencv;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\DVRMD_Filter\Include\opencv\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -96,7 +105,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>.\public;.\public\Common\SysUtils;.\public\Common\StreamUtils;.\public\Common\SystemHeaders;.\public\PlayCtrl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\public;.\public\Common\SysUtils;.\public\Common\StreamUtils;.\public\Common\SystemHeaders;..\DVRMD_Filter\Include\PlayCtrl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -106,7 +115,7 @@
     <Link>
       <RegisterOutput>false</RegisterOutput>
       <AdditionalDependencies>strmiids.lib;Propsys.lib;Dwmapi.lib;PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\public\PlayCtrl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\DVRMD_Filter\Include\PlayCtrl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>.\private\SonicIMVPlayer.def</ModuleDefinitionFile>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -114,7 +123,7 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PreBuildEvent>
-      <Command>copy .\public\playctrl\*.dll $(TargetDir)
+      <Command>copy ..\DVRMD_Filter\Include\PlayCtrl\*.dll $(TargetDir)
 copy .\public\msxml4.dll $(TargetDir)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -140,7 +149,7 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <AdditionalIncludeDirectories>.\public;.\public\Common\SysUtils;.\public\Common\StreamUtils;.\public\Common\SystemHeaders;.\public\PlayCtrl;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\public;.\public\Common\SysUtils;.\public\Common\StreamUtils;.\public\Common\SystemHeaders;..\DVRMD_Filter\Include\PlayCtrl</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -150,7 +159,7 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
     <Link>
       <RegisterOutput>false</RegisterOutput>
       <AdditionalDependencies>strmiids.lib;Propsys.lib;Dwmapi.lib;PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>.\public\PlayCtrl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\DVRMD_Filter\Include\PlayCtrl;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>.\private\SonicIMVPlayer.def</ModuleDefinitionFile>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -160,7 +169,7 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PreBuildEvent>
-      <Command>copy .\public\playctrl\*.dll $(TargetDir)
+      <Command>copy ..\DVRMD_Filter\Include\PlayCtrl\*.dll $(TargetDir)
 copy .\public\msxml4.dll $(TargetDir)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
