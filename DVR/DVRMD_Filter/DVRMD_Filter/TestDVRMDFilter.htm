@@ -16,7 +16,7 @@
                     	<tr>
                     		<td>IP:</td><td><input id="txtIP" type="text" /></td>
                             <td>Port:</td><td><input id="txtPort" type="text" /></td>
-                            <td><input id="login" onclick="Login('super','uptfp','192.168.99.159','20000')" type="button" value="登录" /></td>
+                            <td><input id="login" onclick="Login('super','uptfp','192.168.99.86','20000')" type="button" value="登录" /></td>
                             <td><input id="logout" onclick="Logout()" type="button" value="登出" /></td>
                     	</tr>
                         <tr>
@@ -51,8 +51,8 @@
             //DVRPlayer.SetRenderWindowSize(352, 288);
             DVRPlayer.SetCapturePath("C:");
 
-            var loginFlag = Login('super', 'uptfp', '192.168.99.159', '20000');
-            if (loginFlag) StartMonitor(4);
+            var loginFlag = Login('super', 'uptfp', '192.168.99.86', '20000');
+            //StartMonitor(1);
             //ShowMetaData(true);
 
         }
