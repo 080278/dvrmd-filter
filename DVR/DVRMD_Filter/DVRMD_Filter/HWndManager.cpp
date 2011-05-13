@@ -32,6 +32,7 @@ int CHWndManager::InitSplit(HWND hParentWnd)
     for (int i = 0; i < MAX_CLIENT_WINDOW; i++)
 	{
 		HWND hWnd = HWnd_GetHWnd(m_SpliteHandle, i);
+		
         m_mWndFree[i].index = i;
         m_mWndFree[i].hWnd = hWnd;
         m_mWndFree[i].bFree = true;
@@ -54,6 +55,11 @@ HWND CHWndManager::GetHWnd( int index )
 	if (index < 0)
 		return NULL;
 		
+	/*RECT rectt;
+			::GetWindowRect(HWnd_GetHWnd(m_SpliteHandle, index), &rectt);
+			CString csErrr;
+			csErrr.Format(_T("%d, %d,%d,%d,%d"), rectt.top,rectt.bottom,rectt.left,rectt.right,m_SpliteHandle);
+			MessageBox(HWnd_GetHWnd(m_SpliteHandle, index), csErrr, _T("´íÎó"), MB_OK);*/
 	return HWnd_GetHWnd(m_SpliteHandle, index);
 }
 
@@ -70,6 +76,10 @@ void   CHWndManager::SelectChannel(POINT pt)
 //------------------------------------------------------------------------------
 void CHWndManager::SetSplitMode ( int currIndex, int num, int clickNum )
 {
+	if (num == 0 && currIndex != 0)
+	{
+		currIndex = 0;
+	}
     HWnd_SetSplitMode(m_SpliteHandle, currIndex, num);
     //HWnd_SetSplitMode_WithOrder(m_SpliteHandle, currIndex, num, clickNum);
     switch(num)
