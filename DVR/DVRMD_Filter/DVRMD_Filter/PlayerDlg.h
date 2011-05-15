@@ -230,6 +230,7 @@ protected:
 	CPlayCtrlPanel	m_CtrlPanel;
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg void OnClickedRenderMode();
 };
 
 //{{AFX_INSERT_LOCATION}}
