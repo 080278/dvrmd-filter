@@ -78,6 +78,8 @@
 #define IDI_ABOUTDLL                    249
 #define IDD_FILE_SETTINGS               249
 #define IDD_DVRMDFRAME_DIALOG           250
+#define IDD_DIALOG3                     251
+#define IDD_CTRL_PANEL                  251
 #define IDC_VER                         1025
 #define IDC_REFRESH                     1026
 #define IDC_SEEK                        1026
@@ -233,7 +235,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        251
+#define _APS_NEXT_RESOURCE_VALUE        252
 #define _APS_NEXT_COMMAND_VALUE         32843
 #define _APS_NEXT_CONTROL_VALUE         1117
 #define _APS_NEXT_SYMED_VALUE           101

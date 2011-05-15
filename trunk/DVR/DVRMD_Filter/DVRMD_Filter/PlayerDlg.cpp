@@ -182,6 +182,8 @@ BOOL CPlayerDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
+	m_CtrlPanel.Create(IDD_CTRL_PANEL, this);
+
 	m_pOldParentWnd = NULL;
 	// Add "About..." menu item to system menu.
 
@@ -308,6 +310,10 @@ BOOL CPlayerDlg::OnInitDialog()
 	m_DVRSettingsSheet.SetWindowPos(NULL, rcSheet.left, rcSheet.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
 	m_DVRSettingsSheet.ShowWindow(SW_HIDE);
+
+	//m_CtrlPanel.ShowWindow(SW_SHOW);
+	//m_CtrlPanel.SetWindowPos(&CWnd::wndTopMost, 0, 0, GetPlayer()->GetDVRSettings().m_nRenderWidth, 100, SWP_SHOWWINDOW);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -992,82 +998,6 @@ void CALLBACK DisplayCBFun(long /*nPort*/,\
 	long /*nStamp*/,long /*nType*/,long /*nReceaved*/)
 {
 	UNREFERENCED_PARAMETER(pBuf);
-}
-
-// Function: The dec call back funtion.
-void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
-	FRAME_INFO * pFrameInfo, 
-	long nReserved1,long /*nReserved2*/)
-{
-	//	OutputDebugString("解码回调");
-	//	DWORD dwTime = PlayM4_GetSpecialData(nPort);
-	////	TRACE(_T("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
-	//	TRACE(_T("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
-	//			GET_MONTH(dwTime), GET_DAY(dwTime), GET_HOUR(dwTime), GET_MINUTE(dwTime), GET_SECOND(dwTime));
-	/*	
-	CPlayerDlg* pDlg = (CPlayerDlg *)nReserved1;
-
-	if ( pFrameInfo->nType == T_YV12 ) 
-	{   
-	if(g_classAVI.IsWriteAVIHdr())
-	{
-	g_classAVI.SetFPS(pFrameInfo->nFrameRate);
-	g_classAVI.WriteHeaders();
-	}
-
-	// ntsc qcif
-	if(pFrameInfo->nHeight == 128)
-	{
-	if(pDlg->m_pQcifTempBuf == NULL)
-	{
-	pDlg->m_pQcifTempBuf = new BYTE[nSize];
-	}
-
-	int nPos = 0;		
-	// Y 分量
-	for(int i = 0; i < 4; i++)
-	{
-	CopyMemory(pDlg->m_pQcifTempBuf + i * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth);
-	}
-
-	CopyMemory(pDlg->m_pQcifTempBuf + 4 * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth * 120);
-	for(i = 0; i < 4; i++)
-	{
-	CopyMemory(pDlg->m_pQcifTempBuf + (124 + i) * pFrameInfo->nWidth, pBuf + pFrameInfo->nWidth * 119, pFrameInfo->nWidth);
-	}
-
-	nPos += nSize*2/3;
-
-	int w = pFrameInfo->nWidth/2; 
-	// U/V分量
-	for(int j = 0; j < 2; j++)
-	{
-	for(i = 0; i < 2; i++)
-	{
-	CopyMemory(pDlg->m_pQcifTempBuf + i * w + nPos,  pBuf + nPos, w);
-	}
-	CopyMemory(pDlg->m_pQcifTempBuf + w * 2 + nPos, pBuf + nPos, w * 60);
-	for(i = 0; i < 2; i++)
-	{
-	CopyMemory(pDlg->m_pQcifTempBuf + w * (62 + i) + nPos, pBuf + w * 59 + nPos, w);
-	}
-	nPos += nSize*1/6;
-	}
-
-	g_classAVI.AddFileToAVI((char*)pDlg->m_pQcifTempBuf, nSize);
-	}
-	else
-	{		
-	g_classAVI.AddFileToAVI(pBuf, nSize);
-	}
-
-	if(g_classAVI.IsExceedMaxFileLen())
-	{
-	SendMessage(AfxGetApp()->GetMainWnd()->m_hWnd,WM_FILE_END,m_lPort,0);		   
-	}	
-	}
-	*/
-	//	Sleep(1);
 }
 
 // Funtion:The source buffer call back funtion.
@@ -2500,6 +2430,7 @@ void CPlayerDlg::Play()
 	if (GetPlayer()->GetPlayState() != CDVRPlayer::eState_Play)
 	{
 		GetPlayer()->Play();
+		m_ctrlVideoPic.SetWindowPos(&CWnd::wndBottom, 0,0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		SetTimer(PLAY_TIMER, 500, NULL);
 	}
 }

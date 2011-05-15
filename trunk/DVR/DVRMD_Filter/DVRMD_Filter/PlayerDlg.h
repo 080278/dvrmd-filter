@@ -19,6 +19,7 @@
 #include "MonitorSettingsDlg.h"
 #include "ServerPlaybackSettingsDlg.h"
 #include "FilePlaybackSettings.h"
+#include "PlayCtrlPanel.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CPlayerDlg dialog
@@ -225,6 +226,8 @@ protected:
 	CMonitorSettingsDlg m_DVRSettingsPage2;
 	CServerPlaybackSettingsDlg m_DVRSettingsPage3;
 	CFilePlaybackSettingsDlg m_DVRSettingsPage4;
+
+	CPlayCtrlPanel	m_CtrlPanel;
 public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
