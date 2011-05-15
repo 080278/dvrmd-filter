@@ -358,6 +358,7 @@ WATERMARK_VER1_INFO CDVRPlayer::m_strWaterMark;
 
 // metaData scale
 
+CDVRPlayer* pCurPlayer = NULL;
 
 CDVRPlayer::CDVRPlayer(void)
 {
@@ -375,6 +376,8 @@ CDVRPlayer::CDVRPlayer(void)
 	{
 		::MessageBox(m_hParentWnd, _T("Socket Lib Load Failure!"), _T("tips"), MB_OK );
 	}
+
+	pCurPlayer = this;
 }
 
 
@@ -386,6 +389,8 @@ CDVRPlayer::~CDVRPlayer(void)
 	m_spDVRLoginMgr->Clearup();
 	m_spDVRLoginMgr.reset(NULL);
 	WSACleanup();
+
+	pCurPlayer = NULL;
 }
 
 bool CDVRPlayer::Init(HWND hRenderWnd, RECT* rcDisplayRegion, HWND hParentWnd, int lPort)
@@ -731,6 +736,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 #ifdef _DEBUG
 		DWORD dwBegin = GetTickCount();
 #endif // _DEBUG
+	return;
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
@@ -755,6 +761,24 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 #endif
 }
 
+void CDVRPlayer::OnOpenCVDrawFunc(IplImage* pImg)
+{
+	if (pCurPlayer != NULL && pCurPlayer->m_bOpen)
+	{
+		CDVRPlayer* pThis = pCurPlayer;
+		HHV::FrameMetaDataList metaDataList;
+		if (pThis->GetFrameMetaDataList(metaDataList) > 0)
+		{
+			HHV::FrameMetaDataList scaledMetaData;
+			pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+
+			for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
+			{
+				DrawFrameMetaData(pImg, *itFrame);
+			}
+		}
+	}
+}
 // Draw Functions
 
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
@@ -813,6 +837,45 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 	TRACE1("\nDrawFrameMetaData: %d\n", dwEnd-dwBegin);
 #endif
 }
+
+void CDVRPlayer::DrawFrameMetaData(IplImage* pImg, const HHV::FrameMetaData& frame)
+{
+	for (HHV::DisplayObjectMetaList::const_iterator itDspObj = frame.displayData.disp_obj_list.begin(); 
+		itDspObj != frame.displayData.disp_obj_list.end(); 
+		++itDspObj)
+	{
+		TRACE1("Draw DisplayObjectMeta: id=%s\n", (LPTSTR)CA2T(itDspObj->id.c_str()));
+		DrawDisplayObjectMeta(pImg, *itDspObj);
+	}
+
+	for (HHV::PolyLines::const_iterator itLine = frame.displayData.line_list.begin(); 
+		itLine != frame.displayData.line_list.end(); 
+		++itLine)
+	{
+		DrawPolyLine(pImg, *itLine);
+	}
+
+	for (HHV::Texts::const_iterator itTxt = frame.displayData.text_list.begin();
+		itTxt != frame.displayData.text_list.end();
+		++itTxt)
+	{
+		DrawTextMeta(pImg, *itTxt);
+	}
+
+	for (HHV::Polygons::const_iterator itPolygon = frame.displayData.polygon_list.begin();
+		itPolygon != frame.displayData.polygon_list.end();
+		++itPolygon)
+	{
+		DrawPolygon(pImg, *itPolygon);
+	}
+
+	for (HHV::GUIObjects::const_iterator itGUIObj = frame.displayData.gui_object_list.begin();
+		itGUIObj != frame.displayData.gui_object_list.end();
+		++itGUIObj)
+	{
+		DrawObjectType(pImg, *itGUIObj);
+	}
+}
 void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
 #ifdef TEST_PERFORMANCE
@@ -870,6 +933,31 @@ void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& 
 
 	}
 }
+void CDVRPlayer::DrawPolyLine(IplImage* pImg, const HHV::PolyLine& line)
+{
+	//if (line.end_style == 0)
+	{
+		for (HHV::Points::const_iterator it = line.lines.begin(); it != line.lines.end(); ++it)
+		{
+			bool bComplete = false;
+			HHV::Points::const_iterator nextIt = it+1;
+			if (nextIt == line.lines.end() && nextIt != line.lines.begin())
+			{
+				nextIt = line.lines.begin();
+				bComplete = true;
+			}
+			cvLine(pImg, *it, *nextIt, CV_RGB(line.color.r, line.color.g, line.color.b), line.thickness);
+			if (bComplete)
+			{
+				break;
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+}
 
 void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -895,6 +983,10 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 	::SelectObject(dc, hOldFont);
 	graphics.ReleaseHDC(dc);
 	delete[] pBuf;
+}
+void CDVRPlayer::DrawTextMeta(IplImage* pImg, const HHV::TextMeta& txt)
+{
+
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -938,6 +1030,10 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 		graphics.DrawPolygon(&gPlusPen, ptPolygons, polygon.points.size());
 		delete[] ptPolygons;
 	}
+}
+void CDVRPlayer::DrawPolygon(IplImage* pImg, const HHV::PolygonM& polygon)
+{
+
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -1009,7 +1105,27 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 		break;
 	}
 }
-
+void CDVRPlayer::DrawObjectType(IplImage* pImg, const HHV::ObjectType& obj)
+{
+	const HHV::DrawingStyle& style = obj.style;
+	switch(obj.type)
+	{
+	case 0:		//line_segment
+		cvLine(pImg, cvPoint(obj.x0, obj.y0), cvPoint(obj.x1, obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
+		break;
+	case 1:		//rectangle
+		if (style.bFill)
+		{
+		}
+		cvRectangle(pImg, cvPoint(obj.x0, obj.y0), cvPoint(obj.x1, obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
+		break;
+	case 2:		//ellipse
+		//cvEllipse(pImg, )
+		break;
+	default:
+		break;
+	}
+}
 int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 {
 	BYTE byMetaData[sizeof(m_meta)];
@@ -1697,7 +1813,7 @@ void CDVRPlayer::OpenFile()
 
 	NAME(PlayM4_SetFileRefCallBack)(m_lPort, FileRefDone, (DWORD)this);
 	//	NAME(PlayM4_SetVerifyCallBack)(m_lPort, 0, 0xffffffff, VerifyFun, (DWORD) this); // verify the whole file;
-	//	NAME(PlayM4_SetDecCallBackMend)(m_lPort, DecCBFun, (long)this);	
+	//NAME(PlayM4_SetDecCallBackMend)(m_lPort, DecCBFun, (long)this);	
 	NAME(PlayM4_SetDecCallBackEx)(m_lPort, DecCBFun, NULL, 0);	
 
 	//	BOOL bRelt = PlayM4_SetDecodeFrameType(m_lPort, 0);
@@ -1813,6 +1929,7 @@ void CDVRPlayer::OpenStream()
 		throw 0;
 	}
 
+	NAME(PlayM4_SetDecCallBackEx)(m_lPort, DecCBFun, NULL, 0);	
 	unsigned int g_strFileHdr[10] = { 0x484B4834, 0xd6d0b3fe, 0x20040308, 0x0, 0x10011001, 0x00101001, 0x3e80, 0x01200160, 0x1011, 0x4 };
 
 	//	NAME(PlayM4_OpenStream)(m_lPort, g_strFileHdr, 40,  6*1000*1024)
@@ -2136,4 +2253,190 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 	}
 
 	return 1;
+}
+
+#include "YuvRgbConverter.h"
+const int MAX_RGB32_LENGTH = (800*600*4);
+BYTE	rgbImage[MAX_RGB32_LENGTH];
+
+
+IplImage* GetIplFromBmp(BYTE* pBmp, int w, int h)
+{
+	BYTE* p = pBmp;
+	//BITMAPFILEHEADER fheader;
+	//memcpy(&fheader, p, sizeof(BITMAPFILEHEADER));
+	//BITMAPINFOHEADER bmphdr;
+	//p += sizeof(BITMAPFILEHEADER);
+	//memcpy(&bmphdr, p, sizeof(BITMAPINFOHEADER));
+	//int w = bmphdr.biWidth;
+	//int h = bmphdr.biHeight;
+
+	//p = pBmp + fheader.bfOffBits;
+
+	//reverse(p, w, h);
+	IplImage* pIpl = cvCreateImage(cvSize(w,h),8,3);
+
+	memcpy(pIpl->imageData, p, w * h * 3 *sizeof(char));
+	return pIpl;
+}
+
+
+bool GetBmpFromIpl(IplImage* pIpl, BYTE* &pBmp, DWORD& size)
+{
+	BITMAPFILEHEADER bfh = {0};
+	DWORD dwImageSize = 0;
+	DWORD dwBytesRead = 0;
+
+	int w = pIpl->width;
+	int l = ((w * 24 +31) & ~31) /8;
+	int h = pIpl->height;
+	dwImageSize    = l * h;
+
+	bfh.bfType        = (WORD)'M' << 8 | 'B';            //定义文件类
+	bfh.bfOffBits    = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);    //定义文件头大小
+	bfh.bfSize        = bfh.bfOffBits + dwImageSize;        //文件大小
+
+	BITMAPINFOHEADER  bih = {0};
+	bih.biSize = sizeof(BITMAPINFOHEADER);
+	bih.biWidth = pIpl->width;
+	bih.biHeight = pIpl->height;
+	bih.biPlanes = 1;
+	bih.biBitCount = 24;
+	bih.biCompression = BI_RGB;
+	bih.biSizeImage    = 0;
+	bih.biXPelsPerMeter    = 0;
+	bih.biYPelsPerMeter    = 0;
+	bih.biClrUsed = 0;
+	bih.biClrImportant = 0;
+
+	size = bfh.bfSize;
+	pBmp = new BYTE[bfh.bfSize+1];
+
+	memset(pBmp, 0, bfh.bfSize + 1);
+	memcpy(pBmp, &bfh, sizeof(BITMAPFILEHEADER));
+	memcpy(pBmp+sizeof(BITMAPFILEHEADER), &bih, sizeof(BITMAPINFOHEADER));
+	BYTE* p = pBmp+sizeof(BITMAPFILEHEADER)+sizeof(BITMAPINFOHEADER);
+	memcpy(p, (BYTE*)pIpl->imageData, dwImageSize);
+
+	return true;
+}
+//#pragma comment(lib, "cxcore.lib")
+// Function: The dec call back funtion.
+void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
+	FRAME_INFO * pFrameInfo, 
+	long nReserved1,long /*nReserved2*/)
+{
+	switch (pFrameInfo->nType)
+	{
+	case T_RGB32:
+		break;
+	case T_UYVY:
+		break;
+	case T_YV12:
+		{
+			INT width = pFrameInfo->nWidth;
+			INT height = pFrameInfo->nHeight;
+			BYTE* y = (BYTE*)pBuf ;
+			BYTE* v = y + width * height ;
+			BYTE* u = v + ( width >> 1 ) * ( height >> 1 ) ;
+			CYuvRgbConverter::yv12_to_rgb32_mmx( rgbImage , width , y , v , u , width , width >> 1 , width , -height ) ;
+			IplImage* pImg = cvCreateImageHeader(cvSize(width, height), 8, 4);//GetIplFromBmp(rgbImage, width, height);
+			pImg->imageData = (char*)rgbImage;
+			pImg->origin = 1;
+			CDVRPlayer::OnOpenCVDrawFunc(pImg);
+			//cvRectangle(pImg, cvPoint(20, 20), cvPoint(200, 100), CV_RGB(255, 0, 0));
+			//cvCircle(pImg, cvPoint(1, 1), 20, CV_RGB(0, 255, 255));
+			//DWORD dwsize;
+			//BYTE* pData;
+			//GetBmpFromIpl(pImg, pData, dwsize);
+			//memcpy(rgbImage, pImg->imageData, ((width * 24 +31) & ~31) /8 * height);
+			//delete[] pData;
+			cvReleaseImage(&pImg);
+			//int alpha = 82;
+			//for (int i = 10; i < 100; ++i)
+			//{
+			//	for (int j = 10; j < 200; ++j)
+			//	{
+			//		rgbImage[(i*width+j)*4] = (rgbImage[(i*width+j)*4]*alpha + 0*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+1] = (rgbImage[(i*width+j)*4+1]*alpha + 0*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+2] = (rgbImage[(i*width+j)*4+1]*alpha + 255*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+3] = 0;
+			//	}
+			//}
+			CYuvRgbConverter::_RGB32ToYV12(y, u, v, rgbImage, width, height, width);
+		}
+		break;
+	default:
+		//Ignore the audio data.
+		return;
+	}
+	//	OutputDebugString("解码回调");
+	//	DWORD dwTime = PlayM4_GetSpecialData(nPort);
+	////	TRACE(_T("nPort=%d, TYPE=%d; Width=%d; Height=%d\n", nPort, pFrameInfo->nType, pFrameInfo->nWidth, pFrameInfo->nHeight);
+	//	TRACE(_T("wptest==============Time: Year is %d, Month is %d, Day is %d, Hour is %d, %d, %d", GET_YEAR(dwTime),
+	//			GET_MONTH(dwTime), GET_DAY(dwTime), GET_HOUR(dwTime), GET_MINUTE(dwTime), GET_SECOND(dwTime));
+	/*	
+	CPlayerDlg* pDlg = (CPlayerDlg *)nReserved1;
+
+	if ( pFrameInfo->nType == T_YV12 ) 
+	{   
+	if(g_classAVI.IsWriteAVIHdr())
+	{
+	g_classAVI.SetFPS(pFrameInfo->nFrameRate);
+	g_classAVI.WriteHeaders();
+	}
+
+	// ntsc qcif
+	if(pFrameInfo->nHeight == 128)
+	{
+	if(pDlg->m_pQcifTempBuf == NULL)
+	{
+	pDlg->m_pQcifTempBuf = new BYTE[nSize];
+	}
+
+	int nPos = 0;		
+	// Y 分量
+	for(int i = 0; i < 4; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + i * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth);
+	}
+
+	CopyMemory(pDlg->m_pQcifTempBuf + 4 * pFrameInfo->nWidth, pBuf, pFrameInfo->nWidth * 120);
+	for(i = 0; i < 4; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + (124 + i) * pFrameInfo->nWidth, pBuf + pFrameInfo->nWidth * 119, pFrameInfo->nWidth);
+	}
+
+	nPos += nSize*2/3;
+
+	int w = pFrameInfo->nWidth/2; 
+	// U/V分量
+	for(int j = 0; j < 2; j++)
+	{
+	for(i = 0; i < 2; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + i * w + nPos,  pBuf + nPos, w);
+	}
+	CopyMemory(pDlg->m_pQcifTempBuf + w * 2 + nPos, pBuf + nPos, w * 60);
+	for(i = 0; i < 2; i++)
+	{
+	CopyMemory(pDlg->m_pQcifTempBuf + w * (62 + i) + nPos, pBuf + w * 59 + nPos, w);
+	}
+	nPos += nSize*1/6;
+	}
+
+	g_classAVI.AddFileToAVI((char*)pDlg->m_pQcifTempBuf, nSize);
+	}
+	else
+	{		
+	g_classAVI.AddFileToAVI(pBuf, nSize);
+	}
+
+	if(g_classAVI.IsExceedMaxFileLen())
+	{
+	SendMessage(AfxGetApp()->GetMainWnd()->m_hWnd,WM_FILE_END,m_lPort,0);		   
+	}	
+	}
+	*/
+	//	Sleep(1);
 }

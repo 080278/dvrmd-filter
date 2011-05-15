@@ -58,17 +58,17 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
-    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\DVRMD_Filter\Include\opencv\bin;$(ExecutablePath)</ExecutablePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\DVRMD_Filter\Include\opencv\include\opencv;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\DVRMD_Filter\Include\opencv\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\HaohanITPlayer\Include\opencv\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\HaohanITPlayer\Include\opencv\include\opencv;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">D:\MyWork\DVR\HaohanITPlayer\Include\opencv\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ExecutablePath);D:\MyWork\DVR\DVRMD_Filter\Include\opencv\bin</ExecutablePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath);D:\MyWork\DVR\DVRMD_Filter\Include\opencv\include\opencv</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);D:\MyWork\DVR\DVRMD_Filter\Include\opencv\lib</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)
-copy ..\include\msxml4.dll ..\$(Configuration)</Command>
+      <Command>copy ..\..\HaohanITPlayer\include\playctrl\*.dll ..\$(Configuration)
+copy ..\..\HaohanITPlayer\include\*.dll ..\$(Configuration)</Command>
     </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -79,7 +79,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../Include/PlayCtrl;../Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../HaohanITPlayer/Include/PlayCtrl;../../HaohanITPlayer/Include;../../HaohanITPlayer/include/visionapi;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -95,7 +95,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>Strmiids.lib;..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;cxcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
@@ -110,8 +110,8 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
-      <Command>copy ..\include\playctrl\*.dll ..\$(Configuration)
-copy ..\include\msxml4.dll ..\$(Configuration)</Command>
+      <Command>copy ..\..\HaohanITPlayer\include\playctrl\*.dll ..\$(Configuration)
+copy ..\..\HaohanITPlayer\include\*.dll ..\$(Configuration)</Command>
     </PreBuildEvent>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -123,7 +123,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>../Include/PlayCtrl;../Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../HaohanITPlayer/Include/PlayCtrl;../../HaohanITPlayer/Include;../../HaohanITPlayer/include/visionapi;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -139,7 +139,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>Strmiids.lib;..\include\PlayCtrl\PlayCtrl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -173,6 +173,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile Include="LoginDvr.cpp" />
     <ClCompile Include="LoginDvrMgr.cpp" />
     <ClCompile Include="MonitorSettingsDlg.cpp" />
+    <ClCompile Include="PlayCtrlPanel.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerMgr.cpp" />
     <ClCompile Include="PlaySettingsDlg.cpp" />
@@ -195,6 +196,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClCompile Include="WRIFF.CPP" />
     <ClCompile Include="XColorStatic.cpp" />
     <ClCompile Include="XScrollBar.cpp" />
+    <ClCompile Include="YuvRgbConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
@@ -249,9 +251,19 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <None Include="res\scroll\VerticalScrollBarUpArrow.bmp" />
     <None Include="res\VideoCtrl.ico" />
     <None Include="ReadMe.txt" />
+    <CustomBuild Include="rgb_to_yv12_mmx.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nasm -f win32 -DPREFIX -o $(IntDir)\%(Filename).obj %(Identity)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\%(Filename).obj</Outputs>
+    </CustomBuild>
     <None Include="TestDVRMDFilter.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <CustomBuild Include="yv12_to_rgb32_mmx.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nasm -f win32 -DPREFIX -o $(IntDir)\%(Filename).obj %(Identity)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)\%(Filename).obj</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="DVRMD_Filter.idl" />
@@ -278,6 +290,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClInclude Include="LoginDvr.h" />
     <ClInclude Include="LoginDvrMgr.h" />
     <ClInclude Include="MonitorSettingsDlg.h" />
+    <ClInclude Include="PlayCtrlPanel.h" />
     <ClInclude Include="PlayerMgr.h" />
     <ClInclude Include="PlaySettingsDlg.h" />
     <ClInclude Include="FontSize.h" />
@@ -301,6 +314,7 @@ copy ..\include\msxml4.dll ..\$(Configuration)</Command>
     <ClInclude Include="WRIFF.H" />
     <ClInclude Include="XColorStatic.h" />
     <ClInclude Include="XScrollBar.h" />
+    <ClInclude Include="YuvRgbConverter.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DVRMD_Filter.rc" />

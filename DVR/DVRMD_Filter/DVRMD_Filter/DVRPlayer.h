@@ -14,9 +14,6 @@ static UINT	WM_FILE_END			= WM_USER +33;	 // User message. Be posted when the fi
 static UINT	WM_ENC_CHANGE		= WM_USER +100;  // User message. Be posted when the image size is changed.
 
 void CALLBACK EncChange(LONG lPort, LONG dwUser);
-void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
-	FRAME_INFO * pFrameInfo, 
-	long nReserved1,long /*nReserved2*/);
 //文件头标
 // 海康格式封装
 #define HKM4_FILE_CODE		0x484B4D34	// "HKM4" 海康文件层，M卡老版本非标准MPEG4
@@ -273,19 +270,33 @@ private:
 
 	//OnDrawFun
 	// Draw the meta data on the screen.
+	static void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
+		FRAME_INFO * pFrameInfo, 
+		long nReserved1,long /*nReserved2*/);
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
+	static void OnOpenCVDrawFunc(IplImage* pImg);
 	// Draw Meta Data Functions.
 	static void DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight);
+	static void DrawFrameMetaData(IplImage* pImg, const HHV::FrameMetaData& frame);
 	// Draw Meta Data Scale
 	static void DrawDisplayObjectMeta(Gdiplus::Graphics& graphics, const HHV::DisplayObjectMeta& dspObj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 	{
 		DrawObjectType(graphics, dspObj.obj, lWndWidth, lWndHeight, nImgWidth, nImgHeight);
 		DrawPolyLine(graphics, dspObj.track, lWndWidth, lWndHeight, nImgWidth, nImgHeight);
 	}
+	static void DrawDisplayObjectMeta(IplImage* pImg, const HHV::DisplayObjectMeta& dspObj)
+	{
+		DrawObjectType(pImg, dspObj.obj);
+		DrawPolyLine(pImg, dspObj.track);
+	}
 	static void inline DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawPolyLine(IplImage* pImg, const  HHV::PolyLine& line);
 	static void inline DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& txt, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawTextMeta(IplImage* pImg, const HHV::TextMeta& txt);
 	static void inline DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawPolygon(IplImage* pImg, const HHV::PolygonM& polygon);
 	static void inline DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight);
+	static void inline DrawObjectType(IplImage* pImg, const HHV::ObjectType& obj);
 
 	CHAR m_meta[10*1024];
 	CHAR m_buffer[MAX_FRAME_LENGTH];
