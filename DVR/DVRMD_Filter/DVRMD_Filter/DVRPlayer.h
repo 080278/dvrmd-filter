@@ -340,7 +340,6 @@ private:
 	DWORD		m_dwHeadSize;
 
 
-
 private:
 	//CDVRSettings	m_DVRSettings;
 	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
