@@ -12,7 +12,7 @@
 #include "./PlayMp4H_fFunDef.h"
 #include "Metadata_Types.h"
 #include "DVRPlayer.h"
-
+#include "YuvRgbConverter.h"
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -485,7 +485,7 @@ INT CPlayer::MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, char* str
 
 void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 {
-	if (!CDVRSettings::GetInstance()->m_bDrawMetaData) // show/hide metadata
+	if (!CDVRSettings::GetInstance()->m_bDrawMetaData || !CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender) // show/hide metadata
 	{
 		return;
 	}
@@ -559,6 +559,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 	int nErr = 0;
 	m_playType = STREAME_FILE;
 	BOOL  bret =  PlayM4_SetStreamOpenMode(m_index, m_playType);
+	NAME(PlayM4_SetDecCallBackEx)(m_index, DecCBFun, NULL, 0);
     bret =  PlayM4_OpenStream( m_index, (BYTE*)m_streamHeader, streamHeaderSize, 600*1024);
 	if (!bret)
 	{
@@ -671,4 +672,59 @@ int CPlayer::PlayStartCmdByTime( SOCKET sk, SYSTEM_VIDEO_FILE* recdFile, char* s
     return 0;
 }
 
-
+const static int MAX_RGB32_LENGTH = (800*600*4);
+BYTE	rgbPImage[MAX_RGB32_LENGTH];
+void CPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
+	FRAME_INFO * pFrameInfo, 
+	long nReserved1,long /*nReserved2*/)
+{
+	if (CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender)
+	{
+		return;
+	}
+	switch (pFrameInfo->nType)
+	{
+	case T_RGB32:
+		break;
+	case T_UYVY:
+		break;
+	case T_YV12:
+		{
+			INT width = pFrameInfo->nWidth;
+			INT height = pFrameInfo->nHeight;
+			BYTE* y = (BYTE*)pBuf ;
+			BYTE* v = y + width * height ;
+			BYTE* u = v + ( width >> 1 ) * ( height >> 1 ) ;
+			CYuvRgbConverter::yv12_to_rgb32_mmx( rgbPImage , width , y , u , v , width , width >> 1 , width , -height ) ;
+			IplImage* pImg = cvCreateImageHeader(cvSize(width, height), 8, 4);//GetIplFromBmp(rgbImage, width, height);
+			pImg->imageData = (char*)rgbPImage;
+			pImg->origin = 1;
+			CDVRPlayer::OnOpenCVDrawFunc(pImg);
+			//cvRectangle(pImg, cvPoint(20, 20), cvPoint(200, 100), CV_RGB(255, 0, 0));
+			//cvCircle(pImg, cvPoint(1, 1), 20, CV_RGB(0, 255, 255));
+			//DWORD dwsize;
+			//BYTE* pData;
+			//GetBmpFromIpl(pImg, pData, dwsize);
+			//memcpy(rgbImage, pImg->imageData, ((width * 24 +31) & ~31) /8 * height);
+			//delete[] pData;
+			//pImg->imageData = NULL;
+			cvReleaseImage(&pImg);
+			//int alpha = 82;
+			//for (int i = 10; i < 100; ++i)
+			//{
+			//	for (int j = 10; j < 200; ++j)
+			//	{
+			//		rgbImage[(i*width+j)*4] = (rgbImage[(i*width+j)*4]*alpha + 0*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+1] = (rgbImage[(i*width+j)*4+1]*alpha + 0*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+2] = (rgbImage[(i*width+j)*4+1]*alpha + 255*(100-alpha))/100;
+			//		rgbImage[(i*width+j)*4+3] = 0;
+			//	}
+			//}
+			CYuvRgbConverter::_RGB32ToYV12(y, u, v, rgbPImage, width, height, width);
+		}
+		break;
+	default:
+		//Ignore the audio data.
+		return;
+	}
+}

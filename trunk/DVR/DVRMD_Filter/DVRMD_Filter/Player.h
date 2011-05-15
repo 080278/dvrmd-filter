@@ -70,6 +70,11 @@ private:
 	INT InputData();
 
 	static void CALLBACK MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser);
+	static void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
+		FRAME_INFO * pFrameInfo, 
+		long nReserved1,long /*nReserved2*/);
+
+	
 private:
 	CComSocket m_comSocket;
 	

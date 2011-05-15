@@ -2,6 +2,7 @@
 #include "atlimage.h"
 #include "Player.h"
 #include "DVRPlayer.h"
+#include "YuvRgbConverter.h"
 
 
 #ifdef _DEBUG
@@ -2310,10 +2311,6 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 	return 1;
 }
 
-#include "YuvRgbConverter.h"
-const int MAX_RGB32_LENGTH = (800*600*4);
-BYTE	rgbImage[MAX_RGB32_LENGTH];
-
 
 IplImage* GetIplFromBmp(BYTE* pBmp, int w, int h)
 {
@@ -2375,7 +2372,9 @@ bool GetBmpFromIpl(IplImage* pIpl, BYTE* &pBmp, DWORD& size)
 
 	return true;
 }
-//#pragma comment(lib, "cxcore.lib")
+
+const static int MAX_RGB32_LENGTH = (800*600*4);
+BYTE	rgbImage[MAX_RGB32_LENGTH];
 // Function: The dec call back funtion.
 void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
 	FRAME_INFO * pFrameInfo, 
