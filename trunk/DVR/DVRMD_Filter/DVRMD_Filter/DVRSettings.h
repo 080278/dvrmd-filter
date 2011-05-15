@@ -55,6 +55,7 @@ public:
 	// Show/Hide MetaData
 	bool    	m_bDrawMetaData; //Show/Hide MetaData: default is TRUE;
 	
+	bool		m_bDrawMetaDataOnRender;
 protected:
 	CDVRSettings(void);
 	~CDVRSettings(void);

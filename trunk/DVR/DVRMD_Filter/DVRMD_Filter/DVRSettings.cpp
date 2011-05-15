@@ -35,6 +35,7 @@ CDVRSettings::CDVRSettings(void)
 	, m_nRenderWidth(352)
 	, m_nRenderHeight(288)
 	, m_bDrawMetaData(true)
+	, m_bDrawMetaDataOnRender(true)
 {
 	::CoInitialize(NULL);
 	Load();
@@ -57,7 +58,7 @@ CDVRSettings *CDVRSettings::GetInstance()
 
 CDVRSettings::~CDVRSettings(void)
 {
-	Save();
+	//Save();
 	::CoUninitialize();
 }
 

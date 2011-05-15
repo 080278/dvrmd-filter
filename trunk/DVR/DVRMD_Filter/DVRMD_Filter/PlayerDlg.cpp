@@ -173,6 +173,7 @@ BEGIN_MESSAGE_MAP(CPlayerDlg, CDialog)
 	ON_BN_CLICKED(IDC_SHOWHIDE_SETTINGS, OnBnClickedShowHideSettings)
 
 	ON_WM_ERASEBKGND()
+	ON_BN_CLICKED(IDC_RENDER_MODE, &CPlayerDlg::OnClickedRenderMode)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1764,6 +1765,7 @@ void CPlayerDlg::SortControl()
 	CRect rcOpenFileBtn, rcSHBtn;
 	GetDlgItem(IDC_OPENFILE)->GetWindowRect(rcOpenFileBtn);
 	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->GetClientRect(rcSHBtn);
+	GetDlgItem(IDC_RENDER_MODE)->MoveWindow(rcVideo.right-rcSHBtn.Width()-INTERVAL-rcOpenFileBtn.Width()-INTERVAL-rcOpenFileBtn.Width(), y+BUTTON_SIZE, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
 	GetDlgItem(IDC_OPENFILE)->MoveWindow(rcVideo.right-rcSHBtn.Width()-INTERVAL-rcOpenFileBtn.Width(), y+BUTTON_SIZE, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
 	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->MoveWindow(rcVideo.right-rcSHBtn.Width(),  y+BUTTON_SIZE, rcSHBtn.Width(), rcSHBtn.Height());
 	//y-=PLAY_SLIDER_UP;
@@ -2524,4 +2526,9 @@ void CPlayerDlg::StopMonitor()
 {
 	GetPlayer()->StopMonitor();
 	SetState();
+}
+
+void CPlayerDlg::OnClickedRenderMode()
+{
+	CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender = !CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender;
 }

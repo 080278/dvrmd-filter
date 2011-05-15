@@ -736,7 +736,10 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 #ifdef _DEBUG
 		DWORD dwBegin = GetTickCount();
 #endif // _DEBUG
-	return;
+	if (!CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender)
+	{
+		return;
+	}
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
@@ -769,12 +772,17 @@ void CDVRPlayer::OnOpenCVDrawFunc(IplImage* pImg)
 		HHV::FrameMetaDataList metaDataList;
 		if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 		{
-			HHV::FrameMetaDataList scaledMetaData;
-			pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+			HHV::FrameMetaDataList scaledMetaData = metaDataList;
+			pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pImg->width, pImg->height);//pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 
 			for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
 			{
 				DrawFrameMetaData(pImg, *itFrame);
+#ifdef _DEBUG
+				char szBuf[255];
+				sprintf(szBuf, "Frame: (%d, %d), pImg: (%d, %d)", itFrame->displayData.image_width, itFrame->displayData.image_height, pImg->width, pImg->height);
+				cvPutText(pImg, szBuf, cvPoint(30, 10+(itFrame-scaledMetaData.begin())*20), &cvFont(1.0), CV_RGB(255, 0, 0));
+#endif
 			}
 		}
 	}
@@ -937,25 +945,47 @@ void CDVRPlayer::DrawPolyLine(IplImage* pImg, const HHV::PolyLine& line)
 {
 	//if (line.end_style == 0)
 	{
+#ifdef _DEBUG
+		std::string strTxt = "Draw Polyline: s";
+		char szBuf[255];
+#endif
+		int nPtAccount = line.lines.size();
+		CvPoint** pts = new CvPoint*[1];
+		pts[0] = new CvPoint[nPtAccount];
 		for (HHV::Points::const_iterator it = line.lines.begin(); it != line.lines.end(); ++it)
 		{
-			bool bComplete = false;
-			HHV::Points::const_iterator nextIt = it+1;
-			if (nextIt == line.lines.end() && nextIt != line.lines.begin())
-			{
-				nextIt = line.lines.begin();
-				bComplete = true;
-			}
-			cvLine(pImg, *it, *nextIt, CV_RGB(line.color.r, line.color.g, line.color.b), line.thickness);
-			if (bComplete)
-			{
-				break;
-			}
-			else
-			{
-				++it;
-			}
+			pts[0][it - line.lines.begin()] = cvPoint(it->x, pImg->height-it->y);
+#ifdef _DEBUG
+			sprintf(szBuf, "(%d, %d)", it->x,  pImg->height-it->y);
+			strTxt += szBuf;
+#endif	
 		}
+#ifdef _DEBUG
+		cvPutText(pImg, strTxt.c_str(), cvPoint(10, 10), &cvFont(1.0), CV_RGB(255, 0, 0));
+#endif
+		cvPolyLine(pImg, pts, &nPtAccount, 1, 1, CV_RGB(line.color.r, line.color.g, line.color.b), line.thickness );
+		delete[] pts[0];
+		delete[] pts;
+		//;
+		//for (HHV::Points::const_iterator it = line.lines.begin(); it != line.lines.end(); ++it)
+		//{
+		//	bool bComplete = false;
+		//	HHV::Points::const_iterator nextIt = it+1;
+		//	if (nextIt == line.lines.end() && nextIt != line.lines.begin())
+		//	{
+		//		nextIt = line.lines.begin();
+		//		bComplete = true;
+		//	}
+		//	cvLine(pImg, *it, *nextIt, CV_RGB(line.color.r, line.color.g, line.color.b), line.thickness);
+		//	if (bComplete)
+		//	{
+		//		break;
+		//	}
+		//	else
+		//	{
+		//		++it;
+		//	}
+		//}
 	}
 }
 
@@ -985,8 +1015,8 @@ void CDVRPlayer::DrawTextMeta(Gdiplus::Graphics& graphics, const HHV::TextMeta& 
 	delete[] pBuf;
 }
 void CDVRPlayer::DrawTextMeta(IplImage* pImg, const HHV::TextMeta& txt)
-{
-
+{	
+	cvPutText(pImg, txt.text.c_str(), cvPoint(txt.x, pImg->height-txt.y), &cvFont(1.0, txt.size), CV_RGB(txt.color.r, txt.color.g, txt.color.b));
 }
 void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& polygon, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -1033,7 +1063,23 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 }
 void CDVRPlayer::DrawPolygon(IplImage* pImg, const HHV::PolygonM& polygon)
 {
-
+	int nPtAccount = polygon.points.size();
+	CvPoint** pts = new CvPoint*[1];
+	pts[0] = new CvPoint[nPtAccount];
+	for (HHV::Points::const_iterator it = polygon.points.begin(); it != polygon.points.end(); ++it)
+	{
+		pts[0][it - polygon.points.begin()] = cvPoint(it->x, pImg->height-it->y);
+	}
+	if (!polygon.style.bFill)
+	{
+		cvPolyLine(pImg, pts, &nPtAccount, 1, 1, CV_RGB(polygon.style.color.r, polygon.style.color.g, polygon.style.color.b), polygon.style.thickness );
+	}
+	else
+	{
+		cvFillPoly(pImg, pts, &nPtAccount, 1, CV_RGB(polygon.style.fill_color.r, polygon.style.fill_color.g, polygon.style.fill_color.b));
+	}
+	delete[] pts[0];
+	delete[] pts;
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
@@ -1111,16 +1157,25 @@ void CDVRPlayer::DrawObjectType(IplImage* pImg, const HHV::ObjectType& obj)
 	switch(obj.type)
 	{
 	case 0:		//line_segment
-		cvLine(pImg, cvPoint(obj.x0, obj.y0), cvPoint(obj.x1, obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
+		cvLine(pImg, cvPoint(obj.x0, pImg->height-obj.y0), cvPoint(obj.x1, pImg->height-obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
 		break;
 	case 1:		//rectangle
 		if (style.bFill)
 		{
+			//cvfill
 		}
-		cvRectangle(pImg, cvPoint(obj.x0, obj.y0), cvPoint(obj.x1, obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
+		cvRectangle(pImg, cvPoint(obj.x0, pImg->height-obj.y0), cvPoint(obj.x1, pImg->height-obj.y1), CV_RGB(style.color.r, style.color.g, style.color.b), style.thickness);
 		break;
 	case 2:		//ellipse
-		//cvEllipse(pImg, )
+		cvEllipse(pImg, 
+			cvPoint((obj.x0+obj.x1)/2, pImg->height-(obj.y0+obj.y1)/2), 
+			cvSize((obj.x1-obj.x0)/2, (obj.y1-obj.y0)/2), 
+			0, 
+			0, 
+			360, 
+			CV_RGB(style.color.r, style.color.g, style.color.b), 
+			style.thickness);
+		//cvEllipseBox(pImg, CvBox2D)
 		break;
 	default:
 		break;
@@ -2326,6 +2381,10 @@ void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
 	FRAME_INFO * pFrameInfo, 
 	long nReserved1,long /*nReserved2*/)
 {
+	if (CDVRSettings::GetInstance()->m_bDrawMetaDataOnRender)
+	{
+		return;
+	}
 	switch (pFrameInfo->nType)
 	{
 	case T_RGB32:
@@ -2339,7 +2398,7 @@ void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
 			BYTE* y = (BYTE*)pBuf ;
 			BYTE* v = y + width * height ;
 			BYTE* u = v + ( width >> 1 ) * ( height >> 1 ) ;
-			CYuvRgbConverter::yv12_to_rgb32_mmx( rgbImage , width , y , v , u , width , width >> 1 , width , -height ) ;
+			CYuvRgbConverter::yv12_to_rgb32_mmx( rgbImage , width , y , u , v , width , width >> 1 , width , -height ) ;
 			IplImage* pImg = cvCreateImageHeader(cvSize(width, height), 8, 4);//GetIplFromBmp(rgbImage, width, height);
 			pImg->imageData = (char*)rgbImage;
 			pImg->origin = 1;
@@ -2351,6 +2410,7 @@ void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
 			//GetBmpFromIpl(pImg, pData, dwsize);
 			//memcpy(rgbImage, pImg->imageData, ((width * 24 +31) & ~31) /8 * height);
 			//delete[] pData;
+			//pImg->imageData = NULL;
 			cvReleaseImage(&pImg);
 			//int alpha = 82;
 			//for (int i = 10; i < 100; ++i)
