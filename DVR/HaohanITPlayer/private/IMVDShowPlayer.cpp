@@ -1481,6 +1481,11 @@ VOID CIMVDShowPlayer::UpdateVideoWindow(const LPRECT prc)
 {
 	if (m_spDVRPlayer.get())
 	{
+		if (prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
+		{
+			CDVRSettings::GetInstance()->m_nRenderWidth = prc->right - prc->left;
+			CDVRSettings::GetInstance()->m_nRenderHeight = prc->bottom - prc->top;
+		}
 		m_spDVRPlayer->RefreshPlay();
 	}
 }
