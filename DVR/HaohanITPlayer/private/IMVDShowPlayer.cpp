@@ -427,12 +427,12 @@ HRESULT CIMVDShowPlayer::Open(LPCWSTR moviePath)
 		IMV_TRACE(_T("CIMVDShowPlayer::InitializeGraph() OK ! \n"));
 
 		m_spDVRPlayer->Open(CW2T(moviePath));
-		m_spDVRPlayer->RefreshPlay();
 
 		m_state = m_spDVRPlayer->GetPlayState() == CDVRPlayer::eState_Play ? PlayerState_Playing : PlayerState_Uninitialized;
 		if (m_state == PlayerState_Playing)
 		{
 			m_spDVRPlayer->GetPictureSize(&m_videoWidth, &m_videoHeight);
+			m_spDVRPlayer->RefreshPlay();
 			return S_OK;
 		}
 		return E_FAIL;
