@@ -90,14 +90,20 @@ public:
 	ScaleFrameMetaDataList();
 	~ScaleFrameMetaDataList();
 
-	void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
+	//void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
+	void GetScaledFrameMetaDataList(int nPort, HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lDstWidth, LONG lDstHeight);
 private:
 	static	int g_ScaleIndex;
-	HHV::FrameMetaDataList	m_FrameMetaDataList;
-	HHV::FrameMetaDataList	m_TmpMetaDataList;
-	//HHV::FrameMetaData		m_Attributes;
+	typedef std::map<int, HHV::FrameMetaDataList>	MAP_RRAME;
+	MAP_RRAME m_mapFrameMetaDataList;
+	MAP_RRAME m_mapTmpMetaDataList;
+	std::map<int, LONG>	m_mapDstWidth, m_mapDstHeight;
 
-	LONG	m_lWndWidth, m_lWndHeight;
+	//HHV::FrameMetaDataList	m_FrameMetaDataList;
+	//HHV::FrameMetaDataList	m_TmpMetaDataList;
+	int	GetWorkFrameMetaData(HHV::FrameMetaDataList& frame, LONG& lDstWidth, LONG& lDstHeight);
+
+	//LONG	m_lWndWidth, m_lWndHeight;
 	bool	m_bScaling;
 	CCritSec	m_ScaleLock;
 	CCritSec	m_TmpLock;

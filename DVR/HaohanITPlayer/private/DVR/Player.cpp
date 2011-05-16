@@ -520,7 +520,7 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		Gdiplus::Graphics graphics(hDc);
 		HHV::FrameMetaDataList scaledMetaData;
 
-		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(scaledMetaData, metaList, renderWndWidth, renderWndHeight);
+		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(nPort, scaledMetaData, metaList, renderWndWidth, renderWndHeight);
 
 		for (HHV::FrameMetaDataList::const_iterator it = scaledMetaData.begin(); it != scaledMetaData.end(); ++it)
 		{

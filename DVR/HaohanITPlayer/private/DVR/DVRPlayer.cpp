@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "DVRPlayer.h"
 
+#define MAX_PLAYER	36
+
 #define IDM_THROW0                      32787
 #define IDM_THROW1                      32788
 #define IDM_THROW2                      32789
@@ -34,8 +36,8 @@ ScaleFrameMetaDataList::ScaleFrameMetaDataList()
 	++g_ScaleIndex;
 
 	m_hThread = (HANDLE)::_beginthreadex(NULL, 0, ScaleCallBack, this, 0, NULL);
-	memset(&m_lWndWidth, 0, sizeof(m_lWndWidth));
-	memset(&m_lWndHeight, 0, sizeof(m_lWndHeight));
+	//memset(&m_lWndWidth, 0, sizeof(m_lWndWidth));
+	//memset(&m_lWndHeight, 0, sizeof(m_lWndHeight));
 }
 
 ScaleFrameMetaDataList::~ScaleFrameMetaDataList()
@@ -46,22 +48,70 @@ ScaleFrameMetaDataList::~ScaleFrameMetaDataList()
 	::CloseHandle(m_hEvent[eScaleEvent]);
 	::CloseHandle(m_hEvent[eExitEvent]);
 }
-void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
+//void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
+//{
+//	if (!m_bScaling)
+//	{
+//		m_TmpLock.Lock();
+//		m_TmpMetaDataList = srcFrame;
+//		m_lWndWidth = lWndWidth;
+//		m_lWndHeight = lWndHeight;
+//		SetEvent(m_hEvent[eScaleEvent]);
+//		m_TmpLock.Unlock();
+//	}
+//	m_ScaleLock.Lock();
+//	dstFrame = m_FrameMetaDataList;
+//	m_ScaleLock.Unlock();
+//}
+
+void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(int nPort, HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lDstWidth, LONG lDstHeight)
 {
 	if (!m_bScaling)
 	{
 		m_TmpLock.Lock();
-		m_TmpMetaDataList = srcFrame;
-		m_lWndWidth = lWndWidth;
-		m_lWndHeight = lWndHeight;
-		SetEvent(m_hEvent[eScaleEvent]);
+		m_mapTmpMetaDataList[nPort] = srcFrame;
+		m_mapDstWidth[nPort] = lDstWidth;
+		m_mapDstHeight[nPort] = lDstHeight;
 		m_TmpLock.Unlock();
 	}
 	m_ScaleLock.Lock();
-	dstFrame = m_FrameMetaDataList;
+	std::map<int, HHV::FrameMetaDataList>::iterator it = m_mapFrameMetaDataList.find(nPort);
+	if (it != m_mapFrameMetaDataList.end())
+	{
+		dstFrame = it->second;
+		m_mapFrameMetaDataList.erase(it);
+	}
 	m_ScaleLock.Unlock();
 }
 
+int	ScaleFrameMetaDataList::GetWorkFrameMetaData(HHV::FrameMetaDataList& frame, LONG& lDstWidth, LONG& lDstHeight)
+{
+	static int nCurPort = 0;
+	int nStartQueryPort = nCurPort;
+	MAP_RRAME::iterator it = m_mapTmpMetaDataList.find(nCurPort);
+	while (it == m_mapTmpMetaDataList.end() || it->second.size() == 0)
+	{
+		++nCurPort;
+		if (nCurPort >= MAX_PLAYER)
+		{
+			nCurPort = 0;
+		}
+		if (nCurPort == nStartQueryPort)
+		{
+			break;
+		}
+		it = m_mapTmpMetaDataList.find(nCurPort);
+	}
+	
+	if (it != m_mapTmpMetaDataList.end() && it->second.size() > 0)
+	{
+		frame = it->second;
+		lDstWidth = m_mapDstWidth[it->first];
+		lDstHeight = m_mapDstHeight[it->first];
+		return it->first;
+	}
+	return -1;
+}
 unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 {
 	ScaleFrameMetaDataList* pThis = (ScaleFrameMetaDataList*)pParam;
@@ -76,34 +126,44 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 		case WAIT_OBJECT_0+eScaleEvent:
 			{
 				pThis->m_TmpLock.Lock();
-				HHV::FrameMetaDataList frame = pThis->m_TmpMetaDataList;
-				HHV::FrameMetaData attributes;
-				LONG lWndWidth = pThis->m_lWndWidth;
-				LONG lWndHeight = pThis->m_lWndHeight;
+				HHV::FrameMetaDataList frame;// = pThis->m_TmpMetaDataList;
+				LONG lWndWidth;// = pThis->m_lWndWidth;
+				LONG lWndHeight;// = pThis->m_lWndHeight;
+				int nPort = pThis->GetWorkFrameMetaData(frame, lWndWidth, lWndHeight);
 				pThis->m_TmpLock.Unlock();
-				if (frame.size() > 0)
+				if (nPort >= 0 && frame.size() > 0)
 				{
+					HHV::FrameMetaData attributes;
 					pThis->m_bScaling = true;
 					for (HHV::FrameMetaDataList::iterator it = frame.begin(); it != frame.end(); ++it)
 					{
 						ScaleAttributes(attributes, it->attributes, lWndWidth, lWndHeight);
 						ScaleFrameMetaData(*it, lWndWidth, lWndHeight);
 					}
+					if (attributes.displayData.disp_obj_list.size() > 0 ||
+						attributes.displayData.gui_object_list.size() > 0 ||
+						attributes.displayData.line_list.size() > 0 ||
+						attributes.displayData.polygon_list.size() > 0 ||
+						attributes.displayData.text_list.size() > 0)
+					{
+						attributes.displayData.image_width = lWndWidth;
+						attributes.displayData.image_height = lWndHeight;
+						frame.push_back(attributes);
+					}
 				}
 
-				if (attributes.displayData.disp_obj_list.size() > 0 ||
-					attributes.displayData.gui_object_list.size() > 0 ||
-					attributes.displayData.line_list.size() > 0 ||
-					attributes.displayData.polygon_list.size() > 0 ||
-					attributes.displayData.text_list.size() > 0)
-				{
-					attributes.displayData.image_width = lWndWidth;
-					attributes.displayData.image_height = lWndHeight;
-					frame.push_back(attributes);
-				}
 				pThis->m_ScaleLock.Lock();
-				pThis->m_FrameMetaDataList = frame;
-				//pThis->m_Attributes = attributes;
+				if (nPort >= 0)
+				{
+					if (frame.size() > 0)
+					{
+						pThis->m_mapFrameMetaDataList[nPort] = frame;
+					}
+					else
+					{
+						pThis->m_mapFrameMetaDataList.erase(nPort);
+					}
+				}
 				pThis->m_ScaleLock.Unlock();
 				ResetEvent(pThis->m_hEvent[eScaleEvent]);
 			}
@@ -734,7 +794,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
 		HHV::FrameMetaDataList scaledMetaData;
-		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
+		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(pThis->GetPort(), scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		
 		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
@@ -2125,7 +2185,23 @@ void CDVRPlayer::DecCBFun(long nPort,char * pBuf,long nSize,
 	FRAME_INFO * pFrameInfo, 
 	long nReserved1,long /*nReserved2*/)
 {
+	//if (pFrameInfo->nWidth == 0 || pFrameInfo->nHeight == 0)
+	//{
+	//	//Ignore the Audio data.
+	//	return;
+	//}
 
+	//switch(pFrameInfo->nType)
+	//{
+	//case T_RGB32:
+	//	cvPutText(pBuf, "sdfasdfasdfasdfRGB32", cvPoint(20, 20), &cvFont(1.0, 2), cvScalar(1.0));
+	//	break;
+	//case  T_YV12:
+	//	break;
+	//case  T_UYVY:
+	//	break;
+	//}
+	//cvPutText(pBuf, "sssssssss", cvPoint(20, 50), &cvFont(1.0, 2), cvScalar(1.0));
 }
 
 // Functon:File reference call back function.
