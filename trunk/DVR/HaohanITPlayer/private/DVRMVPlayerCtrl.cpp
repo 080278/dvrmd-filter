@@ -700,7 +700,6 @@ void CDVRMVPlayerCtrl::TurnOffCursorHiding()
 #include "assert.h"
 STDMETHODIMP CDVRMVPlayerCtrl::OpenFile(BSTR bstrMediaFile)
 {
-	//assert(false);
 	return m_IMVPlayer.Open(bstrMediaFile);
 
 }
