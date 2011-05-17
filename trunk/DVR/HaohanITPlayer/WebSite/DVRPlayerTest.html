@@ -87,6 +87,11 @@
                 DVRPlayer.OpenFile(strFile);
             }
         }
+
+        function OnMouseDoubleClick() {
+            DVRPlayer.fullScreen = !DVRPlayer.fullScreen;
+        }
+
     </script>
     <style type="text/css">
         #DVRPlayer
@@ -212,5 +217,8 @@
     <br />
     <br />
     <br />
+    <script language="javascript" type="text/javascript" for="DVRPlayer" event="DoubleClick(nButton, nShiftState, fx, fy)">
+        OnMouseDoubleClick();
+    </script>
 </body>
 </html>

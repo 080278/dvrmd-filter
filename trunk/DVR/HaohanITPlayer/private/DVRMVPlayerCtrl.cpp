@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "DVRMVPlayerCtrl.h"
 #include "OPErrorTypes.h"
+#include "assert.h"
 
 // CDVRMVPlayerCtrl
 
@@ -10,6 +11,7 @@
 
 LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	assert(false);
     m_IMVPlayer.SetWindow(m_hWnd);
 
     #undef SubclassWindow
@@ -697,9 +699,12 @@ void CDVRMVPlayerCtrl::TurnOffCursorHiding()
 	if (0 == info.flags)
 		::ShowCursor(TRUE);
 }
-#include "assert.h"
+
 STDMETHODIMP CDVRMVPlayerCtrl::OpenFile(BSTR bstrMediaFile)
 {
+#ifdef _DEBUG
+	assert(false);
+#endif
 	return m_IMVPlayer.Open(bstrMediaFile);
 
 }
