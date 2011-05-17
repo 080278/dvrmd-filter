@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Thu May 12 13:46:36 2011
+/* at Tue May 17 23:26:48 2011
  */
 /* Compiler settings for public\DVRMVPlayer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 

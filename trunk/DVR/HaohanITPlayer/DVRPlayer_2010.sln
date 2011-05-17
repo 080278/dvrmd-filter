@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRPlayer", "DVRPlayer_2010.vcxproj", "{632BD71E-6C56-4D3A-9981-0CE3A83EC86B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54} = {5359D596-9EA4-BF92-9321-ECE20FF8FF54}
+	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebSite", "WebSite\", "{9C75718B-CBC3-4851-BD6B-247407D3FBA3}"
 	ProjectSection(WebsiteProperties) = preProject
@@ -22,6 +25,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WebSite", "WebSite\", "{9C7
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "1322"
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWndDll_2010", "HWNDDLL\HWndDll_2010.vcxproj", "{5359D596-9EA4-BF92-9321-ECE20FF8FF54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +71,21 @@ Global
 		{9C75718B-CBC3-4851-BD6B-247407D3FBA3}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{9C75718B-CBC3-4851-BD6B-247407D3FBA3}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
 		{9C75718B-CBC3-4851-BD6B-247407D3FBA3}.Release|Win32.ActiveCfg = Debug|Any CPU
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Debug|Win32.Build.0 = Debug|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.DevRelease|Any CPU.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.DevRelease|Mixed Platforms.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.DevRelease|Mixed Platforms.Build.0 = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.DevRelease|Win32.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.DevRelease|Win32.Build.0 = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Release|Any CPU.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Release|Win32.ActiveCfg = Release|Win32
+		{5359D596-9EA4-BF92-9321-ECE20FF8FF54}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
