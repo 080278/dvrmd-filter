@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./stylesheets/jslider.plastic.css" type="text/css" />
     <link rel="stylesheet" href="./stylesheets/jslider.round.css" type="text/css" />
     <link rel="stylesheet" href="./stylesheets/jslider.round.plastic.css" type="text/css" />
+    <!--<script type="text/javascript" src="./javascripts/FloatFrame.js"></script>-->
     <script type="text/javascript" src="./javascripts/jquery-1.4.2.js"></script>
     <script type="text/javascript" src="./javascripts/jquery.dependClass.js"></script>
     <script type="text/javascript" src="./javascripts/jquery.slider-min.js"></script>
@@ -39,8 +40,8 @@
 		}
 		
 		function doOperator(type,params){
-			var span_operatorObj = document.getElementById("span_operator");
-			if(!span_operatorObj) return;
+		    var span_operatorObj = document.getElementById("span_operator");
+		    if (!span_operatorObj) return;
 
 			if (type == 'login') {//µÇÂ¼
 
@@ -96,6 +97,8 @@
     </style>
 </head>
 <body>
+<!--    <div id="divFloat" style=" position:absolute; left:200px; top:300px; width: 765px; height:60px; background-color:Red; z-index: 5000">
+    </div>-->
     <p style="width: 600px">
         <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52">
         </object>
@@ -148,7 +151,7 @@
         <select name="WndIndex">
         </select>
     </label>
-    </br> </br>
+    <br/> <br/>
     <label>
         Í¨µÀºÅ
         <select name="ChannelIndex">

@@ -579,7 +579,17 @@ BOOL CDVRPlayer::InitForMonitor()
 	m_spHWndMgr.reset(new CHWndManager);
 	m_spPlayerMgr.reset(new CPlayerMgr);
 
+	RECT rcClient;
+	::GetClientRect(m_hRenderWnd, &rcClient);
+	if (rcClient.right <= rcClient.left || rcClient.bottom <= rcClient.top)
+	{
+		::SetWindowPos(m_hRenderWnd, NULL, 0, 0, 
+			CDVRSettings::GetInstance()->m_nRenderWidth, 
+			CDVRSettings::GetInstance()->m_nRenderHeight, SWP_NOZORDER|SWP_NOMOVE);
+		::GetClientRect(m_hRenderWnd, &rcClient);
+	}
 	m_spHWndMgr->InitSplit(m_hRenderWnd);
+
 	int splitMode = SPLIT_1;	//1;3;4;6;9;16;25;36
 	switch (GetDVRSettings().m_nRenderWndNum)
 	{
