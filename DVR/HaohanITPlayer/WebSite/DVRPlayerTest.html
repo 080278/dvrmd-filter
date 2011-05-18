@@ -21,7 +21,7 @@
         .layout-slider
         {
             margin-bottom: 60px;
-            width: 100px;
+            width: 142px;
         }
         .layout-slider-settings
         {
@@ -36,49 +36,62 @@
     <script language="javascript" type="text/javascript">
 		function getValue(){
 			var sliderObj = document.getElementById("SliderSingle");
-			alert("---> "+sliderObj.value);
 		}
-		
-		function doOperator(type,params){
+
+		function doOperator(type, params) {
 		    var span_operatorObj = document.getElementById("span_operator");
 		    if (!span_operatorObj) return;
 
-			if (type == 'login') {//登录
+		    if (type == 'login') {//登录
 
-			    DVRPlayer.Login(params[0], params[1], params[2], params[3]); //userName, passWord, severIP, severPort
+		        DVRPlayer.Login(params[0], params[1], params[2], params[3]); //userName, passWord, severIP, severPort
 
-			} else if (type == 'logout') {//登出
-			    DVRPlayer.Logout();
-			} 
-            else if (type == 'startMonitor') {//启动监视
-			    if (params[0] > 0) {
-			        DVRPlayer.StartMonitor(params[0]);
-			    } else {
-			        alert("请输入分割线数！");
-			    }
-			} 
-            else if (type == 'stopMonitor') {//停止监视
-			    DVRPlayer.StopMonitor();
-			} 
-            else if (type == 'setWndChannel') {//切换通道
-			    if (params[0] >= 0 && params[1] >= 0) {
-			        DVRPlayer.SetWndChannel(params[0], params[1]);
-			    } else {
-			        alert("========>>>Channel");
-			    }
-			} 
-            else if (type == 'run') {//播放params[0]
-			    span_operatorObj.innerHTML = '<input name="stop" type="button" value="暂停" onclick="doOperator(\'pause\')"/>';
-			} 
-            else if (type == 'pause') {//暂停
-			    span_operatorObj.innerHTML = '<input name="play" type="button" value="播放" onclick="doOperator(\'run\')"/>';
-			} 
-            else if (type == 'stop') {//停止
-			} 
-            else if (type == 'fastForward') {//快进
-            } 
-            else if (type == 'fastForward') {//快退
-			}
+		    } else if (type == 'logout') {//登出
+		        DVRPlayer.Logout();
+		    }
+		    else if (type == 'startMonitor') {//启动监视
+		        if (params[0] > 0) {
+		            DVRPlayer.StartMonitor(params[0]);
+		        } else {
+		            alert("请输入分割线数！");
+		        }
+		    }
+		    else if (type == 'stopMonitor') {//停止监视
+		        DVRPlayer.StopMonitor();
+		    }
+		    else if (type == 'setWndChannel') {//切换通道
+		        if (params[0] >= 0 && params[1] >= 0) {
+		            DVRPlayer.SetWndChannel(params[0], params[1]);
+		        } else {
+		            alert("========>>>Channel");
+		        }
+		    }
+		    else if (type == 'run') {//播放params[0]
+
+		        DVRPlayer.play();
+		        span_operatorObj.innerHTML = '<input name="stop" type="button" value="暂停" onclick="doOperator(\'pause\')"/>';
+		    }
+		    else if (type == 'pause') {//暂停
+
+		        DVRPlayer.pause();
+		        span_operatorObj.innerHTML = '<input name="play" type="button" value="播放" onclick="doOperator(\'run\')"/>';
+		    }
+		    else if (type == 'stop') {//停止
+
+		        DVRPlayer.stop();
+		    }
+		    else if (type == 'fastForward') {//快进
+
+		        DVRPlayer.fastForward();
+		    }
+		    else if (type == 'fastReverse') {//快退
+
+		        DVRPlayer.fastReverse();
+		    }
+		    else if (type == 'capPic') {//截图
+		      
+		        DVRPlayer.CapPic("C:");
+            }
 		}
 
         function OnOpenFile(strFile)
@@ -99,121 +112,133 @@
             height: 449px;
             width: 601px;
         }
+        #form1
+        {
+            width: 145px;
+            height: 32px;
+        }
+        #form2
+        {
+            width: 167px;
+        }
+        #mediaFile
+        {
+            width: 248px;
+        }
+        .style1
+        {
+            width: 597px;
+        }
+        .style4
+        {
+            width: 169px;
+        }
+        .style5
+        {
+            width: 75px;
+        }
+        .style8
+        {
+            width: 132px;
+        }
+        .style9
+        {
+            width: 98px;
+        }
+        .style10
+        {
+            width: 67px;
+        }
     </style>
 </head>
 <body>
 <!--    <div id="divFloat" style=" position:absolute; left:200px; top:300px; width: 765px; height:60px; background-color:Red; z-index: 5000">
     </div>-->
-    <p style="width: 600px">
-        <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52">
-        </object>
-        <p>
-            <div>
-                <input id="mediaFile" type="file" onchange="OnOpenFile(this.value)" />
-            </div>
+	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <td class="style1">
+            <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52">
+            </object>
+        </td>
+        <td class="style4" >
+            <br />
+            <br />
             <div class="layout-slider" onmouseup="getValue()">
                 <input id="SliderSingle" type="slider" name="price" value="0" />
             </div>
+            <br />
+            <table border="0" style="width: 271px; margin-top: 0px">
+                <tr>
+                    <td width="42">
+                        <input name="fastForward" type="button" value="快进" onclick="doOperator('fastForward')" />
+                  </td>
+                    <td width="69">
+                        <span id="span_operator">
+                      <input name="play" type="button" value="播放" onclick="doOperator('run', null)" /></span>
+                  </td>
+                    <td width="42">
+                        <input name="fastReverse" type="button" value="快退" onclick="doOperator('fastReverse')" />
+                  </td>
+                    <td width="42">
+                        <input name="stop" type="button" value="停止" onclick="doOperator('stop', null)" />
+                  </td>
+                    <td width="49">&nbsp;</td>
+                </tr>
+</table>
+            <br />
+            <br />
+    <table width="390" border="0" style="width: 342px">
+        <tr>
+            <td width="67" class="style10">
+                <a href="javascript:doOperator('login',['super','uptfp','192.168.99.86',20000])">登录</a>            </td>
+            <td width="98" class="style9">
+                <a href="javascript:doOperator('startMonitor', [1])">启动监视</a>            </td>
+            <td width="75" class="style5">
+                <a href="javascript:doOperator('setWndChannel', [0,4])">切换通道</a>            </td>
+            <td width="132" class="style8">            </td>
+        </tr>
+        <tr>
+            <td class="style10">
+                <a href="javascript:doOperator('logout',null)">登出</a>
+            </td>
+            <td class="style9">
+                <a href="javascript:doOperator('stopMonitor',null)">停止监控</a>
+            </td>
+            <td class="style5">&nbsp;
+                
+          </td>
+            <td class="style8">
+                <a href="javascript:doOperator('setWndChannel', [0,4])">服务器回放</a>
+            </td>
+        </tr>
+</table>
+            <br />
+            <br />
+            <br />
+        <input type="submit" name="capPic" value="截图" onclick="doOperator('capPic', null)"/><td>
+          <p>&nbsp;</p>
+          <p style="width: 164px"><span class="style4">窗口分割数</span> <span class="style4">
+            <select name="splitWindow" style="width: 53px">
+            </select>
+          </span></p>
+          <p style="width: 171px">窗口
+            <select name="WndIndex" style="width: 55px">
+                </select>
+            <br/> 
+            <br/>
+        通道号
+        <select name="ChannelIndex" style="width: 53px">
+        </select>
+              </p></td>
+	</table>
+  
+<div style="width: 248px">
+                <input id="mediaFile" type="file" onchange="OnOpenFile(this.value)" />
+</div>
             <script type="text/javascript" charset="utf-8">
                 jQuery("#SliderSingle").slider({ from: 0, to: 100, step: 1, round: 0, dimension: '', skin: "round" });
             </script>
-            <table width="600" border="0">
-                <tr>
-                    <td width="32">
-                        <input name="fastForward" type="button" value="快进" onclick="doOperator('fastForward')" />
-                    </td>
-                    <td width="72">
-                        <span id="span_operator">
-                            <input name="play" type="button" value="播放" onclick="doOperator('run')" /></span>
-                    </td>
-                    <td width="32">
-                        <input name="fastReverse" type="button" value="快退" onclick="doOperator('fastReverse')" />
-                    </td>
-                    <td width="32">
-                        <input name="stop" type="button" value="停止" onclick="doOperator('stop')" />
-                    </td>
-                    <td width="413">
-                        进度条
-                    </td>
-                </tr>
-            </table>
-        </p>
-    </p>
-    <p style="width: 600px">
-        &nbsp;</p>
-    <form id="form1" name="form1" method="post" action="">
-    <label>
-        窗口分割数
-        <select name="splitWindow">
-        </select>
-    </label>
-    <p>
-        &nbsp;</p>
-    </form>
-    <form id="form2" name="form2" method="post" action="">
-    <label>
-        窗口
-        <select name="WndIndex">
-        </select>
-    </label>
-    <br/> <br/>
-    <label>
-        通道号
-        <select name="ChannelIndex">
-        </select>
-    </label>
-    </form>
-    <p style="width: 600px">
-        &nbsp;
-    </p>
-    <form id="form3" name="form3" method="post" action="">
-    <label>
-        <input type="submit" name="capPic" value="截图" />
-    </label>
-    </form>
-    <br />
-    <table width="600" border="0">
-        <tr>
-            <td width="75">
-                <a href="javascript:doOperator('login',['super','uptfp','192.168.99.86',20000])">登录</a>
-            </td>
-            <td width="103">
-                <a href="javascript:doOperator('startMonitor', [1])">启动监视</a>
-            </td>
-            <td width="96">
-                <a href="javascript:doOperator('setWndChannel', [0,4])">切换通道</a>
-            </td>
-            <td width="118">
-                <a href="javascript:doOperator('setWndChannel', [0,4])">本地回放</a>
-            </td>
-            <td width="21">
-                &nbsp;
-            </td>
-            <td width="161">
-                &nbsp;
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="javascript:doOperator('logout',null)">登出</a>
-            </td>
-            <td>
-                <a href="javascript:doOperator('stopMonitor',null)">停止监控</a>
-            </td>
-            <td>
-                &nbsp;
-            </td>
-            <td>
-                <a href="javascript:doOperator('setWndChannel', [0,4])">服务器回放</a>
-            </td>
-            <td>
-                &nbsp;
-            </td>
-            <td>
-                &nbsp;
-            </td>
-        </tr>
-    </table>
+    <td>&nbsp;
+        </td><br />
     <br />
     <br />
     <br />
