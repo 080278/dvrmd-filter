@@ -442,6 +442,7 @@ STDMETHODIMP CDVRMVPlayerCtrl::put_fullScreen(VARIANT_BOOL bFullScreen)
         }
 		TurnOffCursorHiding();
     }
+	m_IMVPlayer.UpdateVideoWindow(NULL);
 
     return S_OK;
 }
