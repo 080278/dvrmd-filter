@@ -84,9 +84,10 @@ LRESULT CDVRMVPlayerCtrl::OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 {
 	if(!m_bDisplayChaning)
 	{
-		RECT rc;
-		GetClientRect(&rc);
-		m_IMVPlayer.UpdateVideoWindow(&rc);
+		RECT rcClient, rcWindow;
+		GetClientRect(&rcClient);
+		GetWindowRect(&rcWindow);
+		m_IMVPlayer.UpdateVideoWindow(&rcClient);
 	}
 
 	return 0;
