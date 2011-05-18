@@ -189,8 +189,8 @@ public:
 			return S_OK;
 
 		//workaround for CNMM-335: Playback window is a little large over below the write line 
-		if(m_IMVPlayer.State() == PlayerState_Uninitialized && !IsRectEmpty(prcPos))
-			return S_OK;
+		//if(m_IMVPlayer.State() == PlayerState_Uninitialized && !IsRectEmpty(prcPos))
+		//	return S_OK;
 
 		return CComControlBase::IOleInPlaceObject_SetObjectRects(prcPos, prcClip);
 	}
