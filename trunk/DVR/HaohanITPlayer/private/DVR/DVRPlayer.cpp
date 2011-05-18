@@ -567,7 +567,8 @@ void CDVRPlayer::DestoryPlayFile()
 	NAME(PlayM4_ReleaseDDrawDevice)();
 	NAME(PlayM4_FreePort)(m_lPort);
 
-	m_lPort = -1;
+	//m_lPort = -1;
+	m_lPort = 0;
 	m_enumState = CDVRPlayer::eState_Close;
 }
 BOOL CDVRPlayer::InitForMonitor()
@@ -590,8 +591,44 @@ BOOL CDVRPlayer::InitForMonitor()
 	}
 	m_spHWndMgr->InitSplit(m_hRenderWnd);
 
+	int splitMode = ToSplitMode(GetDVRSettings().m_nRenderWndNum);	//1;3;4;6;9;16;25;36
+	//switch (GetDVRSettings().m_nRenderWndNum)
+	//{
+	//case 3:
+	//	splitMode = SPLIT_3;
+	//	break;
+	//case 4:
+	//	splitMode = SPLIT_4;
+	//	break;
+	//case 6:
+	//	splitMode = SPLIT_6;
+	//	break;
+	//case 9:
+	//	splitMode = SPLIT_9;
+	//	break;
+	//case 16:
+	//	splitMode = SPLIT_16;
+	//	break;
+	//case  25:
+	//	splitMode = SPLIT_25;
+	//	break;
+	//case  36:
+	//	splitMode = SPLIT_36;
+	//	break;
+	//default:
+	//	splitMode = SPLIT_1;
+	//}
+	m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
+	m_spPlayerMgr->Init(NULL);
+	//m_spDVRLoginMgr->Startup();
+
+	return TRUE;
+}
+
+int CDVRPlayer::ToSplitMode(int nWndNum)
+{
 	int splitMode = SPLIT_1;	//1;3;4;6;9;16;25;36
-	switch (GetDVRSettings().m_nRenderWndNum)
+	switch (nWndNum)
 	{
 	case 3:
 		splitMode = SPLIT_3;
@@ -617,13 +654,9 @@ BOOL CDVRPlayer::InitForMonitor()
 	default:
 		splitMode = SPLIT_1;
 	}
-	m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
-	m_spPlayerMgr->Init(NULL);
-	//m_spDVRLoginMgr->Startup();
 
-	return TRUE;
+	return splitMode;
 }
-
 void CDVRPlayer::DestoryMonitor()
 {
 	if (IsMonitoring())
@@ -748,6 +781,13 @@ void CDVRPlayer::StopMonitor()
 	m_MonitorHandler.clear();
 }
 
+void CDVRPlayer::ResizeMonitorWindow()
+{
+	if (m_spHWndMgr.get() && IsMonitoring())
+	{
+		m_spHWndMgr->SetSplitMode(m_lPort, ToSplitMode(CDVRSettings::GetInstance()->m_nRenderWndNum));
+	}
+}
 BOOL CDVRPlayer::IsMonitoring()
 {
 	return !m_MonitorHandler.empty();

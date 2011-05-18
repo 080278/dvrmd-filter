@@ -155,6 +155,7 @@ public:
 	void StopMonitor();
 	BOOL IsMonitoring();
 	BOOL SetWndChannel(int nWndIndex, int nChannel);
+	void ResizeMonitorWindow();
 
 	// Playback by time
 	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);
@@ -272,7 +273,7 @@ private:
 	void  OpenFile();
 	void  CloseFile();
 	CString  GetPic(PBYTE pImage, DWORD nBufSize);
-
+	int ToSplitMode(int nWndNum);
 	// callback function
 	static void CALLBACK DecCBFun(long nPort,char * pBuf,long nSize,
 		FRAME_INFO * pFrameInfo, 
