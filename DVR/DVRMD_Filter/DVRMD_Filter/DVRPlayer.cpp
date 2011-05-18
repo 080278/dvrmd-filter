@@ -1562,20 +1562,30 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 	DWORD   pImageSize	= 0;
 
+	CTime tm = CTime::GetCurrentTime();
+	/*
+		获取当前时间，精确到秒，两个客户端同时运行时，不会覆盖
+	*/
 	if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 	{
+		if(m_lPort != 0) {
+			m_lPort = 0;
+		}
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
 			return CString();
 		}
 
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
-		{
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
+		{ 
+			//sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, tm);
+			
 		}
 		else
 		{
-			sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
+			//sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
+			sFilePath.Format(_T("C:\\capture%02d.jpeg"), tm);
 		}
 	}
 	else
@@ -1587,11 +1597,13 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
+			//sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, tm);
 		}
 		else
 		{
-			sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
+			//sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
+			sFilePath.Format(_T("C:\\capture%02d.bmp"), tm);
 		}
 	}
 	
@@ -1619,7 +1631,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 				m_imgDest.ReleaseDC();	
 			}
 		}
-
+		/*
 		if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 		{
 			m_npic_jpeg++;
@@ -1628,6 +1640,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		{
 			m_npic_bmp++;
 		}
+		*/
 	}
 	catch (CFileException* e) 
 	{
