@@ -328,13 +328,15 @@ STDMETHODIMP CDVRMVPlayerCtrl::get_currentPositionString(BSTR* pbstrCurrentPosit
         UINT hour = second / 3600;
         UINT minute = (second - hour*3600) / 60;
         second = second - hour*3600 - minute*60;
-        if(hour)
+        if(hour < 100 && hour > 0)
             swprintf_s(wszCurrentPosition, 9,TEXT("%.2d:%.2d:%.2d"), hour,minute,second);
-        else
+        else if(hour == 0)
             swprintf_s(wszCurrentPosition, 9,TEXT("%.2d:%.2d"), minute,second);
-
-        bstrCurrentPosition = wszCurrentPosition;
-    }
+		if (hour < 100)
+		{
+			bstrCurrentPosition = wszCurrentPosition;
+		}
+	}
 
     *pbstrCurrentPosition = bstrCurrentPosition.Detach();
 

@@ -25,7 +25,7 @@ const UINT WM_GRAPH_EVENT = WM_APP + 1;
 
 const LONGLONG MILLISECONDS = (1000);            // 10 ^ 3
 const LONGLONG NANOSECONDS = (1000000000);       // 10 ^ 9
-const LONGLONG UNITS = (NANOSECONDS / 100);      // 10 ^ 7
+const LONGLONG UNITS = 1;//(NANOSECONDS / 100);      // 10 ^ 7
 const LONGLONG BUFFERING_THRESHOLD_IN = (30*UNITS); // the threshold to begin buffering(default is 30s less to available time)
 const LONGLONG BUFFERING_THRESHOLD_OUT = (60*UNITS); // the threshold to end buffering(default is 60s large to available time)
 
