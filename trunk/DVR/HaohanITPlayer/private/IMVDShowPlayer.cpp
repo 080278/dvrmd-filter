@@ -822,21 +822,21 @@ HRESULT CIMVDShowPlayer::SetCurrentPosition(LONGLONG toPosition)
 	if( (toPosition > availablePos) ||
 		((availablePos-toPosition < BUFFERING_THRESHOLD_IN) && (availablePos != durition)))
 	{
-		toPosition = availablePos - BUFFERING_THRESHOLD_IN;
+		//toPosition = availablePos - BUFFERING_THRESHOLD_IN;
 		if(m_state == PlayerState_Playing )
 		{
 			// PlayerState_Buffering should only be changed from PlayerState_Playing
 			//m_spDVRPlayer->Pause();
-			m_pMediaControl->Pause();
-			m_state = PlayerState_Buffering;
+			//m_pMediaControl->Pause();
+			//m_state = PlayerState_Buffering;
 		}
 	}
 
 	//CheckPointer(m_pMediaSeeking,E_UNEXPECTED);
  //   return m_pMediaSeeking->SetPositions(&toPosition, AM_SEEKING_AbsolutePositioning, NULL, 0);
-	if (m_spDVRPlayer->SetPosition(toPosition))
+	if (m_spDVRPlayer->SetPosition(toPosition*1000))
 	{
-		//m_spDVRPlayer->Pause();
+		m_spDVRPlayer->Play();
 	}
 	return S_OK;
 }
