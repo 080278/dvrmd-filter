@@ -32,10 +32,34 @@
         {
             font-family: Courier;
         }
+       
     </style>
     <script language="javascript" type="text/javascript">
-        function getValue() {
+        var vsDuration = 100//vs录像持续时间
+        var currentTime //得到vs录像播放的当前时间
+        var setCurrentTime //设置vs录像播放时间
+        var ratio //进度条比例
+        var stop = false //停止每隔1秒
+        var stopCurrentTime //停止每隔1秒计算当前时间
+        var stopRatio //停止每隔1秒计算比例
+        var sliderValue //停止设置进度条
+        function getValue() {//拉动滑动条，取得滑动条的值
             var sliderObj = document.getElementById("SliderSingle");
+            //alert("---> " + sliderObj.value);
+            setCurrentTime = vsDuration * (sliderObj.value / 100);
+            alert("---> " + setCurrentTime);
+            //SetCurrentPosition(setCurrentTime);//设置视频位置
+        }
+
+        function setSliderValue(v) {//设置滑动条的值, v:比例。例如：10，20，60, 90
+            var divObj = document.getElementById("divObj");
+            divObj.innerHTML = '<input id="SliderSingle" type="slider" name="price" value="'+ v +'"/>';
+            jQuery("#SliderSingle").slider({ from: 0, to: 100, step: 1, round: 0, dimension: "", skin: "round" });
+            sliderValue = setTimeout("setSliderValue(" + v + ")", 1000); //每间隔1秒钟，设置一次滚动条
+            if (stop) {//停止设置进度条
+                clearTimeout(sliderValue);
+                return;
+            }
         }
 
         function doOperator(type, params) {
@@ -85,8 +109,12 @@
                 }
             }
             else if (type == 'run') {//播放params[0]
+                //vsDuration = Duration(); // 得到VS录像持续时间
 
                 DVRPlayer.play();
+                //currentTime = ReturnCurrentPosition(); // 等到VS录像当前时间
+                Ratio(60, 100); //等到滚动条比例
+                setSliderValue(ratio);
                 span_operatorObj.innerHTML = '<input name="stop" type="button" value="暂停" onclick="doOperator(\'pause\')"/>';
             }
             else if (type == 'pause') {//暂停
@@ -95,8 +123,9 @@
                 span_operatorObj.innerHTML = '<input name="play" type="button" value="播放" onclick="doOperator(\'run\')"/>';
             }
             else if (type == 'stop') {//停止
-
                 DVRPlayer.stop();
+                stop = false;
+                span_operatorObj.innerHTML = '<input name="play" type="button" value="播放" onclick="doOperator(\'run\')"/>';
             }
             else if (type == 'fastForward') {//快进
 
@@ -110,16 +139,49 @@
 
                 DVRPlayer.CapPic("C:");
             }
+            else if (type == 'duration') {//vs录像持续时间
+                vsDuration = DVRPlayer.duration();
+                alert("time------>" + vsDuration);
+            }
         }
 
         function OnOpenFile(strFile) {
             if (strFile != null) {
+                var span_operatorObj = document.getElementById("span_operator");
                 DVRPlayer.OpenFile(strFile);
+                span_operatorObj.innerHTML = '<input name="stop" type="button" value="暂停" onclick="doOperator(\'pause\')"/>';
             }
         }
 
         function OnMouseDoubleClick() {
             DVRPlayer.fullScreen = !DVRPlayer.fullScreen;
+        }
+
+        function Duration() {//vs录像持续时间
+            return DVRPlayer.duration();
+        }
+
+        function ReturnCurrentPosition() {//得到vs录像播放的当前位置
+            return DVRPlayer.currentPosition();
+            stopCurrentTime = setTimeout("ReturnCurrentPosition()", 1000); //每隔1秒钟更新一次当前时间
+            if (stopCurrentTime == vsDuration) {//当前时间和持续的总时间相等，则停止更新
+               clearTimeout(stopCurrentTime);
+               stop = true; //停止所有更新
+               return;
+            }
+        }
+
+        function SetCurrentPosition(t) {//设置vs录像播放位置
+            DVRPlayer.currentPosition(t);
+        }
+
+        function Ratio(currentTime, duration) {//等到百分比
+            ratio = (currentTime / duration) * 100;
+            stopRatio = setTimeout("Ratio(" + currentTime + ", " + duration + ")", 1000); //每隔1秒钟更新一次当前比例
+            if (stop) {//停止更新
+                clearTimeout(stopRatio);
+                return;
+            }
         }
 
     </script>
@@ -179,9 +241,13 @@
         <td class="style4">
             <br />
             <br />
-            <div class="layout-slider" onmouseup="getValue()">
-                <input id="SliderSingle" type="slider" name="price" value="0" />
+            <div class="layout-slider" onmouseup="getValue()" id="divObj">
+                <input id="SliderSingle" type="slider" name="price" value="0"/>
+	  	            <script type="text/javascript" charset="utf-8">
+	  	                jQuery("#SliderSingle").slider({ from: 0, to: 100, step: 1, round: 0, dimension: "", skin: "round" });
+                </script>
             </div>
+            <input type="submit" name="btn" value="setDefValue" onclick="setSliderValue(90)"/>
             <br />
             <table border="0" style="width: 271px; margin-top: 0px">
                 <tr>
@@ -208,7 +274,7 @@
             <table width="390" border="0" style="width: 342px">
                 <tr>
                     <td width="67" class="style10">
-                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.86',20000])">登录</a>
+                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.34',20000])">登录</a>
                     </td>
                     <td width="98" class="style9">
                         <a href="javascript:doOperator('startMonitor', [1])">启动监视</a>
@@ -238,6 +304,8 @@
             <br />
             <br />
             <input type="submit" name="capPic" value="截图" onclick="doOperator('capPic', null)" /><td>
+            <input type="submit" name="duration" value="本地文件时间" onclick="doOperator('duration', null)" />
+            
                 <p>
                     &nbsp;</p>
                 <p style="width: 164px">
