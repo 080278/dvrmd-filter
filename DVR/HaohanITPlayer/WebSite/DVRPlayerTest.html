@@ -39,7 +39,7 @@
         var currentTime //得到vs录像播放的当前时间
         var setCurrentTime //设置vs录像播放时间
         var ratio //进度条比例
-        var stop = false //停止每隔1秒
+        var stop = false //停止所有更新
         var stopCurrentTime //停止每隔1秒计算当前时间
         var stopRatio //停止每隔1秒计算比例
         var sliderValue //停止设置进度条
@@ -47,24 +47,27 @@
             var sliderObj = document.getElementById("SliderSingle");
             setCurrentTime = DVRPlayer.duration * sliderObj.value / 100;
             DVRPlayer.currentPosition = setCurrentTime; //设置视频位置
+            stop = false; //开启定时器
             setSliderValue();
         }
 
-        function OnSlideMouseDown() {
-            if (sliderValue != null)
-                clearTimeout(sliderValue);
-        }
-
         function setSliderValue() {
-            v = 100 * DVRPlayer.currentPosition / DVRPlayer.duration;
+            //v = 100 * DVRPlayer.currentPosition / DVRPlayer.duration;
+            var v = 90;
             var divObj = document.getElementById("divObj");
-            divObj.innerHTML = '<input id="SliderSingle" type="slider" onmousedown="OnSlideMouseDown()" name="price" value="' + v + '"/>';
+            divObj.innerHTML = '<input id="SliderSingle" type="slider"  name="price" value="' + v + '"/>';
             jQuery("#SliderSingle").slider({ from: 0, to: 100, step: 1, round: 0, dimension: "", skin: "round" });
             sliderValue = setTimeout("setSliderValue()", 500); //每间隔0.5秒钟，设置一次滚动条
             if (stop) {//停止设置进度条
                 clearTimeout(sliderValue);
                 return;
             }
+        }
+
+        function mouseDownOperate() { //鼠标按下事件(这个名不能改,在jqury里封装好的)
+            stop = true;//关掉定时器
+            //var sliderObj = document.getElementById("SliderSingle");
+            //alert("sliderObj----------->" + sliderObj.value);
         }
 
         function doOperator(type, params) {
@@ -117,8 +120,8 @@
                 //vsDuration = Duration(); // 得到VS录像持续时间
 
                 DVRPlayer.play();
-                //currentTime = ReturnCurrentPosition(); // 等到VS录像当前时间
-                //Ratio(60, 100); //等到滚动条比例
+                //currentTime = ReturnCurrentPosition(); // 得到VS录像当前时间
+                //Ratio(60, 100); //得到滚动条比例
                 setSliderValue();
                 span_operatorObj.innerHTML = '<input name="stop" type="button" value="暂停" onclick="doOperator(\'pause\')"/>';
             }
@@ -145,8 +148,8 @@
                 DVRPlayer.CapPic("C:");
             }
             else if (type == 'duration') {//vs录像持续时间
-                vsDuration = DVRPlayer.duration();
-                alert("time------>" + vsDuration);
+                //vsDuration = DVRPlayer.duration();
+                //alert("time------>" + vsDuration);
             }
         }
 
@@ -164,7 +167,7 @@
             DVRPlayer.fullScreen = !DVRPlayer.fullScreen;
         }
 
-        function Ratio(currentTime, duration) {//等到百分比
+        function Ratio(currentTime, duration) {//得到百分比
             ratio = (currentTime / duration) * 100;
             stopRatio = setTimeout("Ratio(" + currentTime + ", " + duration + ")", 1000); //每隔1秒钟更新一次当前比例
             if (stop) {//停止更新
@@ -235,7 +238,7 @@
             <br />
             <br />
             <div class="layout-slider" onmouseup="OnSlideMouseUp()" id="divObj">
-                <input id="SliderSingle" type="slider" onmousedown="OnSlideMouseDown()" name="price" value="0"/>
+                <input id="SliderSingle" type="slider"  name="price" value="0"/>
 	  	            <script type="text/javascript" charset="utf-8">
 	  	                jQuery("#SliderSingle").slider({ from: 0, to: 100, step: 1, round: 0, dimension: "", skin: "round" });
                 </script>
