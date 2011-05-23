@@ -167,6 +167,13 @@
             DVRPlayer.fullScreen = !DVRPlayer.fullScreen;
         }
 
+        function hideToolArea(displayAttr) {
+            var divToolObj = document.getElementById("div_tool");
+            if (divToolObj) {
+                divToolObj.style.display = displayAttr;
+            }
+        }
+
         function Ratio(currentTime, duration) {//得到百分比
             ratio = (currentTime / duration) * 100;
             stopRatio = setTimeout("Ratio(" + currentTime + ", " + duration + ")", 1000); //每隔1秒钟更新一次当前比例
@@ -183,11 +190,6 @@
             height: 449px;
             width: 601px;
         }
-        #form1
-        {
-            width: 145px;
-            height: 32px;
-        }
         #form2
         {
             width: 167px;
@@ -198,7 +200,8 @@
         }
         .style1
         {
-            width: 597px;
+            width: 600px;
+            height: 450px;
         }
         .style4
         {
@@ -231,8 +234,14 @@
     </div>-->
     <table border="0" cellspacing="0" cellpadding="0" width="100%">
         <td class="style1">
-            <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52">
-            </object>
+        <div style="z-index:1;position:absolute;width:600;height:450; left:0;top:0;"> 
+                 <object id="DVRPlayer" classid="CLSID:023D5C5C-2FFE-4054-8CE9-45C492778C52" width="600" height="450" onmouseover="hideToolArea('')"></object>
+        </div>
+
+        <div style="z-index:10;position:absolute;width:100;height:18; left:400;top:400;">
+	        <iframe style="position:absolute;z-index:-1;width:100%;height:100%;top:0;left:0;scrolling:no;" frameborder="0" src="about:blank"></iframe>   
+	        <div id="div_tool" style="background-color:#cccccc;display:none;"><input type="button" name="btn" value="快进"/> </div>  
+        </div> 
         </td>
         <td class="style4">
             <br />
@@ -270,7 +279,7 @@
             <table width="390" border="0" style="width: 342px">
                 <tr>
                     <td width="67" class="style10">
-                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.34',20000])">登录</a>
+                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.86',20000])">登录</a>
                     </td>
                     <td width="98" class="style9">
                         <a href="javascript:doOperator('startMonitor', [1])">启动监视</a>
