@@ -157,8 +157,8 @@
 #define IDC_CHANGE_CHANNEL              1114
 #define IDC_COMBO_WININDEX              1115
 #define IDC_COMBO_CHANNEL               1116
-#define IDC_BUTTON1                     1117
 #define IDC_RENDER_MODE                 1117
+#define IDC_DVR_URI                     1118
 #define IDC_SHOW                        1201
 #define IDC_PLAY                        1202
 #define IDC_PAUSE                       1203
@@ -239,7 +239,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        252
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1118
+#define _APS_NEXT_CONTROL_VALUE         1119
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

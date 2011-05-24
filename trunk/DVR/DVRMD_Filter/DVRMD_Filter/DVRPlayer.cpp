@@ -1756,7 +1756,7 @@ void CDVRPlayer::Open(LPCTSTR szFile)
 		NAME(PlayM4_SetEncChangeMsg)(m_lPort, m_hParentWnd, WM_ENC_CHANGE);
 		//NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
 
-		m_bStreamType = m_strPlayFileName.Right(3).CompareNoCase(_T(".vs")) == 0;
+		m_bStreamType = m_strPlayFileName.Right(3).CompareNoCase(_T(".vs")) == 0 || m_strPlayFileName.Left(7).CompareNoCase(_T("http://")) == 0;
 
 		if(m_bStreamType)
 		{
@@ -1964,20 +1964,35 @@ void CDVRPlayer::OpenStream()
 	HIK_MEDIAINFO		stInfo;
 	ZeroMemory(&stInfo,sizeof(HIK_MEDIAINFO));
 
-	m_hStreamFile = CreateFile(m_strPlayFileName,
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-	if(m_hStreamFile == INVALID_HANDLE_VALUE)
+	LPCTSTR szHttpPrefix = _T("http://");
+	const int nHttpPrefixLen = _tcslen(szHttpPrefix);
+	if (m_strPlayFileName.GetLength() > nHttpPrefixLen && _tcsnicmp(m_strPlayFileName, szHttpPrefix, nHttpPrefixLen) == 0)
 	{
-		MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
-		throw 0;
+		if (!m_httpStreamParser.OpenHttp(m_strPlayFileName))
+		{
+			MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
+			throw 0;
+		}
+		m_dwMaxFileSize = m_httpStreamParser.GetFileSize();
 	}
-	m_StreamParser.SetFileStreamHandle(m_hStreamFile);
-	m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
+	else
+	{
+		m_hStreamFile = CreateFile(m_strPlayFileName,
+			GENERIC_READ,
+			FILE_SHARE_READ,
+			NULL,
+			OPEN_EXISTING,
+			FILE_ATTRIBUTE_NORMAL,
+			NULL);
+		if(m_hStreamFile == INVALID_HANDLE_VALUE)
+		{
+			MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
+			throw 0;
+		}
+		m_StreamParser.SetFileStreamHandle(m_hStreamFile);
+		m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
+	}
+
 	//	NAME(PlayM4_SetSourceBufCallBack)(m_lPort, 6000000, SourceBufFun, (DWORD)this, NULL);
 	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
 	m_dwHeadSize = NAME(PlayM4_GetFileHeadLength)();
@@ -1991,8 +2006,15 @@ void CDVRPlayer::OpenStream()
 		throw 0;
 	}
 	DWORD nRealRead;
-	SetFilePointer(m_hStreamFile, 0, 0, FILE_BEGIN);
-	ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
+	if (m_hStreamFile != INVALID_HANDLE_VALUE && m_hStreamFile != NULL)
+	{
+		SetFilePointer(m_hStreamFile, 0, 0, FILE_BEGIN);
+		ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
+	}
+	else
+	{
+		nRealRead = m_httpStreamParser.ReadCacheData(pBuf, m_dwHeadSize);
+	}
 	if(nRealRead != m_dwHeadSize)
 	{
 		MessageBox(NULL, _T("File is too small"), _T("Error"), MB_OK);
@@ -2059,11 +2081,6 @@ void CDVRPlayer::CloseStream()
 {
 	Stop();
 	NAME(PlayM4_CloseStream)(m_lPort);
-	if(m_hStreamFile)
-	{
-		CloseHandle(m_hStreamFile);
-		m_hStreamFile = NULL;
-	}
 
 	if(m_hThread)
 	{
@@ -2105,6 +2122,13 @@ void CDVRPlayer::CloseStream()
 		m_hEventKill = NULL;
 	}
 
+	if(m_hStreamFile)
+	{
+		CloseHandle(m_hStreamFile);
+		m_hStreamFile = NULL;
+	}
+
+	m_httpStreamParser.CloseHttp();
 	//Destory();
 	m_bOpen = FALSE;
 	m_bFileRefCreated =	FALSE;		
@@ -2248,7 +2272,14 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			int nRet = 0;
 			if(TRUE)//pOwner->m_dwSysFormat != SYSTEM_RTP)
 			{
-				nRet = pThis->m_StreamParser.GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+				if (pThis->m_hStreamFile != NULL && pThis->m_hStreamFile != INVALID_HANDLE_VALUE)
+				{
+					nRet = pThis->m_StreamParser.GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+				}
+				else if (pThis->m_httpStreamParser.IsOpen())
+				{
+					nRet = pThis->m_httpStreamParser.GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+				}
 				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				if (nRet <= 0)
 				{

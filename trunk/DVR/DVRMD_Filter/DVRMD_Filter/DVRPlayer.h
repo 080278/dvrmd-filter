@@ -302,6 +302,7 @@ private:
 	CHAR m_buffer[MAX_FRAME_LENGTH];
 	FRAME_HEADER m_frameHeader;
 	CFileStreamParser	m_StreamParser;
+	CHttpStreamParser	m_httpStreamParser;
 	CCritSec m_MetaDataLock;
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 
