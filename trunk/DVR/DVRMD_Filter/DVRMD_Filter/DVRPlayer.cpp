@@ -599,6 +599,9 @@ BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPor
 
 		return TRUE;
 	}
+	CString csErr;
+	csErr.Format(_T("登录信息: 用户名:%s  密码:%s  IP地址:%s  端口:%d"), szUsername, szPwd, szIP, nPort);
+	::MessageBox(m_hParentWnd, csErr, _T("登录信息错误"), MB_OK);
 	return FALSE;
 }
 void CDVRPlayer::Logout()
