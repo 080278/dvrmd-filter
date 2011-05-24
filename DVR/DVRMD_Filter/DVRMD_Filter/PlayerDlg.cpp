@@ -1762,12 +1762,20 @@ void CPlayerDlg::SortControl()
 	GetDlgItem(IDC_PLAY_RECT_SLIDER)->MoveWindow(x,y,rcClient.Width(),PLAY_SLIDER_HEIGHT,TRUE);
 	m_PlaySlider.MoveWindowEx(x,y+4,rcVideo.Width()-x,PLAY_SLIDER_HEIGHT,TRUE);
 
-	CRect rcOpenFileBtn, rcSHBtn;
+	CRect rcOpenFileBtn, rcSHBtn, rcURL;
 	GetDlgItem(IDC_OPENFILE)->GetWindowRect(rcOpenFileBtn);
 	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->GetClientRect(rcSHBtn);
-	GetDlgItem(IDC_RENDER_MODE)->MoveWindow(rcVideo.right-rcSHBtn.Width()-INTERVAL-rcOpenFileBtn.Width()-INTERVAL-rcOpenFileBtn.Width(), y+BUTTON_SIZE, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
-	GetDlgItem(IDC_OPENFILE)->MoveWindow(rcVideo.right-rcSHBtn.Width()-INTERVAL-rcOpenFileBtn.Width(), y+BUTTON_SIZE, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
-	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->MoveWindow(rcVideo.right-rcSHBtn.Width(),  y+BUTTON_SIZE, rcSHBtn.Width(), rcSHBtn.Height());
+	GetDlgItem(IDC_DVR_URI)->GetWindowRect(rcURL);
+	int nLeft, nTop;
+	nTop = y+BUTTON_SIZE;
+	nLeft = rcVideo.right-rcSHBtn.Width();
+	GetDlgItem(IDC_SHOWHIDE_SETTINGS)->MoveWindow(nLeft, nTop, rcSHBtn.Width(), rcSHBtn.Height());
+	nLeft -= INTERVAL+rcOpenFileBtn.Width();
+	GetDlgItem(IDC_OPENFILE)->MoveWindow(nLeft, nTop, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
+	nLeft -= INTERVAL + rcURL.Width();
+	GetDlgItem(IDC_DVR_URI)->MoveWindow(nLeft, nTop, rcURL.Width(), rcURL.Height());
+	nLeft -= INTERVAL + rcOpenFileBtn.Width();
+	GetDlgItem(IDC_RENDER_MODE)->MoveWindow(nLeft, nTop, rcOpenFileBtn.Width(), rcOpenFileBtn.Height());
 	//y-=PLAY_SLIDER_UP;
 
 	//pic show
@@ -2224,14 +2232,24 @@ void CPlayerDlg::OnMenuItem(UINT nID)
 	switch(nID)
 	{
 	case IDM_FILE_OPEN:
-		if(BrowseFile(&csFile)) 
 		{
-			Close();
-			Open(csFile);
-			if (IsWindow(m_DVRSettingsSheet.m_hWnd))
-				m_DVRSettingsPage4.SetPathName(csFile);
-			SetTimer(PLAY_TIMER, 500, NULL);
-			SetState();
+			CWnd* pURL = GetDlgItem(IDC_DVR_URI);
+			if (pURL)
+			{
+				pURL->GetWindowText(csFile);
+			}
+			if(!csFile.Trim().IsEmpty() || BrowseFile(&csFile)) 
+			{
+				GetDlgItem(IDC_DVR_URI)->SetWindowText(csFile);
+				//csFile = _T("http://10.176.16.23/Alert.mp4");
+				Close();
+				Open(csFile);
+				if (IsWindow(m_DVRSettingsSheet.m_hWnd))
+					m_DVRSettingsPage4.SetPathName(csFile);
+				SetTimer(PLAY_TIMER, 500, NULL);
+				SetState();
+			}
+
 		}
 		break;
 

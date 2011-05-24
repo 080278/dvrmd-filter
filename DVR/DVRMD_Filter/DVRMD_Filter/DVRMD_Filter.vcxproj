@@ -95,7 +95,7 @@ copy ..\..\HaohanITPlayer\include\*.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;cxcore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;cxcore.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
@@ -139,7 +139,7 @@ copy ..\..\HaohanITPlayer\include\*.dll ..\$(Configuration)</Command>
     </ResourceCompile>
     <Link>
       <RegisterOutput>true</RegisterOutput>
-      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Strmiids.lib;../../HaohanITPlayer/include/PlayCtrl/PlayCtrl.lib;../../HaohanITPlayer/include/visionapi_simu.lib;Wininet.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).ocx</OutputFile>
       <ModuleDefinitionFile>.\DVRMD_Filter.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
