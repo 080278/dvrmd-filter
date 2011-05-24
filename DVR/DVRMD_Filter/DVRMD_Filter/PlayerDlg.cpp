@@ -1185,7 +1185,7 @@ BOOL CPlayerDlg::BrowseFile(CString *strFileName)
 		_T("mpg"),
 		NULL, 
 		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("File(*.mp4;*.264)|*.mp4;*.264|DVR File(*.vs)|*.vs|All Files(*.*)|*.*||"), this);
+		_T("DVR File(*.vs)|*.vs|File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 #endif
 
 	if(dlg.DoModal() == IDCANCEL)
