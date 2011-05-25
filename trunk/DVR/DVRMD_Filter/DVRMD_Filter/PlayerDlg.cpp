@@ -2503,6 +2503,21 @@ void CPlayerDlg::Close()
 
 HRESULT CPlayerDlg::OpenFile(LPCTSTR szFile)
 {
+	CString str;
+	if(szFile != NULL) 
+	{
+		 str = szFile;
+	}
+	
+	if(str.Left(7).CompareNoCase(_T("http://")) == 0)
+	{
+		Close();
+		Open(szFile);
+		SetTimer(PLAY_TIMER, 500, NULL);
+		SetState();
+		return S_OK;
+	}
+
 	HANDLE hFile = ::CreateFile(szFile, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
