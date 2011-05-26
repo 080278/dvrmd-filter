@@ -8,6 +8,7 @@
 #include "NetDef.h"
 #include "DVRPlayer.h"
 
+#define MAX_CHANNEL_NUM		16
 
 // CServerPlaybackSettingsDlg dialog
 
@@ -35,6 +36,21 @@ BEGIN_MESSAGE_MAP(CServerPlaybackSettingsDlg, CPropertyPage)
 END_MESSAGE_MAP()
 
 
+BOOL CServerPlaybackSettingsDlg::OnInitDialog()
+{
+	CPropertyPage::OnInitDialog();
+
+	CComboBox* pChangeChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANGE_CHANNEL);
+	pChangeChannelComboBox->ResetContent();
+	for (int i = 0; i < MAX_CHANNEL_NUM; ++i)
+	{
+		CString csNum;
+		csNum.Format(_T("%d"), i);
+		pChangeChannelComboBox->AddString(csNum);
+	}
+	return TRUE;
+}
+
 // CServerPlaybackSettingsDlg message handlers
 
 
@@ -47,6 +63,8 @@ void CServerPlaybackSettingsDlg::OnBnClickedPlayback()
 	CDateTimeCtrl* pStartTime = (CDateTimeCtrl*)GetDlgItem(IDC_START_TIME);
 	CDateTimeCtrl* pEndDate = (CDateTimeCtrl*)GetDlgItem(IDC_END_DATE);
 	CDateTimeCtrl* pEndTime = (CDateTimeCtrl*)GetDlgItem(IDC_END_TIME);
+
+	CComboBox* pChangeChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANGE_CHANNEL);
 
 	CTime tm;
 	pStartDate->GetTime(tm);
@@ -67,7 +85,20 @@ void CServerPlaybackSettingsDlg::OnBnClickedPlayback()
 	endTime.minute =tm.GetMinute();
 	endTime.second = tm.GetSecond();
 
+	CString csChannel;
+	if (pChangeChannelComboBox && 
+		pChangeChannelComboBox->GetCurSel() != CB_ERR)
+	{
+		pChangeChannelComboBox->GetWindowText(csChannel);;
+	}
+
 	SYSTEM_VIDEO_FILE sysFile;
+
+	if(!csChannel.IsEmpty())
+	{
+		sysFile.channel = _ttoi(csChannel);
+	}
+	
 	memcpy( &sysFile.start_date, &startDate, sizeof(DATE_INFO) );
 	memcpy( &sysFile.start_time, &startTime, sizeof(TIME_INFO) );
 	memcpy( &sysFile.end_date, &endDate, sizeof(DATE_INFO) );
