@@ -22,6 +22,8 @@ protected:
 public:
 	afx_msg void OnBnClickedPlayback();
 
+	virtual BOOL OnInitDialog();
+
 private:
 	CDVRPlayer*		m_pDVRPlayer;
 };

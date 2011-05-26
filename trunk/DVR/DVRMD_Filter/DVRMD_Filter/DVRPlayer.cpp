@@ -699,6 +699,7 @@ BOOL CDVRPlayer::IsMonitoring()
 
 BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 {
+	Destory();
 	if (IsLogined())
 	{
 		if (m_spPlayerMgr.get() == NULL)
