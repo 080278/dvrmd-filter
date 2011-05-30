@@ -27,6 +27,7 @@ LRESULT CDVRMVPlayerCtrl::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 {
 	m_bFullScreen = VARIANT_FALSE;
 	m_IMVPlayer.TearDownGraph();
+	m_msgSniffer.UnsubclassWindow(TRUE);
     return 0;
 }
 
