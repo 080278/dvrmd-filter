@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "DVRMVPlayerCtrl.h"
 #include "OPErrorTypes.h"
-#include "assert.h"
 
 // CDVRMVPlayerCtrl
 
@@ -11,7 +10,6 @@
 
 LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	assert(false);
     m_IMVPlayer.SetWindow(m_hWnd);
 
     #undef SubclassWindow
@@ -28,6 +26,7 @@ LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CDVRMVPlayerCtrl::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_bFullScreen = VARIANT_FALSE;
+	m_IMVPlayer.TearDownGraph();
     return 0;
 }
 
@@ -156,6 +155,10 @@ STDMETHODIMP CDVRMVPlayerCtrl::put_URL(BSTR bstrURL)
 {
     IMV_TRACE(_T("CDVRMVPlayerCtrl::put_URL()\n"));
 
+	if (bstrURL == NULL)
+	{
+		return S_OK;
+	}
 	m_bNeedReInitMVSession = FALSE;
 	HRESULT hr = m_IMVPlayer.Open(bstrURL);
 	if(SUCCEEDED(hr))
@@ -710,11 +713,7 @@ void CDVRMVPlayerCtrl::TurnOffCursorHiding()
 
 STDMETHODIMP CDVRMVPlayerCtrl::OpenFile(BSTR bstrMediaFile)
 {
-#ifdef _DEBUG
-	assert(false);
-#endif
 	return m_IMVPlayer.Open(bstrMediaFile);
-
 }
 STDMETHODIMP CDVRMVPlayerCtrl::Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort)
 {
