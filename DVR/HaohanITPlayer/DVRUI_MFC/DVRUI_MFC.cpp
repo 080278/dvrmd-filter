@@ -49,7 +49,7 @@ BOOL CDVRUI_MFCApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
-	AfxOleInit();
+	//AfxOleInit();
 
 	CWinApp::InitInstance();
 
