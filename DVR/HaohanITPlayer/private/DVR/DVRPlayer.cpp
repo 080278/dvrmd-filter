@@ -473,12 +473,10 @@ bool CDVRPlayer::Init(HWND hRenderWnd, HWND hParentWnd, int lPort)
 	m_dwTotalFrames = 0;
 	m_bFileEnd = FALSE;
 	m_dwMaxFileSize = 0;
-	m_hStreamFile = NULL;
 	m_dwHeadSize = NULL;
 	m_hEventKill = NULL; 
 	m_hEventInput = NULL;
 	m_hThread = NULL;    
-	m_hStreamFile = NULL;
 	m_bStreamType = TRUE;
 	m_nPlayType = -1;
 	m_nPlaybackIndex = -1;
@@ -1891,20 +1889,14 @@ void CDVRPlayer::OpenStream()
 	HIK_MEDIAINFO		stInfo;
 	ZeroMemory(&stInfo,sizeof(HIK_MEDIAINFO));
 
-	m_hStreamFile = CreateFile(m_strPlayFileName,
-		GENERIC_READ,
-		FILE_SHARE_READ,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-	if(m_hStreamFile == INVALID_HANDLE_VALUE)
+	m_spStreamParser.reset(CStreamParseFactory::OpenFile(m_strPlayFileName));
+
+	if(m_spStreamParser.get() == NULL)
 	{
 		MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
 		throw 0;
 	}
-	m_StreamParser.SetFileStreamHandle(m_hStreamFile);
-	m_dwMaxFileSize = ::GetFileSize(m_hStreamFile, NULL);
+	m_dwMaxFileSize = m_spStreamParser->GetFileSize();
 	//	NAME(PlayM4_SetSourceBufCallBack)(m_lPort, 6000000, SourceBufFun, (DWORD)this, NULL);
 	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
 	m_dwHeadSize = NAME(PlayM4_GetFileHeadLength)();
@@ -1917,9 +1909,9 @@ void CDVRPlayer::OpenStream()
 		MessageBox(NULL, _T("Alloc memory failed"), _T("Error"), MB_OK);
 		throw 0;
 	}
-	DWORD nRealRead;
-	SetFilePointer(m_hStreamFile, 0, 0, FILE_BEGIN);
-	ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
+	DWORD nRealRead = m_spStreamParser->ReadCacheData(pBuf, m_dwHeadSize);
+	//SetFilePointer(m_hStreamFile, 0, 0, FILE_BEGIN);
+	//ReadFile(m_hStreamFile, pBuf, m_dwHeadSize, &nRealRead, NULL);
 	if(nRealRead != m_dwHeadSize)
 	{
 		MessageBox(NULL, _T("File is too small"), _T("Error"), MB_OK);
@@ -1985,11 +1977,11 @@ void CDVRPlayer::CloseStream()
 {
 	Stop();
 	NAME(PlayM4_CloseStream)(m_lPort);
-	if(m_hStreamFile)
-	{
-		CloseHandle(m_hStreamFile);
-		m_hStreamFile = NULL;
-	}
+	//if(m_hStreamFile)
+	//{
+	//	CloseHandle(m_hStreamFile);
+	//	m_hStreamFile = NULL;
+	//}
 
 	if(m_hThread)
 	{
@@ -2031,6 +2023,7 @@ void CDVRPlayer::CloseStream()
 		m_hEventKill = NULL;
 	}
 
+	m_spStreamParser.reset();//->->CloseFile();
 	//Destory();
 	m_bOpen = FALSE;
 	m_bFileRefCreated =	FALSE;		
@@ -2152,7 +2145,6 @@ LPCTSTR CDVRPlayer::MyErrorToString(DWORD error)
 #define BUF_SIZE 3008
 DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 {
-	//CPlayerDlg* pOwner = (CPlayerDlg*)lpParameter;
 	CDVRPlayer* pThis = (CDVRPlayer*)lpParameter;
 	HANDLE hMulEvents[2];
 	hMulEvents[0] = pThis->m_hEventKill;
@@ -2174,7 +2166,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			int nRet = 0;
 			if(TRUE)//pOwner->m_dwSysFormat != SYSTEM_RTP)
 			{
-				nRet = pThis->m_StreamParser.GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+				nRet = pThis->m_spStreamParser->GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
 				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				if (nRet <= 0)
 				{
@@ -2185,30 +2177,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				}
 				dwDataLen = nRet;
 			}
-			else
-			{
-				//先读出4字节rtp包长
 
-				if (!(ReadFile(pThis->m_hStreamFile, pBuf, 4, &nRealRead, NULL) && (nRealRead == 4)))
-				{
-					//File end;
-					//pOwner->m_bFileEnd = TRUE;
-					bBufFull = FALSE;
-					ResetEvent(pThis->m_hEventInput);
-				}
-
-				dwSize = pBuf[0] + (pBuf[1] << 8) + (pBuf[2] << 16) + (pBuf[3] << 24);
-
-				if (!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
-				{
-					//File end;
-					//pOwner->m_bFileEnd = TRUE;
-					bBufFull = FALSE;
-					ResetEvent(pThis->m_hEventInput);
-				}
-
-				dwDataLen = nRealRead;
-			}
 			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
 			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
 			{
@@ -2240,7 +2209,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
 				memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
 				pThis->m_MetaDataLock.Unlock();
-
+				nCountNoMetaData = 0;
 			}
 
 			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)

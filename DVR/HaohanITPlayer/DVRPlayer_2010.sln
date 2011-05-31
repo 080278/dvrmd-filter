@@ -29,6 +29,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWndDll", "HWNDDLL\HWndDll_2010.vcxproj", "{5359D596-9EA4-BF92-9321-ECE20FF8FF54}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DVRUI_MFC", "DVRUI_MFC\DVRUI_MFC.vcxproj", "{210E470B-EB50-4424-A0DC-7EB697C5CDD4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{632BD71E-6C56-4D3A-9981-0CE3A83EC86B} = {632BD71E-6C56-4D3A-9981-0CE3A83EC86B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

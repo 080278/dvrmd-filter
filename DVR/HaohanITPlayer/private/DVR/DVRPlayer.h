@@ -262,7 +262,6 @@ public:
 	HANDLE		m_hEventKill;                   // kill inputstream thread event
 	HANDLE		m_hEventInput;                  // inputstream thread event
 	HANDLE		m_hThread;                      // inputstream thread handle
-	HANDLE		m_hStreamFile;                  // input file
 
 private:
 	int   m_nPlayType;	//	-1: Unknown; 0: Play file; 1: Monitor
@@ -298,7 +297,7 @@ private:
 	CHAR m_meta[10*1024];
 	CHAR m_buffer[MAX_FRAME_LENGTH];
 	FRAME_HEADER m_frameHeader;
-	CFileStreamParser	m_StreamParser;
+	std::auto_ptr<CFileStreamParser>	m_spStreamParser;
 	CCritSec m_MetaDataLock;
 	int GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList);
 
@@ -312,7 +311,6 @@ private:
 
 	HWND		m_hRenderWnd;						//Play Area window
 	HWND		m_hParentWnd;					//Main Frame Window
-	//RECT		m_rcDisplayRegion;				//Play Area.
 	LONG		m_nSpeed;                       // video play speed
 	LONG		m_nWidth;                       // image width
 	LONG		m_nHeight;                      // image height
@@ -336,17 +334,13 @@ private:
 	DWORD		m_dwMaxFileSize;
 	DWORD		m_dwHeadSize;
 
-
-
 private:
-	//CDVRSettings	m_DVRSettings;
 	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
 	std::auto_ptr<CHWndManager>	m_spHWndMgr;
 	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
 	int				m_UserID;
 	int				m_nPlaybackIndex;
 	std::map<int, int> m_MonitorHandler;
-	//BOOL			m_bDrawMetaData;
 
 	ULONG_PTR	m_gdiplusToken;
 	friend class CPlayer;
