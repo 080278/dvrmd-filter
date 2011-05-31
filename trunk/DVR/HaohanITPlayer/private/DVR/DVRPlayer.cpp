@@ -262,7 +262,7 @@ void ScaleFrameMetaDataList::ScaleDisplayObjectMeta(HHV::DisplayObjectMeta& dom,
 }
 void ScaleFrameMetaDataList::ScalePolyLine(HHV::PolyLine& line, float xScale, float yScale)
 {
-	line.thickness = (int)line.thickness*xScale;
+	//line.thickness = (int)line.thickness*xScale;
 	for (HHV::Points::iterator it = line.lines.begin(); it != line.lines.end(); ++it)
 	{
 		it->x = (int)it->x * xScale;
@@ -277,7 +277,7 @@ void ScaleFrameMetaDataList::ScaleTextMeta(HHV::TextMeta& txt, float xScale, flo
 }
 void ScaleFrameMetaDataList::ScalePolygonM(HHV::PolygonM& pg, float xScale, float yScale)
 {
-	pg.style.thickness *= xScale;
+	//pg.style.thickness *= xScale;
 	for (HHV::Points::iterator it = pg.points.begin(); it != pg.points.end(); ++it)
 	{
 		it->x *= xScale;
