@@ -16,18 +16,19 @@
                     	<tr>
                     		<td>IP:</td><td><input id="txtIP" type="text" /></td>
                             <td>Port:</td><td><input id="txtPort" type="text" /></td>
-                            <td><input id="login" onclick="Login('super','uptfp','192.168.99.86','20000')" type="button" value="登录" /></td>
+                            <td><input id="login" onclick="Login('super','uptfp','192.168.99.34','20000')" type="button" value="登录" /></td>
                             <td><input id="logout" onclick="Logout()" type="button" value="登出" /></td>
                     	</tr>
                         <tr>
-                           <td><input id="startMonitor" onclick="StartMonitor(1)" type="button" value="启动监视" /></td> 
+                           <td><input id="startMonitor" onclick="StartMonitor(4)" type="button" value="启动监视" /></td> 
                            <td><input id="stopMonitor" onclick="StopMonitor()" type="button" value="停止监控" /></td>
                         </tr>
                         <tr>
-                            <td><input id="setWndChannel" onclick="SetWndChannel(0,4)" type="button" value="切换通道" /></td>
+                            <td><input id="setWndChannel" onclick="SetWndChannel(0,2)" type="button" value="切换通道" /></td>
                         </tr>
                         <tr>
                             <td><input id="capPic" onclick="CapPic()" type="button" value="截图" /></td>
+                            <td><input id="openFile" onclick="OnOpenFile()" type="button" value="播放文件" /></td>
                         </tr>
                     </table>
                 </div>
@@ -51,8 +52,8 @@
             //DVRPlayer.SetRenderWindowSize(352, 288);
             DVRPlayer.SetCapturePath("C:");
 
-            var loginFlag = Login('super', 'uptfp', '192.168.99.86', '20000');
-            //StartMonitor(1);
+            var loginFlag = Login('super', 'uptfp', '192.168.99.34', '20000');
+            StartMonitor(1);
             //ShowMetaData(true);
 
         }
@@ -67,7 +68,7 @@
         }
 
         function OnOpenFile(filePath) {
-           if (filePath != null && filePath.length > 0) {
+            if (filePath != null && filePath.length > 0) {
                 DVRPlayer.OpenFile(filePath);
            }
            else
@@ -118,6 +119,7 @@
         }
 
         function CapPic() {
+            DVRPlayer.SetCapturePath("C:");
             DVRPlayer.CapPic();
         }
 
