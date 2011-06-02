@@ -283,7 +283,6 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
     <ClInclude Include="private\DVR\Utilities.h" />
     <ClInclude Include="private\_IDVRMVPlayerCtrlEvents_CP.h" />
     <ClInclude Include="private\IMVDShowPlayer.h" />
-    <ClInclude Include="..\..\HostEncoders\Decoders\SecurityModule\libs\include\ModuleCheck.h" />
     <ClInclude Include="private\Resource.h" />
     <ClInclude Include="private\DVRMVPlayerCtrl.h" />
     <ClInclude Include="public\DVRMVPlayerIds.h" />
