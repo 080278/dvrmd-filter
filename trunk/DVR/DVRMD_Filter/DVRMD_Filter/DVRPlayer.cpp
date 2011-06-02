@@ -661,6 +661,11 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 			m_spPlayerMgr->StopMonitor(it->second);
 			m_MonitorHandler.erase(it);
 		}
+		if(m_spHWndMgr.get() == NULL)
+		{
+			InitForMonitor();
+		}
+		
 		HWND hWnd = m_spHWndMgr->GetHWnd(nWndIndex);
 		HHV_CLIENT_INFO	 hhvInfo;
 		strcpy( hhvInfo.connInfo.ip, CT2A(GetDVRSettings().m_csMediaServerIP));
