@@ -58,6 +58,7 @@ public:
 	int  StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,char* ssIP, int ssPort);
 	void StopPlayBackByTime(int realHandle);
 
+	void ResizeMonitorWindow();
 private:
 	INT MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, 
 		char* streamHeader, int& size);
@@ -89,6 +90,7 @@ private:
 	HANDLE m_hExitEvent;
 
 	HWND m_hNotifyWnd ;
+	HWND m_hRenderWnd;
 
 	CHAR m_streamHeader[4*1024];
 

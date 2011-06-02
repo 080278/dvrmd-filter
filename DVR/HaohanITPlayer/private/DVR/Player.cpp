@@ -19,6 +19,7 @@
 
 CPlayer::CPlayer()
 {
+	m_hRenderWnd = NULL;
 	m_PlayHandle = -1;
 	m_hExitEvent	=  CreateEvent( NULL, TRUE, FALSE, _T("") );
 	memset( m_meta, 0x00, sizeof(m_meta) );
@@ -38,6 +39,7 @@ CPlayer::~CPlayer()
 
 void CPlayer::Init(HWND hNotifyWnd, int index_MTManager)
 {
+	m_hRenderWnd = NULL;
     m_exit       = TRUE;
     memset(m_buffer, 0x00, sizeof(m_buffer));
     ResetEvent(m_hExitEvent);
@@ -119,7 +121,8 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 		return -nErr;
 	}
 
-	::GetWindowRect(hWnd, &m_rcRenderRect);
+	m_hRenderWnd = hWnd;
+	ResizeMonitorWindow();
 
     TRACE(_T("(MTVideo)监视 OpenPlayStream成功 m_index = %d dvrIP = %s channel = %d\r\n"),
 		m_index, clientInfo->connInfo.ip, clientInfo->channel);
@@ -140,6 +143,14 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
     TRACE(_T("(MTVideo)监视成功结束 m_PlayHandle = %d dvrIP = %s channel = %d\r\n"),
 		m_PlayHandle, clientInfo->connInfo.ip, clientInfo->channel);
     return m_index;
+}
+
+void CPlayer::ResizeMonitorWindow()
+{
+	if (m_hRenderWnd != NULL)
+	{
+		::GetWindowRect(m_hRenderWnd, &m_rcRenderRect);
+	}
 }
 VOID CPlayer::StopMonitor( )
 {
@@ -180,6 +191,7 @@ VOID CPlayer::StopMonitor( )
 	//	m_UniSDKCltInfo.connInfo.ip, m_UniSDKCltInfo.channel, m_PlayHandle, m_index_MTManager);
     m_PlayHandle = -1;
 	memset(&m_rcRenderRect, 0, sizeof(RECT));
+	m_hRenderWnd = NULL;
 }
 
 UINT __stdcall CPlayer::DecoderRoutine( void * dat)
@@ -589,7 +601,8 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 		return -nErr;
 	}
 
-	::GetWindowRect(hWnd, &m_rcRenderRect);
+	m_hRenderWnd = hWnd;
+	ResizeMonitorWindow();
     //开启线程, 接收视频流
     m_exit = false;
     UINT threadid(0);
@@ -610,6 +623,7 @@ void CPlayer::StopPlayBackByTime(int realHandle)
 {
 	//memset(&m_rcRenderRect, 0, sizeof(RECT));
 	StopMonitor();
+	m_hRenderWnd = NULL;
 }
 
 

@@ -32,6 +32,7 @@ public:
 	int StopPlayBackByTime(int realHandle);
 
 	void ResetRenderWindow(LONG lWidth, LONG lHeight);
+	void ResizeMonitorWindow(int handle);
 private:
 	int	GetIdlePlayer();
 private:
