@@ -200,3 +200,12 @@ void CPlayerMgr::ResetRenderWindow(LONG lWidth, LONG lHeight)
 {
 
 }
+
+void CPlayerMgr::ResizeMonitorWindow(int handle)
+{
+	CPlayer* player = m_player[handle];
+	if (player != NULL)
+	{
+		player->ResizeMonitorWindow();
+	}
+}

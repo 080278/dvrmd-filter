@@ -788,6 +788,10 @@ void CDVRPlayer::ResizeMonitorWindow()
 	if (m_spHWndMgr.get() && IsMonitoring())
 	{
 		m_spHWndMgr->SetSplitMode(m_lPort, ToSplitMode(CDVRSettings::GetInstance()->m_nRenderWndNum));
+		for (std::map<int, int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+		{
+			m_spPlayerMgr->ResizeMonitorWindow(it->second);
+		}
 	}
 }
 BOOL CDVRPlayer::IsMonitoring()
