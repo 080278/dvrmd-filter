@@ -493,6 +493,7 @@ bool CDVRPlayer::Init(HWND hRenderWnd, HWND hParentWnd, int lPort)
 
 void CDVRPlayer::Destory()
 {
+	StopPlayback();
 	if (m_nPlayType == 0)
 	{
 		DestoryPlayFile();
@@ -689,6 +690,9 @@ BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPor
 
 		return TRUE;
 	}
+	CString csErr;
+	csErr.Format(_T("登录信息: 用户名:%s  IP地址:%s  端口:%d"), szUsername, szIP, nPort);
+	::MessageBox(m_hParentWnd, csErr, _T("登录信息错误"), MB_OK);
 	return FALSE;
 }
 void CDVRPlayer::Logout()
@@ -793,6 +797,7 @@ BOOL CDVRPlayer::IsMonitoring()
 
 BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 {
+	Destory();
 	if (IsLogined())
 	{
 		if (m_spPlayerMgr.get() == NULL)
@@ -814,7 +819,7 @@ BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 	return FALSE;
 }
 
-void CDVRPlayer::EndPlayback()
+void CDVRPlayer::StopPlayback()
 {
 	if (IsLogined() && m_nPlaybackIndex >= 0)
 	{
@@ -1500,8 +1505,14 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	CString sFilePath;
 	DWORD   pImageSize	= 0;
 
+	CTime tm = CTime::GetCurrentTime();//获取当前时间，精确到秒，两个客户端同时运行时，不会覆盖
+
 	if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 	{
+		if(m_lPort != 0) {
+			m_lPort = 0;
+		}
+
 		if( !NAME(PlayM4_GetJPEG)(m_lPort, pImage, nBufSize, &pImageSize) )
 		{
 			return CString();
@@ -1509,11 +1520,13 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
+			//sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, tm);
 		}
 		else
 		{
-			sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
+			//sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
+			sFilePath.Format(_T("C:\\capture%02d.jpeg"), tm);
 		}
 	}
 	else
@@ -1525,11 +1538,13 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
+			//sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, tm);
 		}
 		else
 		{
-			sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
+			//sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
+			sFilePath.Format(_T("C:\\capture%02d.bmp"), tm);
 		}
 	}
 	
@@ -1561,7 +1576,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 				imgDst.ReleaseDC();	
 			}
 		}
-
+		/*
 		if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 		{
 			m_npic_jpeg++;
@@ -1570,6 +1585,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		{
 			m_npic_bmp++;
 		}
+		*/
 	}
 	catch (...) 
 	{

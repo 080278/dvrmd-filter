@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "DVRMVPlayerCtrl.h"
 #include "OPErrorTypes.h"
+#include "assert.h"
 
 // CDVRMVPlayerCtrl
 
@@ -10,6 +11,7 @@
 
 LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	assert(false);
     m_IMVPlayer.SetWindow(m_hWnd);
 
     #undef SubclassWindow

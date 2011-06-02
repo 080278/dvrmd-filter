@@ -70,6 +70,11 @@ void   CHWndManager::SelectChannel(POINT pt)
 //------------------------------------------------------------------------------
 void CHWndManager::SetSplitMode ( int currIndex, int num, int clickNum )
 {
+	if (num == 0 && currIndex != 0)
+	{
+		currIndex = 0;
+	}
+
     HWnd_SetSplitMode(m_SpliteHandle, currIndex, num);
     //HWnd_SetSplitMode_WithOrder(m_SpliteHandle, currIndex, num, clickNum);
     switch(num)
