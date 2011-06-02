@@ -391,11 +391,12 @@ STDMETHODIMP CDVRMVPlayerCtrl::put_fullScreen(VARIANT_BOOL bFullScreen)
 
     if(m_bFullScreen == bFullScreen)
         return S_OK;
-
+	/*
 	if (bFullScreen && m_IMVPlayer.State() == PlayerState_Uninitialized)
 	{
 		return S_OK;
 	}
+	*/
     m_bFullScreen = bFullScreen;
 	
     if(m_bFullScreen)
