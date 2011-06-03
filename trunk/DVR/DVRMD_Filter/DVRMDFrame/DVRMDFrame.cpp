@@ -37,6 +37,8 @@ CDVRMDFrameApp theApp;
 
 BOOL CDVRMDFrameApp::InitInstance()
 {
+	CMyCommandLineInfo cmdInfo;
+    ParseCommandLine(cmdInfo);
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -48,7 +50,7 @@ BOOL CDVRMDFrameApp::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 
 	CWinAppEx::InitInstance();
-
+	
 	AfxEnableControlContainer();
 
 	// Standard initialization
@@ -62,7 +64,9 @@ BOOL CDVRMDFrameApp::InitInstance()
 
 	CDVRMDFrameDlg dlg;
 	m_pMainWnd = &dlg;
+	
 	INT_PTR nResponse = dlg.DoModal();
+	
 	if (nResponse == IDOK)
 	{
 		// TODO: Place code here to handle when the dialog is
@@ -77,4 +81,17 @@ BOOL CDVRMDFrameApp::InitInstance()
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.
 	return FALSE;
+}
+
+void CMyCommandLineInfo::ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast)
+{
+	static int num = 0;    
+    CCommandLineInfo::ParseParam(lpszParam, bFlag, bLast);
+    switch(num)
+    {
+		case 0:
+             theApp.csFilePath = CString(lpszParam);
+        break;
+	}
+     num++;           
 }

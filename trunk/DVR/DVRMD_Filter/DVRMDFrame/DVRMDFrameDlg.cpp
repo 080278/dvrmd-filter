@@ -105,6 +105,7 @@ BOOL CDVRMDFrameDlg::OnInitDialog()
 	CRect rcClient;
 	GetClientRect(rcClient);
 	m_DVRPlayer.MoveWindow(0, 0, rcClient.Width(), rcClient.Height()-50);
+	m_DVRPlayer.OpenFile(theApp.csFilePath);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -192,3 +193,5 @@ void CDVRMDFrameDlg::OnSize(UINT nType, int cx, int cy)
 		m_DVRPlayer.SetRenderWindowSize(cx, cy-65);
 	}
 }
+
+ 
