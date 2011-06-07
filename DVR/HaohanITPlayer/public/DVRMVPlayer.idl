@@ -220,6 +220,8 @@ interface IDVRMVPlayer : IDispatch{
 		HRESULT SetCapturePath([in] BSTR bstrCapFolder);
 	[id(DISPID_DVRPLAYER_SHOWMETADATA), helpstring("show/hide metadata")] 
 		HRESULT ShowMetaData([in] VARIANT_BOOL bShow);
+	[id(DISPID_DVRPLAYER_SETWNDCHANNEL), helpstring("Set Wnd Channel")] 
+		HRESULT SetWndChannel([in]LONG lWndIndex, [in]LONG lChannelIndex);
 };
 
 [
