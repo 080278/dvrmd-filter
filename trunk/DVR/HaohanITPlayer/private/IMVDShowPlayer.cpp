@@ -1559,3 +1559,8 @@ HRESULT CIMVDShowPlayer::ShowMetaData(VARIANT_BOOL bShow)
 	CDVRSettings::GetInstance()->m_bDrawMetaData = (bShow == VARIANT_TRUE);
 	return S_OK;
 }
+HRESULT CIMVDShowPlayer::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
+{
+	m_spDVRPlayer->SetWndChannel(lWndIndex, lChannelIndex);
+	return S_OK;
+}

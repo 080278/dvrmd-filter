@@ -523,6 +523,7 @@ public:
 	STDMETHOD(GetCapturePath)(BSTR* bstrCapFolder);
 	STDMETHOD(SetCapturePath)(BSTR bstrCapFolder);
 	STDMETHOD(ShowMetaData)(VARIANT_BOOL bShow);
+	STDMETHOD(SetWndChannel)(LONG lWndIndex, LONG lChannelIndex);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)

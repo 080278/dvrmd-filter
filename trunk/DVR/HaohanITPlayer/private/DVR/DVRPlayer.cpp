@@ -1534,7 +1534,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		else
 		{
 			//sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
-			sFilePath.Format(_T("C:\\capture%02d.jpeg"), tm);
+			sFilePath.Format(_T("%s\\capture%02d.jpeg"), tm);
 		}
 	}
 	else
@@ -1552,7 +1552,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		else
 		{
 			//sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
-			sFilePath.Format(_T("C:\\capture%02d.bmp"), tm);
+			sFilePath.Format(_T("%s\\capture%02d.bmp"), tm);
 		}
 	}
 	

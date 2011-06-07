@@ -224,6 +224,7 @@ public:
 	HRESULT GetCapturePath(BSTR* bstrCapFolder);
 	HRESULT SetCapturePath(BSTR bstrCapFolder);
 	HRESULT ShowMetaData(VARIANT_BOOL bShow);
+	HRESULT SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
 private:
 	HRESULT InitializeGraph();
 	HRESULT	LoadSourceFilter(LPCWSTR moviePath);

@@ -769,3 +769,7 @@ STDMETHODIMP CDVRMVPlayerCtrl::ShowMetaData(VARIANT_BOOL bShow)
 	return m_IMVPlayer.ShowMetaData(bShow);
 
 }
+STDMETHODIMP CDVRMVPlayerCtrl::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
+{
+	return m_IMVPlayer.SetWndChannel(lWndIndex, lChannelIndex);
+}
