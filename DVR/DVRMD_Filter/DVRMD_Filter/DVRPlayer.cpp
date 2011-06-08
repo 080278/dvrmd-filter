@@ -1103,6 +1103,17 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 	switch(obj.type)
 	{
 	case 0:		//line_segment
+		{
+			//去掉透明度
+			HDC dc = graphics.GetHDC();
+			CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
+			HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+			::MoveToEx(dc, obj.x0, obj.y0, NULL);
+			::LineTo(dc, obj.x1, obj.y1);
+			::SelectObject(dc, hOldPen);
+			graphics.ReleaseHDC(dc);
+		}
+		/*
 		if (style.alpha == 100)
 		{
 			HDC dc = graphics.GetHDC();
@@ -1117,6 +1128,7 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 		{
 			graphics.DrawLine(&gPlusPen, obj.x0, obj.y0, obj.x1, obj.y1);
 		}
+		*/
 		break;
 	case 1:		//rectangle
 		if (style.bFill)
@@ -1125,7 +1137,20 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 			graphics.FillRectangle(&gPlusBrush, obj.x0 + obj.style.thickness/2, obj.y0 + obj.style.thickness/2, 
 				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
-
+		{
+			//去掉透明度
+			HDC dc = graphics.GetHDC();
+			CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
+			HGDIOBJ hOldPen = ::SelectObject(dc, gdiPen);
+			::MoveToEx(dc, obj.x0, obj.y0, NULL);
+			::LineTo(dc, obj.x1, obj.y0);
+			::LineTo(dc, obj.x1, obj.y1);
+			::LineTo(dc, obj.x0, obj.y1);
+			::LineTo(dc, obj.x0, obj.y0);
+			::SelectObject(dc, hOldPen);
+			graphics.ReleaseHDC(dc);
+		}
+		/*
 		if (style.alpha == 100)
 		{
 			HDC dc = graphics.GetHDC();
@@ -1143,6 +1168,7 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 		{
 			graphics.DrawRectangle(&gPlusPen, obj.x0, obj.y0, obj.x1 - obj.x0, obj.y1 - obj.y0);	
 		}
+		*/
 		break;
 	case 2:		//ellipse
 		if (style.bFill)
