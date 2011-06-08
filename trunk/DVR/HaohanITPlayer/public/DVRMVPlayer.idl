@@ -213,9 +213,9 @@ interface IDVRMVPlayer : IDispatch{
 	[id(DISPID_DVRPLAYER_STOPMONITOR), helpstring("Stop monitor")] 
 		HRESULT StopMonitor();
 	[id(DISPID_DVRPLAYER_CAPPIC), helpstring("Capture the picture")] 
-		HRESULT CapPic([out] BSTR* pCapPicPath);
+		HRESULT CapPic([out, retval] BSTR* pCapPicPath);
 	[id(DISPID_DVRPLAYER_GETCAPTUREPATH), helpstring("Get the capture folder")] 
-		HRESULT GetCapturePath([out] BSTR* pbstrCapFolder);
+		HRESULT GetCapturePath([out, retval] BSTR* pbstrCapFolder);
 	[id(DISPID_DVRPLAYER_SETCAPTUREPATH), helpstring("Set the capture folder")] 
 		HRESULT SetCapturePath([in] BSTR bstrCapFolder);
 	[id(DISPID_DVRPLAYER_SHOWMETADATA), helpstring("show/hide metadata")] 
