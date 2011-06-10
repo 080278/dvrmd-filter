@@ -524,6 +524,8 @@ public:
 	STDMETHOD(SetCapturePath)(BSTR bstrCapFolder);
 	STDMETHOD(ShowMetaData)(VARIANT_BOOL bShow);
 	STDMETHOD(SetWndChannel)(LONG lWndIndex, LONG lChannelIndex);
+	STDMETHOD(GetFullScreen)(VARIANT_BOOL *pbFullScreen);
+	STDMETHOD(SetFullScreen)(VARIANT_BOOL bFullScreen);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)

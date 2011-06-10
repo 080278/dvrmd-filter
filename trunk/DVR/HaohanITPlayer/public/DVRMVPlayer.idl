@@ -221,7 +221,11 @@ interface IDVRMVPlayer : IDispatch{
 	[id(DISPID_DVRPLAYER_SHOWMETADATA), helpstring("show/hide metadata")] 
 		HRESULT ShowMetaData([in] VARIANT_BOOL bShow);
 	[id(DISPID_DVRPLAYER_SETWNDCHANNEL), helpstring("Set Wnd Channel")] 
-		HRESULT SetWndChannel([in]LONG lWndIndex, [in]LONG lChannelIndex);
+		HRESULT SetWndChannel([in] LONG lWndIndex, [in] LONG lChannelIndex);
+	[id(DISPID_DVRPLAYER_GET_FULLSCREEN), helpstring("Get Full Screen")] 
+		HRESULT GetFullScreen([out, retval] VARIANT_BOOL *pbFullScreen);
+	[id(DISPID_DVRPLAYER_SET_FULLSCREEN), helpstring("Set Full Screen")] 
+		HRESULT SetFullScreen([in] VARIANT_BOOL bFullScreen);
 };
 
 [

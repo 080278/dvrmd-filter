@@ -773,3 +773,11 @@ STDMETHODIMP CDVRMVPlayerCtrl::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
 {
 	return m_IMVPlayer.SetWndChannel(lWndIndex, lChannelIndex);
 }
+STDMETHODIMP CDVRMVPlayerCtrl::GetFullScreen(VARIANT_BOOL *pbFullScreen)
+{
+	return get_fullScreen(pbFullScreen);
+}
+STDMETHODIMP CDVRMVPlayerCtrl::SetFullScreen(VARIANT_BOOL bFullScreen)
+{
+	return put_fullScreen(bFullScreen);
+}
