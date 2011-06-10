@@ -655,12 +655,14 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 {
 	if (nWndIndex < GetDVRSettings().m_nRenderWndNum && nWndIndex >= 0 && nChannel >= 0 && nChannel < 16)
 	{
+		/*
 		std::map<int, int>::iterator it = m_MonitorHandler.find(nWndIndex);
 		if (it != m_MonitorHandler.end())
 		{
 			m_spPlayerMgr->StopMonitor(it->second);
 			m_MonitorHandler.erase(it);
 		}
+		*/
 		if(m_spHWndMgr.get() == NULL)
 		{
 			InitForMonitor();
@@ -672,6 +674,13 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 		hhvInfo.connInfo.port = GetDVRSettings().m_lPort;
 		hhvInfo.channel = nChannel;
 		int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
+		//先启动后一个监视，然后停止前一个监视，为了减少等待时间
+		std::map<int, int>::iterator it = m_MonitorHandler.find(nWndIndex);
+		if (it != m_MonitorHandler.end())
+		{
+			m_spPlayerMgr->StopMonitor(it->second);
+			m_MonitorHandler.erase(it);
+		}
 		if( ret < 0 )
 		{
 			CString csErr;
