@@ -742,6 +742,11 @@ BOOL CDVRPlayer::StartMonitor()
 	return !m_MonitorHandler.empty();
 }
 
+BOOL CDVRPlayer::SelectMonitorWnd(LPPOINT ptClient)
+{
+	m_spHWndMgr->SelectChannel(*ptClient);
+	return TRUE;
+}
 BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 {
 	if (nWndIndex < GetDVRSettings().m_nRenderWndNum && nWndIndex >= 0 && nChannel >= 0 && nChannel < 16)
@@ -787,14 +792,37 @@ void CDVRPlayer::StopMonitor()
 	m_MonitorHandler.clear();
 }
 
-void CDVRPlayer::ResizeMonitorWindow()
+void CDVRPlayer::ResizeMonitorWindow(bool bFullScreen)
 {
 	if (m_spHWndMgr.get() && IsMonitoring())
 	{
 		m_spHWndMgr->SetSplitMode(m_lPort, ToSplitMode(CDVRSettings::GetInstance()->m_nRenderWndNum));
-		for (std::map<int, int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+		if (bFullScreen)
 		{
-			m_spPlayerMgr->ResizeMonitorWindow(it->second);
+			HWND hFocusWnd = m_spHWndMgr->GetFocusHWnd();
+			int nHandleWnd = m_spHWndMgr->GetFocus();
+			RECT rcWnd;
+			GetClientRect(m_hRenderWnd, &rcWnd);
+			MoveWindow(hFocusWnd, 0, 0, rcWnd.right-rcWnd.left, rcWnd.bottom-rcWnd.top, TRUE);
+			m_spPlayerMgr->ResizeMonitorWindow(nHandleWnd);
+			for (std::map<int, int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+			{
+				if (it->second == nHandleWnd)
+				{
+					m_spPlayerMgr->ResizeMonitorWindow(it->second);
+				}
+				else
+				{
+					ShowWindow(m_spHWndMgr->GetHWnd(it->second), SW_HIDE);
+				}
+			}
+		}
+		else
+		{
+			for (std::map<int, int>::iterator it = m_MonitorHandler.begin(); it != m_MonitorHandler.end(); ++it)
+			{
+				m_spPlayerMgr->ResizeMonitorWindow(it->second);
+			}
 		}
 	}
 }

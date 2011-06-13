@@ -456,7 +456,7 @@ STDMETHODIMP CDVRMVPlayerCtrl::put_fullScreen(VARIANT_BOOL bFullScreen)
         }
 		TurnOffCursorHiding();
     }
-	m_IMVPlayer.UpdateVideoWindow(NULL);
+	m_IMVPlayer.UpdateVideoWindow(NULL, m_bFullScreen == VARIANT_TRUE);
 
     return S_OK;
 }
@@ -673,6 +673,11 @@ LRESULT CDVRMVPlayerCtrl::OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 		TurnOffCursorHiding();
 		TurnOnCursorHiding();
 	}
+	else
+	{
+		m_IMVPlayer.SelectMonitorWnd();
+	}
+
 	return 0;
 }
 

@@ -1477,7 +1477,7 @@ VOID CIMVDShowPlayer::RepaintVideo()
 	}
 }
 
-VOID CIMVDShowPlayer::UpdateVideoWindow(const LPRECT prc)
+VOID CIMVDShowPlayer::UpdateVideoWindow(const LPRECT prc, int nFullScreenState)
 {
 	if (m_spDVRPlayer.get())
 	{
@@ -1486,7 +1486,14 @@ VOID CIMVDShowPlayer::UpdateVideoWindow(const LPRECT prc)
 			CDVRSettings::GetInstance()->m_nRenderWidth = prc->right - prc->left;
 			CDVRSettings::GetInstance()->m_nRenderHeight = prc->bottom - prc->top;
 		}
-		m_spDVRPlayer->ResizeMonitorWindow();
+		if (nFullScreenState == 0)
+		{
+			m_spDVRPlayer->ResizeMonitorWindow(false);
+		}
+		else if (nFullScreenState == 1)
+		{
+			m_spDVRPlayer->ResizeMonitorWindow(true);
+		}
 		m_spDVRPlayer->RefreshPlay();
 	}
 }
@@ -1557,6 +1564,18 @@ HRESULT CIMVDShowPlayer::SetCapturePath(BSTR bstrCapFolder)
 HRESULT CIMVDShowPlayer::ShowMetaData(VARIANT_BOOL bShow)
 {
 	CDVRSettings::GetInstance()->m_bDrawMetaData = (bShow == VARIANT_TRUE);
+	return S_OK;
+}
+HRESULT CIMVDShowPlayer::SelectMonitorWnd()
+{
+	POINT pos;
+	GetCursorPos(&pos);
+
+	POINT ptClient;
+	ptClient.x = pos.x;
+	ptClient.y = pos.y;
+	ScreenToClient(m_hVideoWnd, &ptClient);
+	m_spDVRPlayer->SelectMonitorWnd(&ptClient);
 	return S_OK;
 }
 HRESULT CIMVDShowPlayer::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)

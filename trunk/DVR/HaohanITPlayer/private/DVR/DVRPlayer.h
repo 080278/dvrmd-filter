@@ -155,7 +155,8 @@ public:
 	void StopMonitor();
 	BOOL IsMonitoring();
 	BOOL SetWndChannel(int nWndIndex, int nChannel);
-	void ResizeMonitorWindow();
+	BOOL SelectMonitorWnd(LPPOINT ptClient);
+	void ResizeMonitorWindow(bool bFullScreen);
 
 	// Playback by time
 	BOOL StartPlayback(SYSTEM_VIDEO_FILE& sysFile);
