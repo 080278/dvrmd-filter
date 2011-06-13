@@ -179,7 +179,7 @@ public:
 	//		m_pEVRVideoDisplayControl->RepaintVideo();
 	//}
 
-	 VOID UpdateVideoWindow(const LPRECT prc);
+	 VOID UpdateVideoWindow(const LPRECT prc, int nFullScreenState = -1);
 	//{
 	//	if(m_pEVRVideoDisplayControl && prc)
 	//		m_pEVRVideoDisplayControl->SetVideoPosition(NULL,prc);
@@ -225,6 +225,8 @@ public:
 	HRESULT SetCapturePath(BSTR bstrCapFolder);
 	HRESULT ShowMetaData(VARIANT_BOOL bShow);
 	HRESULT SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
+
+	HRESULT SelectMonitorWnd();
 private:
 	HRESULT InitializeGraph();
 	HRESULT	LoadSourceFilter(LPCWSTR moviePath);

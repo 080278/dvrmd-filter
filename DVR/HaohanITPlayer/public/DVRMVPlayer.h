@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Tue May 17 23:26:48 2011
+/* at Mon Jun 13 22:01:57 2011
  */
 /* Compiler settings for public\DVRMVPlayer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
@@ -750,16 +750,26 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE StopMonitor( void) = 0;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CapPic( 
-            /* [out] */ BSTR *pCapPicPath) = 0;
+            /* [retval][out] */ BSTR *pCapPicPath) = 0;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE GetCapturePath( 
-            /* [out] */ BSTR *pbstrCapFolder) = 0;
+            /* [retval][out] */ BSTR *pbstrCapFolder) = 0;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE SetCapturePath( 
             /* [in] */ BSTR bstrCapFolder) = 0;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ShowMetaData( 
             /* [in] */ VARIANT_BOOL bShow) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE SetWndChannel( 
+            /* [in] */ LONG lWndIndex,
+            /* [in] */ LONG lChannelIndex) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE GetFullScreen( 
+            /* [retval][out] */ VARIANT_BOOL *pbFullScreen) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE SetFullScreen( 
+            /* [in] */ VARIANT_BOOL bFullScreen) = 0;
         
     };
     
@@ -958,11 +968,11 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *CapPic )( 
             IDVRMVPlayer * This,
-            /* [out] */ BSTR *pCapPicPath);
+            /* [retval][out] */ BSTR *pCapPicPath);
         
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *GetCapturePath )( 
             IDVRMVPlayer * This,
-            /* [out] */ BSTR *pbstrCapFolder);
+            /* [retval][out] */ BSTR *pbstrCapFolder);
         
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *SetCapturePath )( 
             IDVRMVPlayer * This,
@@ -971,6 +981,19 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *ShowMetaData )( 
             IDVRMVPlayer * This,
             /* [in] */ VARIANT_BOOL bShow);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *SetWndChannel )( 
+            IDVRMVPlayer * This,
+            /* [in] */ LONG lWndIndex,
+            /* [in] */ LONG lChannelIndex);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *GetFullScreen )( 
+            IDVRMVPlayer * This,
+            /* [retval][out] */ VARIANT_BOOL *pbFullScreen);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *SetFullScreen )( 
+            IDVRMVPlayer * This,
+            /* [in] */ VARIANT_BOOL bFullScreen);
         
         END_INTERFACE
     } IDVRMVPlayerVtbl;
@@ -1130,6 +1153,15 @@ EXTERN_C const IID IID_IDVRMVPlayer;
 
 #define IDVRMVPlayer_ShowMetaData(This,bShow)	\
     ( (This)->lpVtbl -> ShowMetaData(This,bShow) ) 
+
+#define IDVRMVPlayer_SetWndChannel(This,lWndIndex,lChannelIndex)	\
+    ( (This)->lpVtbl -> SetWndChannel(This,lWndIndex,lChannelIndex) ) 
+
+#define IDVRMVPlayer_GetFullScreen(This,pbFullScreen)	\
+    ( (This)->lpVtbl -> GetFullScreen(This,pbFullScreen) ) 
+
+#define IDVRMVPlayer_SetFullScreen(This,bFullScreen)	\
+    ( (This)->lpVtbl -> SetFullScreen(This,bFullScreen) ) 
 
 #endif /* COBJMACROS */
 
