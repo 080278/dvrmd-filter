@@ -14,6 +14,11 @@
 // CDVRUI_MFCApp:
 // 有关此类的实现，请参阅 DVRUI_MFC.cpp
 //
+class CMyCommandLineInfo : public CCommandLineInfo
+{
+public:
+        void ParseParam(LPCTSTR lpszParam, BOOL bFlag, BOOL bLast);
+};
 
 class CDVRUI_MFCApp : public CWinApp
 {
@@ -23,7 +28,7 @@ public:
 // 重写
 public:
 	virtual BOOL InitInstance();
-
+	CString csFilePath;//双击打开vs文件，获取当前vs的地址
 // 实现
 
 	DECLARE_MESSAGE_MAP()
