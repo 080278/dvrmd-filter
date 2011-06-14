@@ -438,12 +438,12 @@ public:
     HRESULT FinalConstruct()
     {
 #ifdef ANTI_DEBUG	
-		if(IsDebuggerPresent())
-		{
-			const char *pMsg = "Debugger detected. Debugging RoxioNow is not allowed. Exiting...";
-			::MessageBoxA(NULL, pMsg, "Error",MB_OK | MB_ICONSTOP);
-			ExitProcess(-1);
-		}
+		//if(IsDebuggerPresent())
+		//{
+			//const char *pMsg = "Debugger detected. Debugging is not allowed. Exiting...";
+			//::MessageBoxA(NULL, pMsg, "Error",MB_OK | MB_ICONSTOP);
+			//ExitProcess(-1);
+		//}
 #endif //ANTI_DEBUG
 
         return S_OK;
