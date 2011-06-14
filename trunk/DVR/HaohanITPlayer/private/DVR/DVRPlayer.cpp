@@ -744,6 +744,10 @@ BOOL CDVRPlayer::StartMonitor()
 
 BOOL CDVRPlayer::SelectMonitorWnd(LPPOINT ptClient)
 {
+	if(m_spHWndMgr.get() == NULL)
+	{
+		return FALSE;
+	}
 	m_spHWndMgr->SelectChannel(*ptClient);
 	return TRUE;
 }
