@@ -107,7 +107,7 @@ BOOL CDVRUI_MFCDlg::OnInitDialog()
 	GetDlgItem(IDC_PLAY_WND)->GetWindowRect(&rcPlayer);
 	m_nPaneCtrlHeight = rcDlg.bottom - rcPlayer.bottom;
 	m_DVRPlayer.MoveWindow(0, 0, rcPlayer.right - rcPlayer.left, rcPlayer.bottom - rcPlayer.top);
-
+	m_DVRPlayer.OpenFile(theApp.csFilePath);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
