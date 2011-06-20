@@ -226,6 +226,12 @@ interface IDVRMVPlayer : IDispatch{
 		HRESULT GetFullScreen([out, retval] VARIANT_BOOL *pbFullScreen);
 	[id(DISPID_DVRPLAYER_SET_FULLSCREEN), helpstring("Set Full Screen")] 
 		HRESULT SetFullScreen([in] VARIANT_BOOL bFullScreen);
+	[id(DISPID_DVRPLAYER_AddPlayFile), helpstring("Add to play list")] 
+		HRESULT AddFileToPlayList([in] BSTR bstrFile);
+	[id(DISPID_DVRPLAYER_ClosePlayFile), helpstring("Add to play list")] 
+		HRESULT ClosePlayList();
+	[id(DISPID_DVRPLAYER_PlayNextFile), helpstring("Add to play list")] 
+		HRESULT PlayNextFile();
 };
 
 [
