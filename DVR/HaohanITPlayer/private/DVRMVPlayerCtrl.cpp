@@ -794,9 +794,21 @@ STDMETHODIMP CDVRMVPlayerCtrl::AddFileToPlayList(BSTR bstrFile)
 
 STDMETHODIMP CDVRMVPlayerCtrl::ClosePlayList()
 {
+	m_IMVPlayer.ClosePlayList();
 	return S_OK;
 }
 STDMETHODIMP CDVRMVPlayerCtrl::PlayNextFile()
+{
+	m_IMVPlayer.PlayNextFile();
+	return S_OK;
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::StartPlayback(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::StopPlayback()
 {
 	return S_OK;
 }

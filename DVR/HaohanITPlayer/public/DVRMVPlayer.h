@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Mon Jun 20 23:40:37 2011
+/* at Tue Jun 21 00:19:37 2011
  */
 /* Compiler settings for public\DVRMVPlayer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
@@ -778,6 +778,13 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE PlayNextFile( void) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE StartPlayback( 
+            /* [in] */ LONGLONG lStartTime,
+            /* [in] */ LONGLONG lEndTime,
+            /* [in] */ LONG lChannel) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE StopPlayback( void) = 0;
+        
     };
     
 #else 	/* C style interface */
@@ -1012,6 +1019,15 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *PlayNextFile )( 
             IDVRMVPlayer * This);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *StartPlayback )( 
+            IDVRMVPlayer * This,
+            /* [in] */ LONGLONG lStartTime,
+            /* [in] */ LONGLONG lEndTime,
+            /* [in] */ LONG lChannel);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *StopPlayback )( 
+            IDVRMVPlayer * This);
+        
         END_INTERFACE
     } IDVRMVPlayerVtbl;
 
@@ -1188,6 +1204,12 @@ EXTERN_C const IID IID_IDVRMVPlayer;
 
 #define IDVRMVPlayer_PlayNextFile(This)	\
     ( (This)->lpVtbl -> PlayNextFile(This) ) 
+
+#define IDVRMVPlayer_StartPlayback(This,lStartTime,lEndTime,lChannel)	\
+    ( (This)->lpVtbl -> StartPlayback(This,lStartTime,lEndTime,lChannel) ) 
+
+#define IDVRMVPlayer_StopPlayback(This)	\
+    ( (This)->lpVtbl -> StopPlayback(This) ) 
 
 #endif /* COBJMACROS */
 

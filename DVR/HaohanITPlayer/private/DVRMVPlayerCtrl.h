@@ -529,6 +529,8 @@ public:
 	STDMETHOD(AddFileToPlayList)(BSTR bstrFile);
 	STDMETHOD(ClosePlayList)();
 	STDMETHOD(PlayNextFile)();
+	STDMETHOD(StartPlayback)(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel);
+	STDMETHOD(StopPlayback)();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)

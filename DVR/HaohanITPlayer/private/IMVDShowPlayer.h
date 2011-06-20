@@ -229,6 +229,8 @@ public:
 	HRESULT ClosePlayList();
 	HRESULT PlayNextFile();
 	HRESULT SelectMonitorWnd();
+	HRESULT StartPlayback(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel);
+	HRESULT StopPlayback();
 private:
 	HRESULT InitializeGraph();
 	HRESULT	LoadSourceFilter(LPCWSTR moviePath);
