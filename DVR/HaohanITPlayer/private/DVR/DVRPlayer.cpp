@@ -1766,6 +1766,7 @@ void CDVRPlayer::Open(LPCTSTR szFile)
 
 		NAME(PlayM4_SetEncChangeMsg)(m_lPort, m_hParentWnd, WM_ENC_CHANGE);
 		//NAME(PlayM4_SetEncTypeChangeCallBack(m_lPort, EncChange, (long)this));
+		NAME(PlayM4_SetFileEndCallback)(m_lPort, FileEndCallBack, this);
 
 		m_bStreamType = m_strPlayFileName.Right(3).CompareNoCase(_T(".vs")) == 0;
 
@@ -2252,6 +2253,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			int nRet = 0;
 			if(TRUE)//pOwner->m_dwSysFormat != SYSTEM_RTP)
 			{
+				memset(pThis->m_buffer, 0, sizeof(CHAR)*MAX_FRAME_LENGTH);
 				nRet = pThis->m_spStreamParser->GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
 				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				if (nRet <= 0)
@@ -2259,11 +2261,11 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 					//File end;
 					//pOwner->m_bFileEnd = TRUE;
 					bBufFull = FALSE;
+					FileEndCallBack(pThis->GetPort(), pThis);
 					ResetEvent(pThis->m_hEventInput);
 				}
 				dwDataLen = nRet;
 			}
-
 			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
 			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
 			{
@@ -2298,6 +2300,8 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				nCountNoMetaData = 0;
 			}
 
+			TRACE1(_T("Time: %d  Frame: %d Width: %d Height: %d\n"), pThis->GetCurrentFrameNum(), pThis->m_frameHeader.FrameTime, pThis->m_frameHeader.Width, pThis->m_frameHeader.Height);
+			TRACE1(_T("FrameLength: %d, MetaDataLength: %d, encFrameLength: %d\n"), htonl(pThis->m_frameHeader.FrameLength), pThis->m_frameHeader.MetaLength, encFrameLength);
 			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
 			{
 				::Sleep(10);
@@ -2347,4 +2351,64 @@ void CDVRPlayer::FileRefDone(DWORD /*nReserved*/,DWORD nUser)
 	//	HANDLE hFile = CreateFile("D:\\new.idx", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	//	DWORD dw;
 	//	WriteFile(hFile, pIndex, dwIndex, &dw, NULL);
+}
+
+void CDVRPlayer::FileEndCallBack(long lPort, void* pUser)
+{
+	CDVRPlayer* pThis = (CDVRPlayer*)pUser;
+	if (pThis != NULL)
+	{
+		HANDLE hThread = (HANDLE)::_beginthreadex(NULL, 0, PlanNextFile, pThis, 0, NULL);
+		::CloseHandle(hThread);
+	}
+}
+
+unsigned CDVRPlayer::PlanNextFile(void* pParam)
+{
+	CDVRPlayer* pThis = (CDVRPlayer*)pParam;
+	if (pThis != NULL)
+	{
+		pThis->m_PlayFilesLock.Lock();
+		if (pThis->m_aryPlayFiles.size() > 0)
+		{
+#ifdef UNICODE
+			std::wstring strFile = pThis->m_aryPlayFiles.front();
+#else
+			std::string strFile = pThis->m_aryPlayFiles.front();
+#endif
+			pThis->m_aryPlayFiles.pop_front();
+			pThis->Open(strFile.c_str());
+		}
+		pThis->m_PlayFilesLock.Unlock();
+	}
+
+	_endthreadex(0);
+	return 0;
+}
+
+void  CDVRPlayer::AddToPlayList(LPCTSTR szFile)
+{
+	m_PlayFilesLock.Lock();
+	if (m_bOpen)
+	{
+		m_aryPlayFiles.push_back(szFile);
+	}
+	else
+	{
+		Open(szFile);
+	}
+	m_PlayFilesLock.Unlock();
+}
+
+void  CDVRPlayer::ClosePlayList()
+{
+	m_PlayFilesLock.Lock();
+	m_aryPlayFiles.clear();
+	Close();
+	m_PlayFilesLock.Unlock();
+}
+
+void  CDVRPlayer::PlayNextFile()
+{
+	PlanNextFile(this);
 }

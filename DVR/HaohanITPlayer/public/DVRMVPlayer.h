@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Mon Jun 13 22:01:57 2011
+/* at Mon Jun 20 23:40:37 2011
  */
 /* Compiler settings for public\DVRMVPlayer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
@@ -771,6 +771,13 @@ EXTERN_C const IID IID_IDVRMVPlayer;
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE SetFullScreen( 
             /* [in] */ VARIANT_BOOL bFullScreen) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE AddFileToPlayList( 
+            /* [in] */ BSTR bstrFile) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ClosePlayList( void) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE PlayNextFile( void) = 0;
+        
     };
     
 #else 	/* C style interface */
@@ -995,6 +1002,16 @@ EXTERN_C const IID IID_IDVRMVPlayer;
             IDVRMVPlayer * This,
             /* [in] */ VARIANT_BOOL bFullScreen);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *AddFileToPlayList )( 
+            IDVRMVPlayer * This,
+            /* [in] */ BSTR bstrFile);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *ClosePlayList )( 
+            IDVRMVPlayer * This);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *PlayNextFile )( 
+            IDVRMVPlayer * This);
+        
         END_INTERFACE
     } IDVRMVPlayerVtbl;
 
@@ -1162,6 +1179,15 @@ EXTERN_C const IID IID_IDVRMVPlayer;
 
 #define IDVRMVPlayer_SetFullScreen(This,bFullScreen)	\
     ( (This)->lpVtbl -> SetFullScreen(This,bFullScreen) ) 
+
+#define IDVRMVPlayer_AddFileToPlayList(This,bstrFile)	\
+    ( (This)->lpVtbl -> AddFileToPlayList(This,bstrFile) ) 
+
+#define IDVRMVPlayer_ClosePlayList(This)	\
+    ( (This)->lpVtbl -> ClosePlayList(This) ) 
+
+#define IDVRMVPlayer_PlayNextFile(This)	\
+    ( (This)->lpVtbl -> PlayNextFile(This) ) 
 
 #endif /* COBJMACROS */
 

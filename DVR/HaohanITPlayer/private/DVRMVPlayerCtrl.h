@@ -526,6 +526,9 @@ public:
 	STDMETHOD(SetWndChannel)(LONG lWndIndex, LONG lChannelIndex);
 	STDMETHOD(GetFullScreen)(VARIANT_BOOL *pbFullScreen);
 	STDMETHOD(SetFullScreen)(VARIANT_BOOL bFullScreen);
+	STDMETHOD(AddFileToPlayList)(BSTR bstrFile);
+	STDMETHOD(ClosePlayList)();
+	STDMETHOD(PlayNextFile)();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)

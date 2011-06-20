@@ -784,3 +784,19 @@ STDMETHODIMP CDVRMVPlayerCtrl::SetFullScreen(VARIANT_BOOL bFullScreen)
 {
 	return put_fullScreen(bFullScreen);
 }
+
+STDMETHODIMP CDVRMVPlayerCtrl::AddFileToPlayList(BSTR bstrFile)
+{
+	// TODO: Add your implementation code here
+
+	return m_IMVPlayer.AddFileToPlayList(bstrFile);
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::ClosePlayList()
+{
+	return S_OK;
+}
+STDMETHODIMP CDVRMVPlayerCtrl::PlayNextFile()
+{
+	return S_OK;
+}

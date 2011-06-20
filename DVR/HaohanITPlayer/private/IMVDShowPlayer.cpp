@@ -1583,3 +1583,21 @@ HRESULT CIMVDShowPlayer::SetWndChannel(LONG lWndIndex, LONG lChannelIndex)
 	m_spDVRPlayer->SetWndChannel(lWndIndex, lChannelIndex);
 	return S_OK;
 }
+
+HRESULT CIMVDShowPlayer::AddFileToPlayList(BSTR bstrFile)
+{
+	m_spDVRPlayer->AddToPlayList(bstrFile);
+	return S_OK;
+}
+
+HRESULT CIMVDShowPlayer::ClosePlayList()
+{
+	m_spDVRPlayer->ClosePlayList();
+	return S_OK;
+}
+
+HRESULT CIMVDShowPlayer::PlayNextFile()
+{
+	m_spDVRPlayer->PlayNextFile();
+	return S_OK;
+}

@@ -225,7 +225,9 @@ public:
 	HRESULT SetCapturePath(BSTR bstrCapFolder);
 	HRESULT ShowMetaData(VARIANT_BOOL bShow);
 	HRESULT SetWndChannel(LONG lWndIndex, LONG lChannelIndex);
-
+	HRESULT AddFileToPlayList(BSTR bstrFile);
+	HRESULT ClosePlayList();
+	HRESULT PlayNextFile();
 	HRESULT SelectMonitorWnd();
 private:
 	HRESULT InitializeGraph();
