@@ -228,10 +228,14 @@ interface IDVRMVPlayer : IDispatch{
 		HRESULT SetFullScreen([in] VARIANT_BOOL bFullScreen);
 	[id(DISPID_DVRPLAYER_AddPlayFile), helpstring("Add to play list")] 
 		HRESULT AddFileToPlayList([in] BSTR bstrFile);
-	[id(DISPID_DVRPLAYER_ClosePlayFile), helpstring("Add to play list")] 
+	[id(DISPID_DVRPLAYER_ClosePlayFile), helpstring("Close Play Files")] 
 		HRESULT ClosePlayList();
-	[id(DISPID_DVRPLAYER_PlayNextFile), helpstring("Add to play list")] 
+	[id(DISPID_DVRPLAYER_PlayNextFile), helpstring("Play Next File in play list")] 
 		HRESULT PlayNextFile();
+	[id(DISPID_DVRPLAYER_StartPlayback), helpstring("StartPlayback")] 
+		HRESULT StartPlayback([in] LONGLONG lStartTime, [in] LONGLONG lEndTime, [in] LONG lChannel);
+	[id(DISPID_DVRPLAYER_StopPlayback), helpstring("StartPlayback")] 
+		HRESULT StopPlayback();
 };
 
 [

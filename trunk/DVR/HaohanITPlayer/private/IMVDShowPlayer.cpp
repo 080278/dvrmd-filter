@@ -1601,3 +1601,32 @@ HRESULT CIMVDShowPlayer::PlayNextFile()
 	m_spDVRPlayer->PlayNextFile();
 	return S_OK;
 }
+
+HRESULT CIMVDShowPlayer::StartPlayback(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel)
+{
+	CTime st(lStartTime);
+	CTime et(lEndTime);
+	SYSTEM_VIDEO_FILE svf;
+	svf.channel = lChannel;
+
+	svf.start_date.year = st.GetYear();
+	svf.start_date.month = st.GetMonth();
+	svf.start_date.date = st.GetDay();
+	svf.start_time.hour = st.GetHour();
+	svf.start_time.minute = st.GetMinute();
+	svf.start_time.second = st.GetSecond();
+
+	svf.end_date.year = et.GetYear();
+	svf.end_date.month = et.GetMonth();
+	svf.end_date.date = et.GetDay();
+	svf.end_time.hour = et.GetHour();
+	svf.end_time.minute = et.GetMinute();
+	svf.end_time.second = et.GetSecond();
+	return m_spDVRPlayer->StartPlayback(svf) ? S_OK : S_FALSE;
+}
+
+HRESULT CIMVDShowPlayer::StopPlayback()
+{
+	m_spDVRPlayer->StopPlayback();
+	return S_OK;
+}

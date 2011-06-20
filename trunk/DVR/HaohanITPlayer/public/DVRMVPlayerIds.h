@@ -48,6 +48,8 @@
 #define DISPID_DVRPLAYER_AddPlayFile			(DISPID_IMVPLAYER_BASE + 25)
 #define DISPID_DVRPLAYER_ClosePlayFile			(DISPID_IMVPLAYER_BASE + 26)
 #define DISPID_DVRPLAYER_PlayNextFile			(DISPID_IMVPLAYER_BASE + 27)
+#define DISPID_DVRPLAYER_StartPlayback			(DISPID_IMVPLAYER_BASE + 28)
+#define DISPID_DVRPLAYER_StopPlayback			(DISPID_IMVPLAYER_BASE + 29)
 
 
 //////////////////////////////////////////////////////////////////////
