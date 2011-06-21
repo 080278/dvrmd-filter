@@ -570,7 +570,7 @@ void CDVRPlayer::DestoryPlayFile()
 	m_lPort = 0;
 	m_enumState = CDVRPlayer::eState_Close;
 }
-BOOL CDVRPlayer::InitForMonitor()
+BOOL CDVRPlayer::InitForMonitor(bool bMonitor)
 {
 	Destory();
 
@@ -588,36 +588,15 @@ BOOL CDVRPlayer::InitForMonitor()
 			CDVRSettings::GetInstance()->m_nRenderHeight, SWP_NOZORDER|SWP_NOMOVE);
 		::GetClientRect(m_hRenderWnd, &rcClient);
 	}
-	m_spHWndMgr->InitSplit(m_hRenderWnd);
 
-	int splitMode = ToSplitMode(GetDVRSettings().m_nRenderWndNum);	//1;3;4;6;9;16;25;36
-	//switch (GetDVRSettings().m_nRenderWndNum)
-	//{
-	//case 3:
-	//	splitMode = SPLIT_3;
-	//	break;
-	//case 4:
-	//	splitMode = SPLIT_4;
-	//	break;
-	//case 6:
-	//	splitMode = SPLIT_6;
-	//	break;
-	//case 9:
-	//	splitMode = SPLIT_9;
-	//	break;
-	//case 16:
-	//	splitMode = SPLIT_16;
-	//	break;
-	//case  25:
-	//	splitMode = SPLIT_25;
-	//	break;
-	//case  36:
-	//	splitMode = SPLIT_36;
-	//	break;
-	//default:
-	//	splitMode = SPLIT_1;
-	//}
-	m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
+	if (bMonitor)
+	{
+		m_spHWndMgr->InitSplit(m_hRenderWnd);
+
+		int splitMode = ToSplitMode(GetDVRSettings().m_nRenderWndNum);	//1;3;4;6;9;16;25;36
+
+		m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
+	}
 	m_spPlayerMgr->Init(NULL);
 	//m_spDVRLoginMgr->Startup();
 
@@ -842,7 +821,7 @@ BOOL CDVRPlayer::StartPlayback(SYSTEM_VIDEO_FILE& sysFile)
 	{
 		if (m_spPlayerMgr.get() == NULL)
 		{
-			InitForMonitor();
+			InitForMonitor(false);
 		}
 		m_nPlaybackIndex = m_spPlayerMgr->StartPlayBackByTime(m_hRenderWnd, &sysFile, CT2A(GetDVRSettings().m_csMediaServerIP), GetDVRSettings().m_lPort);
 		if (m_nPlaybackIndex < 0)
