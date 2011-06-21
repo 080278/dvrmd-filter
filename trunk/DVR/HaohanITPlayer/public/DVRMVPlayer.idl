@@ -201,7 +201,7 @@ interface IDVRMVPlayer : IDispatch{
 	[id(DISPID_DVRPLAYER_OPENFILE), helpstring("Open and play the Media file")] 
 		HRESULT OpenFile([in] BSTR bstrMediaFile);
 	[id(DISPID_DVRPLAYER_LOGIN), helpstring("Login")] 
-		HRESULT Login([in] BSTR bstrUsername, [in] BSTR bstrPassword, [in] BSTR bstrIP, [in] LONG lPort);
+		HRESULT Login([in] BSTR bstrUsername, [in] BSTR bstrPassword, [in] BSTR bstrIP, [in] LONG lPort, [out, retval] VARIANT_BOOL* pRet);
 	[id(DISPID_DVRPLAYER_LOGOUT), helpstring("Logout")] 
 		HRESULT Logout();
 	[id(DISPID_DVRPLAYER_SETMEDIASERVER), helpstring("SetMediaServer")] 

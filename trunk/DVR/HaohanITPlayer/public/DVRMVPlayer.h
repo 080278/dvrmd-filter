@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Tue Jun 21 00:19:37 2011
+/* at Tue Jun 21 21:16:33 2011
  */
 /* Compiler settings for public\DVRMVPlayer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
@@ -732,7 +732,8 @@ EXTERN_C const IID IID_IDVRMVPlayer;
             /* [in] */ BSTR bstrUsername,
             /* [in] */ BSTR bstrPassword,
             /* [in] */ BSTR bstrIP,
-            /* [in] */ LONG lPort) = 0;
+            /* [in] */ LONG lPort,
+            /* [retval][out] */ VARIANT_BOOL *pRet) = 0;
         
         virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Logout( void) = 0;
         
@@ -958,7 +959,8 @@ EXTERN_C const IID IID_IDVRMVPlayer;
             /* [in] */ BSTR bstrUsername,
             /* [in] */ BSTR bstrPassword,
             /* [in] */ BSTR bstrIP,
-            /* [in] */ LONG lPort);
+            /* [in] */ LONG lPort,
+            /* [retval][out] */ VARIANT_BOOL *pRet);
         
         /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *Logout )( 
             IDVRMVPlayer * This);
@@ -1157,8 +1159,8 @@ EXTERN_C const IID IID_IDVRMVPlayer;
 #define IDVRMVPlayer_OpenFile(This,bstrMediaFile)	\
     ( (This)->lpVtbl -> OpenFile(This,bstrMediaFile) ) 
 
-#define IDVRMVPlayer_Login(This,bstrUsername,bstrPassword,bstrIP,lPort)	\
-    ( (This)->lpVtbl -> Login(This,bstrUsername,bstrPassword,bstrIP,lPort) ) 
+#define IDVRMVPlayer_Login(This,bstrUsername,bstrPassword,bstrIP,lPort,pRet)	\
+    ( (This)->lpVtbl -> Login(This,bstrUsername,bstrPassword,bstrIP,lPort,pRet) ) 
 
 #define IDVRMVPlayer_Logout(This)	\
     ( (This)->lpVtbl -> Logout(This) ) 

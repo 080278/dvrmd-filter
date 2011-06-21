@@ -513,7 +513,7 @@ public:
 
 	//DVR Interfaces
 	STDMETHOD(OpenFile)(BSTR bstrMediaFile);
-	STDMETHOD(Login)(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort);
+	STDMETHOD(Login)(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort, VARIANT_BOOL* pRet);
 	STDMETHOD(Logout)();
 	STDMETHOD(SetMediaServer)(BSTR bstrMediaServerIP, LONG lPort);
 	STDMETHOD(GetMediaServer)(BSTR* bstrMediaServerIP, LONG* lPort);
