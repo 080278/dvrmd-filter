@@ -722,10 +722,11 @@ STDMETHODIMP CDVRMVPlayerCtrl::OpenFile(BSTR bstrMediaFile)
 {
 	return m_IMVPlayer.Open(bstrMediaFile);
 }
-STDMETHODIMP CDVRMVPlayerCtrl::Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort)
+STDMETHODIMP CDVRMVPlayerCtrl::Login(BSTR bstrUsername, BSTR bstrPassword, BSTR bstrIP, LONG lPort, VARIANT_BOOL* pRet)
 {
-	return m_IMVPlayer.Login(bstrUsername, bstrPassword, bstrIP, lPort);
-
+	HRESULT hr = m_IMVPlayer.Login(bstrUsername, bstrPassword, bstrIP, lPort);
+	*pRet = hr == S_OK ? VARIANT_TRUE : VARIANT_FALSE;
+	return hr;
 }
 STDMETHODIMP CDVRMVPlayerCtrl::Logout()
 {
@@ -794,21 +795,19 @@ STDMETHODIMP CDVRMVPlayerCtrl::AddFileToPlayList(BSTR bstrFile)
 
 STDMETHODIMP CDVRMVPlayerCtrl::ClosePlayList()
 {
-	m_IMVPlayer.ClosePlayList();
-	return S_OK;
+	return m_IMVPlayer.ClosePlayList();
 }
 STDMETHODIMP CDVRMVPlayerCtrl::PlayNextFile()
 {
-	m_IMVPlayer.PlayNextFile();
-	return S_OK;
+	return m_IMVPlayer.PlayNextFile();
 }
 
 STDMETHODIMP CDVRMVPlayerCtrl::StartPlayback(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel)
 {
-	return S_OK;
+	return m_IMVPlayer.StartPlayback(lStartTime, lEndTime, lChannel);
 }
 
 STDMETHODIMP CDVRMVPlayerCtrl::StopPlayback()
 {
-	return S_OK;
+	return m_IMVPlayer.StopPlayback();
 }

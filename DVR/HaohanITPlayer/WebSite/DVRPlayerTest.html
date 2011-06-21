@@ -76,8 +76,8 @@
 
             if (type == 'login') {//µÇÂ¼
 
-                DVRPlayer.Login(params[0], params[1], params[2], params[3]); //userName, passWord, severIP, severPort
-
+                var ret = DVRPlayer.Login(params[0], params[1], params[2], params[3]); //userName, passWord, severIP, severPort
+                alert(ret);
             } else if (type == 'logout') {//µÇ³ö
                 DVRPlayer.Logout();
             }
