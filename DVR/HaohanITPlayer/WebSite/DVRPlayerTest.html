@@ -160,8 +160,12 @@
                 //DVRPlayer.OpenFile("http://192.168.99.34:8080/cm/alertNormalDir/alertVideo/CH2_Alert[20110621115951-20110621115959].vs");
                 //DVRPlayer.OpenFile(strFile);
                 //DVRPlayer.StartPlayback('1308643210', '1308644110', '1');
-               // var a = ['D:\\vs\\CH1_Alert[20110521164518-20110521164526].vs'];
+                var a = new Array('D:\\vs\\CH1_Alert[20110521164518-20110521164526].vs', "D:\\vs\\Alert[20110426103000-20110426103100].vs");
                 //DVRPlayer.OpenFile(a[0]);
+                for(i = 0; i < a.length; i++) {
+                    DVRPlayer.AddFileToPlayList(a[i]);
+                }
+                
                 setSliderValue();
                 
                 span_operatorObj.innerHTML = '<input name="stop" type="button" value="ÔÝÍ£" onclick="doOperator(\'pause\')"/>';
