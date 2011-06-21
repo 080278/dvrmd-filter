@@ -271,7 +271,7 @@ private:
 	int   m_nPlayType;	//	-1: Unknown; 0: Play file; 1: Monitor
 	BOOL  InitForPlayFile();
 	void  DestoryPlayFile();
-	BOOL  InitForMonitor();
+	BOOL  InitForMonitor(bool bMonitor = true);
 	void  DestoryMonitor();
 	void  OpenFile();
 	void  CloseFile();
