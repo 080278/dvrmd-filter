@@ -144,8 +144,9 @@
                 DVRPlayer.fastReverse();
             }
             else if (type == 'capPic') {//½ØÍ¼
-
-                DVRPlayer.CapPic("C:");
+                var strPath;
+                DVRPlayer.SetCapturePath("D:");
+                strPath = DVRPlayer.CapPic();
             }
             else if (type == 'duration') {//vsÂ¼Ïñ³ÖÐøÊ±¼ä
                 //vsDuration = DVRPlayer.duration();
@@ -156,7 +157,11 @@
         function OnOpenFile(strFile) {
             if (strFile != null) {
                 var span_operatorObj = document.getElementById("span_operator");
-                DVRPlayer.OpenFile(strFile);
+                //DVRPlayer.OpenFile("http://192.168.99.34:8080/cm/alertNormalDir/alertVideo/CH2_Alert[20110621115951-20110621115959].vs");
+                //DVRPlayer.OpenFile(strFile);
+                //DVRPlayer.StartPlayback('1308643210', '1308644110', '1');
+               // var a = ['D:\\vs\\CH1_Alert[20110521164518-20110521164526].vs'];
+                //DVRPlayer.OpenFile(a[0]);
                 setSliderValue();
                 
                 span_operatorObj.innerHTML = '<input name="stop" type="button" value="ÔÝÍ£" onclick="doOperator(\'pause\')"/>';
@@ -279,7 +284,7 @@
             <table width="390" border="0" style="width: 342px">
                 <tr>
                     <td width="67" class="style10">
-                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.86',20000])">µÇÂ¼</a>
+                        <a href="javascript:doOperator('login',['super','uptfp','192.168.99.34',20000])">µÇÂ¼</a>
                     </td>
                     <td width="98" class="style9">
                         <a href="javascript:doOperator('startMonitor', [1])">Æô¶¯¼àÊÓ</a>
