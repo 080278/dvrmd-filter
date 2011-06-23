@@ -25,6 +25,8 @@ CFileStreamParser::CFileStreamParser(void)
 	: m_hFileStream(INVALID_HANDLE_VALUE)
 {
 	memset(m_szFilename, 0, sizeof(m_szFilename));
+	m_nFirstFrameTime = 0;
+	m_nLastFrameTime = 0;
 }
 
 
@@ -48,6 +50,41 @@ BOOL CFileStreamParser::OpenFile(LPCTSTR szFile)
 	if (m_hFileStream != INVALID_HANDLE_VALUE)
 	{
 		_tcscpy(m_szFilename, szFile);
+
+		std::auto_ptr<BYTE> streamData(new BYTE[ MAX_FRAME_LENGTH ]);
+		memset(streamData.get(), 0, MAX_FRAME_LENGTH);
+		FRAME_HEADER fh;
+		INT nRet = GetOneFrame(streamData.get(), &fh);
+		if (nRet <= 0)
+		{
+			nRet = GetOneFrame(streamData.get(), &fh);
+			if ( nRet <= 0)
+			{
+				m_nFirstFrameTime = 0;
+				m_nLastFrameTime = 0;
+				return TRUE;
+			}
+		}
+		m_nFirstFrameTime = htonl(fh.FrameTime);
+		DWORD dwFileSize = GetFileSize();
+		DWORD dwMovePos = dwFileSize-100;
+		DWORD dwCurPos = 0;
+		if (dwMovePos > 0 && INVALID_SET_FILE_POINTER != (dwCurPos = ::SetFilePointer(m_hFileStream, dwMovePos, 0, FILE_BEGIN)))
+		{
+			nRet = GetOneFrame(streamData.get(), &fh);
+			while((nRet <= 0 && (dwMovePos -= 100)) > 0 ||
+				(nRet > 0 && fh.FrameRate != 25))
+			{
+				if (INVALID_SET_FILE_POINTER == (dwCurPos = ::SetFilePointer(m_hFileStream, dwMovePos, 0, FILE_BEGIN)))
+					break;
+				nRet = GetOneFrame(streamData.get(), &fh);
+			}
+			if (nRet > 0)
+			{
+				m_nLastFrameTime = htonl(fh.FrameTime);
+			}
+		}
+		::SetFilePointer(m_hFileStream, 0, 0, FILE_BEGIN);
 		return TRUE;
 	}
 	return FALSE;
@@ -60,6 +97,9 @@ void CFileStreamParser::CloseFile()
 		m_hFileStream = INVALID_HANDLE_VALUE;
 		memset(m_szFilename, 0, sizeof(m_szFilename));
 	}
+
+	m_nFirstFrameTime = 0;
+	m_nLastFrameTime = 0;
 }
 
 DWORD CFileStreamParser::GetFileSize()
@@ -80,7 +120,6 @@ int	CFileStreamParser::ReadCacheData( BYTE* buf, int size )
 	}
 	return 0;
 }
-
 
 CHttpStreamParser::CHttpStreamParser()
 	: m_hInternetOpen(NULL)
