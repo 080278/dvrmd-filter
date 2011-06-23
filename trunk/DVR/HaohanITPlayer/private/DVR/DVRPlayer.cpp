@@ -1421,11 +1421,18 @@ BOOL CDVRPlayer::SetPosition(DWORD dwTime)
 
 DWORD CDVRPlayer::GetCurrentPosition()
 {
-	DWORD nCurrentTime = NAME(PlayM4_GetPlayedTime)(m_lPort);
+	if (m_bStreamType)
+	{
+		return m_dwStreamCurrentTime;
+	}
+	else
+	{
+		DWORD nCurrentTime = NAME(PlayM4_GetPlayedTime)(m_lPort);
 
-	TRACE(_T("hytest: play position = %f!\n"), NAME(PlayM4_GetPlayPos)(m_lPort));
+		TRACE(_T("hytest: play position = %f!\n"), NAME(PlayM4_GetPlayPos)(m_lPort));
 
-	return nCurrentTime;
+		return nCurrentTime;
+	}
 }
 
 DWORD CDVRPlayer::GetCurrentFrameNum()
@@ -2033,6 +2040,20 @@ void CDVRPlayer::OpenStream()
 	//	NAME(PlayM4_SetOverlayMode)(m_lPort, TRUE, RGB(255,0,255));
 	// try flip overlay mode
 	//	NAME(PlayM4_SetOverlayFlipMode)(m_lPort, TRUE);
+	m_dwMaxFileTime = m_spStreamParser->GetLastFrameTime()-m_spStreamParser->GetFirstFrameTime();
+	m_dwStreamCurrentTime = 0;//m_spStreamParser->GetFirstFrameTime();
+	if(!m_dwMaxFileTime)
+	{
+		// 		strError.Format(_T("File seconds is zero");
+		// 		MessageBox(strError);
+		// 		throw 0;
+		m_dwMaxFileTime = 1;
+	}
+
+	m_dwDisplayHour		= m_dwMaxFileTime/3600;
+	m_dwDisplayMinute   = (m_dwMaxFileTime % 3600) / 60;
+	m_dwDisplaySecond   = m_dwMaxFileTime % 60;
+	m_dwTotalFrames		= m_dwMaxFileTime;
 
 	Play();
 }
@@ -2268,7 +2289,10 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			{
 				nCountNoMetaData = 0;
 			}
-
+			if (pThis->m_frameHeader.FrameRate == 25)
+			{
+				pThis->m_dwStreamCurrentTime = htonl(pThis->m_frameHeader.FrameTime) - pThis->m_spStreamParser->GetFirstFrameTime();
+			}
 			if (pThis->m_frameHeader.MetaLength > 0 || 
 				nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
 			{
@@ -2337,6 +2361,7 @@ void CDVRPlayer::FileEndCallBack(long lPort, void* pUser)
 	CDVRPlayer* pThis = (CDVRPlayer*)pUser;
 	if (pThis != NULL)
 	{
+		pThis->m_enumState = eState_Stop;
 		HANDLE hThread = (HANDLE)::_beginthreadex(NULL, 0, PlanNextFile, pThis, 0, NULL);
 		::CloseHandle(hThread);
 	}
@@ -2347,18 +2372,18 @@ unsigned CDVRPlayer::PlanNextFile(void* pParam)
 	CDVRPlayer* pThis = (CDVRPlayer*)pParam;
 	if (pThis != NULL)
 	{
-		pThis->m_PlayFilesLock.Lock();
 		if (pThis->m_aryPlayFiles.size() > 0)
 		{
+			pThis->m_PlayFilesLock.Lock();
 #ifdef UNICODE
 			std::wstring strFile = pThis->m_aryPlayFiles.front();
 #else
 			std::string strFile = pThis->m_aryPlayFiles.front();
 #endif
 			pThis->m_aryPlayFiles.pop_front();
+			pThis->m_PlayFilesLock.Unlock();
 			pThis->Open(strFile.c_str());
 		}
-		pThis->m_PlayFilesLock.Unlock();
 	}
 
 	_endthreadex(0);
@@ -2383,11 +2408,13 @@ void  CDVRPlayer::ClosePlayList()
 {
 	m_PlayFilesLock.Lock();
 	m_aryPlayFiles.clear();
-	Close();
 	m_PlayFilesLock.Unlock();
+	Close();
 }
 
 void  CDVRPlayer::PlayNextFile()
 {
+	//FileEndCallBack(GetPort(), this);
+	Close();
 	PlanNextFile(this);
 }

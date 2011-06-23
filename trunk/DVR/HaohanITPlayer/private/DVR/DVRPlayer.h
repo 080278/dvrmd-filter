@@ -330,6 +330,7 @@ private:
 
 	BOOL		m_bHighFluid;					// hight fluid motion
 	DWORD		m_dwMaxFileTime;				// Media File duration.
+	DWORD		m_dwStreamCurrentTime;			// vs file current time;
 	bool		m_bFileRefCreated;				// Back seek Index is created.
 
 	CString		m_strCapPicPath;				//Capture path;
