@@ -325,4 +325,9 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="private\DVRMVPlayer.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

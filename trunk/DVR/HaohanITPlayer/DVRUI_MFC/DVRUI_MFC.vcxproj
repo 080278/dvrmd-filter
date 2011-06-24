@@ -101,7 +101,10 @@
     <None Include="res\DVRUI_MFC.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dvrmvplayerctrl1.h" />
+    <ClInclude Include="CDVRMVControls.h" />
+    <ClInclude Include="CDVRMVMedia.h" />
+    <ClInclude Include="CDVRMVPlayer.h" />
+    <ClInclude Include="CDVRMVSettings.h" />
     <ClInclude Include="DVRUI_MFC.h" />
     <ClInclude Include="DVRUI_MFCDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -109,7 +112,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dvrmvplayerctrl1.cpp" />
+    <ClCompile Include="CDVRMVControls.cpp" />
+    <ClCompile Include="CDVRMVMedia.cpp" />
+    <ClCompile Include="CDVRMVPlayer.cpp" />
+    <ClCompile Include="CDVRMVSettings.cpp" />
     <ClCompile Include="DVRUI_MFC.cpp" />
     <ClCompile Include="DVRUI_MFCDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
