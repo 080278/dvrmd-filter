@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#include "dvrmvplayerctrl1.h"
+#include "CDVRMVPlayer.h"
 
 
 // CDVRUI_MFCDlg ¶Ô»°¿ò
@@ -31,7 +31,7 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	CDvrmvplayerctrl1 m_DVRPlayer;
+	CDVRMVPlayer m_DVRPlayer;
 	afx_msg void OnBnClickedOpenfile();
 	afx_msg void OnDestroy();
 
@@ -42,4 +42,6 @@ public:
 	DECLARE_EVENTSINK_MAP()
 	void DoubleClickDvrmvplayerctrl1(short nButton, short nShiftState, long fX, long fY);
 	void KeyDownDvrmvplayerctrl1(short nKeyCode, short nShiftState);
+	afx_msg void OnBnClickedPlayNext();
+	afx_msg void OnBnClickedGetplaytime();
 };

@@ -5,6 +5,10 @@
 #include "stdafx.h"
 #include "DVRUI_MFC.h"
 #include "DVRUI_MFCDlg.h"
+#include "CDVRMVPlayer.h"
+#include "CDVRMVControls.h"
+#include "CDVRMVMedia.h"
+#include "CDVRMVSettings.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

@@ -68,6 +68,8 @@ BEGIN_MESSAGE_MAP(CDVRUI_MFCDlg, CDialog)
 	ON_BN_CLICKED(IDC_OPENFILE, &CDVRUI_MFCDlg::OnBnClickedOpenfile)
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_PLAY_NEXT, &CDVRUI_MFCDlg::OnBnClickedPlayNext)
+	ON_BN_CLICKED(IDC_GETPLAYTIME, &CDVRUI_MFCDlg::OnBnClickedGetplaytime)
 END_MESSAGE_MAP()
 
 
@@ -170,7 +172,11 @@ void CDVRUI_MFCDlg::OnBnClickedOpenfile()
 	CFileDialog dlg(TRUE);
 	if (dlg.DoModal() == IDOK)
 	{
+		m_DVRPlayer.ShowMetaData(FALSE);
 		this->m_DVRPlayer.OpenFile(dlg.GetPathName());
+		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug_Slow.vs");
+		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Alert[20110420215445-20110420215455].vs");
+		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug2.vs");
 	}
 }
 
@@ -215,4 +221,19 @@ void CDVRUI_MFCDlg::KeyDownDvrmvplayerctrl1(short nKeyCode, short nShiftState)
 			m_DVRPlayer.put_fullScreen(FALSE);
 		}
 	}
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedPlayNext()
+{
+	m_DVRPlayer.PlayNextFile();
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedGetplaytime()
+{
+	CString csMsg;
+	csMsg.Format(_T("%s/%s : %.1f : %.1f"), m_DVRPlayer.get_currentPositionString(), m_DVRPlayer.get_durationString(), m_DVRPlayer.get_currentPosition(), m_DVRPlayer.get_duration());
+
+	GetDlgItem(IDC_PLAYTIME)->SetWindowText(csMsg);
 }
