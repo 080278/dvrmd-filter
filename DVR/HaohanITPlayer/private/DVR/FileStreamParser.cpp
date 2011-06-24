@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "StdAfx.h"
 #include "FileStreamParser.h"
 
@@ -138,15 +139,44 @@ BOOL CHttpStreamParser::OpenFile(LPCTSTR szURL)
 	m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
 	if (m_hInternetOpen == NULL)
 	{
-		return FALSE;
+		int i = 0;
+		while (i < 3)
+		{
+			i++;
+			Sleep(500);
+			m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+			if (m_hInternetOpen != NULL)
+			{
+				break;
+			}
+		}
+		if (i == 3 && m_hInternetOpen == NULL)
+		{
+			return FALSE;
+		}
+		//return FALSE;
 	}
 
 	m_hInternetOpenUrl = InternetOpenUrl(m_hInternetOpen, szURL, NULL, 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_PRAGMA_NOCACHE, 0);
 	if (m_hInternetOpenUrl == NULL)
 	{
-		return FALSE;
+		int i = 0;
+		while (i < 3)
+		{
+			i++;
+			Sleep(500);
+			m_hInternetOpenUrl = InternetOpenUrl(m_hInternetOpen, szURL, NULL, 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_PRAGMA_NOCACHE, 0);
+			if (m_hInternetOpenUrl != NULL)
+			{
+				break;
+			}
+		}
+		if (i == 5 && m_hInternetOpenUrl == NULL)
+		{
+			return FALSE;
+		}
+		return TRUE;
 	}
-
 	return TRUE;
 }
 void CHttpStreamParser::CloseFile()
