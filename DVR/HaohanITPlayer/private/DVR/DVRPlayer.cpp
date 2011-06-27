@@ -1562,6 +1562,7 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 	DWORD   pImageSize	= 0;
 
 	CTime tm = CTime::GetCurrentTime();//获取当前时间，精确到秒，两个客户端同时运行时，不会覆盖
+	CString str = tm.Format(_T("%Y%m%d%H%M%S"));
 
 	if(GetDVRSettings().m_eCapturePicType == CDVRSettings::eJPEG)
 	{
@@ -1577,12 +1578,12 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
 			//sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, m_npic_jpeg);
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), GetDVRSettings().m_csPicCapturePath, tm);
+			sFilePath.Format(_T("%s\\capture%s.jpeg"), GetDVRSettings().m_csPicCapturePath, str);
 		}
 		else
 		{
 			//sFilePath.Format(_T("C:\\capture%02d.jpeg"), m_npic_jpeg);
-			sFilePath.Format(_T("%s\\capture%02d.jpeg"), tm);
+			sFilePath.Format(_T("%s\\capture%s.jpeg"), str);
 		}
 	}
 	else
@@ -1595,12 +1596,12 @@ CString CDVRPlayer::GetPic(PBYTE pImage, DWORD nBufSize)
 		if(GetDVRSettings().m_csPicCapturePath.Compare(_T("")))
 		{
 			//sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, m_npic_bmp);
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), GetDVRSettings().m_csPicCapturePath, tm);
+			sFilePath.Format(_T("%s\\capture%s.bmp"), GetDVRSettings().m_csPicCapturePath, str);
 		}
 		else
 		{
 			//sFilePath.Format(_T("C:\\capture%02d.bmp"), m_npic_bmp);
-			sFilePath.Format(_T("%s\\capture%02d.bmp"), tm);
+			sFilePath.Format(_T("%s\\capture%s.bmp"), str);
 		}
 	}
 	
@@ -2267,19 +2268,6 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				dwDataLen = nRet;
 			}
 			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
-			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
-			{
-				int nErr = PlayM4_GetLastError(pThis->GetPort());
-				if (nErr  == PLAYM4_BUF_OVER )
-				{
-					Sleep(10);
-					continue;
-				}
-
-				bBufFull = TRUE;
-				ResetEvent(pThis->m_hEventInput);
-				continue;
-			}
 
 			if (pThis->m_frameHeader.MetaLength == 0)
 			{
@@ -2305,6 +2293,21 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 
 			TRACE1(_T("Time: %d  Frame: %d Width: %d Height: %d\n"), pThis->GetCurrentFrameNum(), pThis->m_frameHeader.FrameTime, pThis->m_frameHeader.Width, pThis->m_frameHeader.Height);
 			TRACE1(_T("FrameLength: %d, MetaDataLength: %d, encFrameLength: %d\n"), htonl(pThis->m_frameHeader.FrameLength), pThis->m_frameHeader.MetaLength, encFrameLength);
+
+			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
+			{
+				int nErr = PlayM4_GetLastError(pThis->GetPort());
+				if (nErr  == PLAYM4_BUF_OVER )
+				{
+					Sleep(10);
+					continue;
+				}
+
+				bBufFull = TRUE;
+				ResetEvent(pThis->m_hEventInput);
+				continue;
+			}
+			
 			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
 			{
 				::Sleep(10);

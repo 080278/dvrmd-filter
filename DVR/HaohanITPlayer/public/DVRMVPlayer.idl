@@ -1,6 +1,6 @@
 //*****************************************************************************
 //
-// Sonic Playback Engine On Intel Media Vault Platform 
+// hh Playback Engine On Intel Media Vault Platform 
 // Copyright (C) Haohanit.  All Rights Reserved.
 //
 // FileName:            DVRMVPlayer.idl
@@ -236,6 +236,14 @@ interface IDVRMVPlayer : IDispatch{
 		HRESULT StartPlayback([in] LONGLONG lStartTime, [in] LONGLONG lEndTime, [in] LONG lChannel);
 	[id(DISPID_DVRPLAYER_StopPlayback), helpstring("StartPlayback")] 
 		HRESULT StopPlayback();
+	[id(DISPID_DVRPLAYER_GET_DURATION), helpstring("Get Duration")] 
+		HRESULT GetDuration([out, retval] DOUBLE* pDuration);
+	[id(DISPID_DVRPLAYER_GET_CURRENT_POSITION), helpstring("Get Current Position")] 
+		HRESULT GetCurrentPosition([out, retval] DOUBLE* pdCurrentPosition);
+	[id(DISPID_DVRPLAYER_GET_DURATION_STRING), helpstring("Get Duration String")] 
+		HRESULT GetDurationString([out, retval] BSTR* pbstrDuration);
+	[id(DISPID_DVRPLAYER_GET_CURRENT_POSITION_STRING), helpstring("Get Current Position String")] 
+		HRESULT GetCurrentPositionString([out, retval] BSTR* pbstrCurrentPosition);
 };
 
 [
@@ -274,7 +282,7 @@ library DVRMVPlayerLib
 	[
 		uuid(023D5C5C-2FFE-4054-8CE9-45C492778C52),
 		control,
-		helpstring("Sonic IMV Player ActiveX Control")
+		helpstring("hh IMV Player ActiveX Control")
 	]
 	coclass DVRMVPlayerCtrl
 	{

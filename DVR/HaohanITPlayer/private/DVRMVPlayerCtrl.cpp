@@ -811,3 +811,23 @@ STDMETHODIMP CDVRMVPlayerCtrl::StopPlayback()
 {
 	return m_IMVPlayer.StopPlayback();
 }
+
+STDMETHODIMP CDVRMVPlayerCtrl::GetDuration(DOUBLE* pDuration)
+{
+	return get_duration(pDuration);
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::GetCurrentPosition(DOUBLE* pdCurrentPosition)
+{
+	return get_currentPosition(pdCurrentPosition);
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::GetDurationString(BSTR* pbstrDuration)
+{
+	return get_durationString(pbstrDuration);
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::GetCurrentPositionString(BSTR* pbstrCurrentPosition)
+{
+	return get_currentPositionString(pbstrCurrentPosition);
+}

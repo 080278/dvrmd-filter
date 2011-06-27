@@ -531,6 +531,10 @@ public:
 	STDMETHOD(PlayNextFile)();
 	STDMETHOD(StartPlayback)(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel);
 	STDMETHOD(StopPlayback)();
+	STDMETHOD(GetDuration)(DOUBLE* pDuration);
+	STDMETHOD(GetCurrentPosition)(DOUBLE* pdCurrentPosition);
+	STDMETHOD(GetDurationString)(BSTR* pbstrDuration);
+	STDMETHOD(GetCurrentPositionString)(BSTR* pbstrCurrentPosition);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)
