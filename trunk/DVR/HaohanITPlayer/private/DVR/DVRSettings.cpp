@@ -57,7 +57,7 @@ CDVRSettings *CDVRSettings::GetInstance()
 
 CDVRSettings::~CDVRSettings(void)
 {
-	Save();
+	//Save();
 	::CoUninitialize();
 }
 
