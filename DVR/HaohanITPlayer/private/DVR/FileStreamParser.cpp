@@ -140,17 +140,17 @@ BOOL CHttpStreamParser::OpenFile(LPCTSTR szURL)
 	if (m_hInternetOpen == NULL)
 	{
 		int i = 0;
-		while (i < 3)
+		while (i < 5)
 		{
 			i++;
-			Sleep(200);
+			Sleep(100);
 			m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
 			if (m_hInternetOpen != NULL)
 			{
 				break;
 			}
 		}
-		if (i == 3 && m_hInternetOpen == NULL)
+		if (i == 5 && m_hInternetOpen == NULL)
 		{
 			return FALSE;
 		}
@@ -161,17 +161,17 @@ BOOL CHttpStreamParser::OpenFile(LPCTSTR szURL)
 	if (m_hInternetOpenUrl == NULL)
 	{
 		int i = 0;
-		while (i < 3)
+		while (i < 5)
 		{
 			i++;
-			Sleep(200);
+			Sleep(100);
 			m_hInternetOpenUrl = InternetOpenUrl(m_hInternetOpen, szURL, NULL, 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_PRAGMA_NOCACHE, 0);
 			if (m_hInternetOpenUrl != NULL)
 			{
 				break;
 			}
 		}
-		if (i == 3 && m_hInternetOpenUrl == NULL)
+		if (i == 5 && m_hInternetOpenUrl == NULL)
 		{
 			return FALSE;
 		}
