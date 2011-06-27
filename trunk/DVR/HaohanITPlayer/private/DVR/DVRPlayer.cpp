@@ -1971,6 +1971,11 @@ void CDVRPlayer::OpenStream()
 		throw 0;
 	}
 	m_dwMaxFileSize = m_spStreamParser->GetFileSize();
+	if (m_dwMaxFileSize == 0)
+	{
+		MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
+		throw 0;
+	}
 	//	NAME(PlayM4_SetSourceBufCallBack)(m_lPort, 6000000, SourceBufFun, (DWORD)this, NULL);
 	NAME(PlayM4_SetStreamOpenMode)(m_lPort, STREAME_FILE);
 	m_dwHeadSize = NAME(PlayM4_GetFileHeadLength)();
