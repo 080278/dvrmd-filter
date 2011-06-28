@@ -134,50 +134,23 @@ CHttpStreamParser::~CHttpStreamParser()
 
 BOOL CHttpStreamParser::OpenFile(LPCTSTR szURL)
 {
-	CloseFile();
-
-	m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-	if (m_hInternetOpen == NULL)
+	int tryCount = 0;
+	const int maxTryCount = 5;
+	while(tryCount++ < maxTryCount && (m_hInternetOpen == NULL || m_hInternetOpenUrl == NULL))
 	{
-		int i = 0;
-		while (i < 5)
+		if (tryCount != 1)
 		{
-			i++;
 			Sleep(100);
-			m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
-			if (m_hInternetOpen != NULL)
-			{
-				break;
-			}
 		}
-		if (i == 5 && m_hInternetOpen == NULL)
+		CloseFile();
+		m_hInternetOpen = InternetOpen(NULL, INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+		if (m_hInternetOpen != NULL)
 		{
-			return FALSE;
-		}
-		//return FALSE;
-	}
-
-	m_hInternetOpenUrl = InternetOpenUrl(m_hInternetOpen, szURL, NULL, 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_PRAGMA_NOCACHE, 0);
-	if (m_hInternetOpenUrl == NULL)
-	{
-		int i = 0;
-		while (i < 5)
-		{
-			i++;
-			Sleep(100);
 			m_hInternetOpenUrl = InternetOpenUrl(m_hInternetOpen, szURL, NULL, 0, INTERNET_FLAG_TRANSFER_BINARY | INTERNET_FLAG_PRAGMA_NOCACHE, 0);
-			if (m_hInternetOpenUrl != NULL)
-			{
-				break;
-			}
 		}
-		if (i == 5 && m_hInternetOpenUrl == NULL)
-		{
-			return FALSE;
-		}
-		return TRUE;
 	}
-	return TRUE;
+
+	return m_hInternetOpen != NULL && m_hInternetOpenUrl != NULL;
 }
 void CHttpStreamParser::CloseFile()
 {
