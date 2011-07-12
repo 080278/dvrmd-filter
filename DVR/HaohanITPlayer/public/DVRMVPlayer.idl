@@ -10,7 +10,7 @@
 //*****************************************************************************
 cpp_quote( "//=========================================================================" )
 cpp_quote( "//" )
-cpp_quote( "// Sonic Playback Engine On Intel Media Vault Platform " )
+cpp_quote( "// hh Playback Engine On Intel Media Vault Platform " )
 cpp_quote( "// Copyright (C) Haohanit.  All Rights Reserved." )
 cpp_quote( "//" )
 cpp_quote( "//=========================================================================" )
