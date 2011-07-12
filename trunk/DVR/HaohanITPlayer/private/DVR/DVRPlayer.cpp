@@ -2269,11 +2269,12 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 					bBufFull = FALSE;
 					FileEndCallBack(pThis->GetPort(), pThis);
 					ResetEvent(pThis->m_hEventInput);
+					break;//文件结束，退出循环
 				}
 				dwDataLen = nRet;
 			}
 			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
-
+			
 			if (pThis->m_frameHeader.MetaLength == 0)
 			{
 				++nCountNoMetaData;
@@ -2291,7 +2292,11 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			{
 				pThis->m_MetaDataLock.Lock();
 				memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
-				memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+				if (pThis->m_frameHeader.MetaLength != 0) 
+				{
+					memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+				}
+				
 				pThis->m_MetaDataLock.Unlock();
 				nCountNoMetaData = 0;
 			}
@@ -2302,6 +2307,11 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
 			{
 				int nErr = PlayM4_GetLastError(pThis->GetPort());
+				if (nErr  == PLAYM4_PARA_OVER)
+				{
+					Sleep(10);
+					continue;
+				}
 				if (nErr  == PLAYM4_BUF_OVER )
 				{
 					Sleep(10);
@@ -2312,7 +2322,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				ResetEvent(pThis->m_hEventInput);
 				continue;
 			}
-			
+
 			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
 			{
 				::Sleep(10);
