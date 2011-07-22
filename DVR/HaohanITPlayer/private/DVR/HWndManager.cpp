@@ -12,8 +12,11 @@ CHWndManager::CHWndManager()
 //----------------------------------------------------------------------------
 CHWndManager::~CHWndManager()
 {
-    if(HWnd_Clear)	
-		HWnd_Clear(m_SpliteHandle);
+	if(m_SpliteHandle >= 0) //先启动监视，然后服务器回放两次后m_SpliteHandle = -1，IE崩溃
+	{
+		if(HWnd_Clear)	
+			HWnd_Clear(m_SpliteHandle);
+	}
 	FreeHWndDll();
 }
 
