@@ -171,6 +171,7 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 			break;
 		case WAIT_OBJECT_0+eExitEvent:
 			bExit = TRUE;
+			ResetEvent(pThis->m_hEvent[eExitEvent]);
 			break;
 		}
 		pThis->m_bScaling = false;
@@ -642,8 +643,12 @@ void CDVRPlayer::DestoryMonitor()
 		StopMonitor();
 	}
 	m_spPlayerMgr->Clearup();
-	m_spHWndMgr.reset(NULL);
-	m_spPlayerMgr.reset(NULL);
+	if (m_spHWndMgr.get() != NULL) {
+		m_spHWndMgr.reset(NULL);
+	}
+	if (m_spPlayerMgr.get() != NULL) {
+		m_spPlayerMgr.reset(NULL);
+	}
 }
 BOOL CDVRPlayer::Login()
 {
