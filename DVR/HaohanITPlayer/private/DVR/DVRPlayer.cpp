@@ -199,9 +199,9 @@ void ScaleFrameMetaDataList::ScaleAttributes(HHV::FrameMetaData& attributes, HHV
 			{
 				std::string shape = ShapeType(attrs, i);
 				std::string type = RegionType(attrs, i);
-				if (type != "Effective")
+				if (type != "Effective")//Effective ²»ÐèÒªÃè»­
 				{
-						if (shape == "rectangle" || shape == "line")
+					if (shape == "rectangle" || shape == "line")
 					{
 						HHV::ObjectType ot = ToObjectType(attrs, i);
 						ScaleObjectType(ot, xScale, yScale);
