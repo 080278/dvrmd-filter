@@ -42,6 +42,7 @@ INT CComSocket::Create( )
     }
 	
     //设置接收发送超时
+	//等待时间由原来的10秒改成2秒
     int timeout = m_nTimeOut * 1000;
 	setsockopt (m_hSocket, SOL_SOCKET, SO_RCVTIMEO, (CHAR*)&timeout, sizeof(timeout));
 	setsockopt (m_hSocket, SOL_SOCKET, SO_SNDTIMEO, (CHAR*)&timeout, sizeof(timeout));

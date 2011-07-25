@@ -93,6 +93,7 @@ public:
 
 	//void GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight);
 	void GetScaledFrameMetaDataList(int nPort, HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lDstWidth, LONG lDstHeight);
+	static std::string RegionType(const HHV::Attributes& attrs, int index);
 private:
 	static	int g_ScaleIndex;
 	typedef std::map<int, HHV::FrameMetaDataList>	MAP_RRAME;
@@ -129,6 +130,7 @@ private:
 	static std::string ToString(LPCSTR, int num);
 	static std::vector<int> ToArray(const HHV::Attributes& attrs, LPCSTR prefix, int index = -1);
 	static std::string ShapeType(const HHV::Attributes& attrs, int index);
+	
 	static HHV::PolyLine ToPolyLine(const HHV::Attributes& attrs, int index);
 	static HHV::ObjectType ToObjectType(const HHV::Attributes& attrs, int index);
 	static HHV::PolygonM	ToPolygon(const HHV::Attributes& attrs, int index);

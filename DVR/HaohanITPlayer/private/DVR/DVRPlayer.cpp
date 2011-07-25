@@ -198,18 +198,23 @@ void ScaleFrameMetaDataList::ScaleAttributes(HHV::FrameMetaData& attributes, HHV
 			for (int i = 1; i <= nNumberOfRegion; ++i)
 			{
 				std::string shape = ShapeType(attrs, i);
-				if (shape == "rectangle" || shape == "line")
+				std::string type = RegionType(attrs, i);
+				if (type != "Effective")
 				{
-					HHV::ObjectType ot = ToObjectType(attrs, i);
-					ScaleObjectType(ot, xScale, yScale);
-					attributes.displayData.gui_object_list.push_back(ot);
+						if (shape == "rectangle" || shape == "line")
+					{
+						HHV::ObjectType ot = ToObjectType(attrs, i);
+						ScaleObjectType(ot, xScale, yScale);
+						attributes.displayData.gui_object_list.push_back(ot);
+					}
+					else if (shape == "polygon")
+					{
+						HHV::PolygonM pm = ToPolygon(attrs, i);
+						ScalePolygonM(pm, xScale, yScale);
+						attributes.displayData.polygon_list.push_back(pm);
+					}
 				}
-				else if (shape == "polygon")
-				{
-					HHV::PolygonM pm = ToPolygon(attrs, i);
-					ScalePolygonM(pm, xScale, yScale);
-					attributes.displayData.polygon_list.push_back(pm);
-				}
+				
 				//else if (shape == "line")
 				//{
 				//	CvPoint imgSize = ImageSize(attrs, i);
@@ -349,6 +354,15 @@ std::string ScaleFrameMetaDataList::ShapeType(const HHV::Attributes& attrs, int 
 	}
 	return "";
 }
+std::string ScaleFrameMetaDataList::RegionType(const HHV::Attributes& attrs, int index)
+{
+	HHV::Attributes::const_iterator it = attrs.find(ToString("region-types", index));
+	if (it != attrs.end())
+	{
+		return it->second;
+	}
+	return "";
+}	
 HHV::PolyLine ScaleFrameMetaDataList::ToPolyLine(const HHV::Attributes& attrs, int index)
 {
 	return HHV::PolyLine();
@@ -1044,13 +1058,16 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 		HPEN hPen = ::CreatePen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
 		//CPen gdiPen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
 		HGDIOBJ hOldPen = ::SelectObject(dc, hPen);
-		POINT* ptPolygons = new POINT[polygon.points.size()];
+		POINT* ptPolygons = new POINT[polygon.points.size() + 1];
 		for (int i = 0; i < polygon.points.size(); ++i)
 		{
 			ptPolygons[i].x = polygon.points[i].x;
 			ptPolygons[i].y = polygon.points[i].y;
-		}		
-		::Polyline(dc, ptPolygons, polygon.points.size());
+		}
+		//闭合多边形（最后一个点和第一个点重合）
+		ptPolygons[polygon.points.size()].x = polygon.points[0].x;
+		ptPolygons[polygon.points.size()].y = polygon.points[0].y;
+		::Polyline(dc, ptPolygons, polygon.points.size() + 1);
 		::SelectObject(dc, hOldPen);
 		::DeleteObject(hPen);
 		graphics.ReleaseHDC(dc);

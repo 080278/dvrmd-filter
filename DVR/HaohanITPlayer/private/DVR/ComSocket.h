@@ -15,7 +15,7 @@
 class CComSocket
 {
 public:
-    CComSocket( INT nTimeOut = 10, INT skRecvBufSize = 10 );
+    CComSocket( INT nTimeOut = 2, INT skRecvBufSize = 10 );
     ~CComSocket();
 
     INT Connect( CHAR* strRemote, UINT nPort );

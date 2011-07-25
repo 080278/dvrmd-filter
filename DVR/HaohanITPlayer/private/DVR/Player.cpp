@@ -284,7 +284,12 @@ int CPlayer::InputData_Frame()
         //TRACE(_T("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
-        m_exit = true;
+       
+		//网络异常，接受不到数据给出警告！
+		CString csErr;
+		csErr.Format(_T("监控异常！"));
+		::MessageBox(NULL, csErr, _T("错误"), MB_OK);
+		m_exit = true;
         return -1;
     }
     if(m_exit)
@@ -533,7 +538,7 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		HHV::FrameMetaDataList scaledMetaData;
 
 		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(nPort, scaledMetaData, metaList, renderWndWidth, renderWndHeight);
-
+		
 		for (HHV::FrameMetaDataList::const_iterator it = scaledMetaData.begin(); it != scaledMetaData.end(); ++it)
 		{
 			// Now, let's draw the meta data.
