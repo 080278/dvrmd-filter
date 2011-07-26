@@ -319,10 +319,13 @@ int CPlayer::InputData_Frame()
 		return -nErr;
 	}
 	//取出meta数据，叠加到视频
-	m_MetaDataLock.Lock();
-	memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(U32));
-	memcpy( m_meta+sizeof(U32), m_buffer + encFrameLength, m_frameHeader.MetaLength );
-	m_MetaDataLock.Unlock();
+	if (m_frameHeader.FrameType <= 3)
+	{
+		m_MetaDataLock.Lock();
+		memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(U32));
+		memcpy( m_meta+sizeof(U32), m_buffer + encFrameLength, m_frameHeader.MetaLength );
+		m_MetaDataLock.Unlock();
+	}
     return 0;
 }
 

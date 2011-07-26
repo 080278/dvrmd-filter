@@ -2271,7 +2271,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 	unsigned char chType;
 	DWORD	dwDataLen = 0;
 
-	const int nMaxNumNoMetaDataFrame = 4; //There are about 10 MetaData per second. 
+	const int nMaxNumNoMetaDataFrame = 8; //There are about 10 MetaData per second. 
 	int nCountNoMetaData = 0;
 	while (WAIT_OBJECT_0 != WaitForMultipleObjects(2, hMulEvents, FALSE, INFINITE))
 	{	
@@ -2295,60 +2295,66 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				}
 				dwDataLen = nRet;
 			}
-			int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
+
+			if (pThis->m_frameHeader.FrameType <= 3)
+			{
+				int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
 			
-			if (pThis->m_frameHeader.MetaLength == 0)
-			{
-				++nCountNoMetaData;
-			}
-			else
-			{
-				nCountNoMetaData = 0;
-			}
-			if (pThis->m_frameHeader.FrameRate == 25)
-			{
-				pThis->m_dwStreamCurrentTime = htonl(pThis->m_frameHeader.FrameTime) - pThis->m_spStreamParser->GetFirstFrameTime();
-			}
-			if (pThis->m_frameHeader.MetaLength > 0 || 
-				nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
-			{
-				pThis->m_MetaDataLock.Lock();
-				memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
-				if (pThis->m_frameHeader.MetaLength != 0) 
+				if (pThis->m_frameHeader.MetaLength == 0)
 				{
-					memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+					++nCountNoMetaData;
 				}
+				else
+				{
+					nCountNoMetaData = 0;
+				}
+				if (pThis->m_frameHeader.FrameRate == 25)
+				{
+					pThis->m_dwStreamCurrentTime = htonl(pThis->m_frameHeader.FrameTime) - pThis->m_spStreamParser->GetFirstFrameTime();
+				}
+				if (pThis->m_frameHeader.MetaLength > 0 || 
+					nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
+				{
+					pThis->m_MetaDataLock.Lock();
+					memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
+					if (pThis->m_frameHeader.MetaLength != 0) 
+					{
+						memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
+					}
 				
-				pThis->m_MetaDataLock.Unlock();
-				nCountNoMetaData = 0;
-			}
-
-			TRACE1(_T("Time: %d  Frame: %d Width: %d Height: %d\n"), pThis->GetCurrentFrameNum(), pThis->m_frameHeader.FrameTime, pThis->m_frameHeader.Width, pThis->m_frameHeader.Height);
-			TRACE1(_T("FrameLength: %d, MetaDataLength: %d, encFrameLength: %d\n"), htonl(pThis->m_frameHeader.FrameLength), pThis->m_frameHeader.MetaLength, encFrameLength);
-
-			if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
-			{
-				int nErr = PlayM4_GetLastError(pThis->GetPort());
-				if (nErr  == PLAYM4_PARA_OVER)
-				{
-					Sleep(10);
-					continue;
-				}
-				if (nErr  == PLAYM4_BUF_OVER )
-				{
-					Sleep(10);
-					continue;
+					pThis->m_MetaDataLock.Unlock();
+					nCountNoMetaData = 0;
 				}
 
-				bBufFull = TRUE;
-				ResetEvent(pThis->m_hEventInput);
-				continue;
+				TRACE1(_T("Time: %d  Frame: %d Width: %d Height: %d\n"), pThis->GetCurrentFrameNum(), pThis->m_frameHeader.FrameTime, pThis->m_frameHeader.Width, pThis->m_frameHeader.Height);
+				TRACE1(_T("FrameLength: %d, MetaDataLength: %d, encFrameLength: %d\n"), htonl(pThis->m_frameHeader.FrameLength), pThis->m_frameHeader.MetaLength, encFrameLength);
+
+				if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
+				{
+					int nErr = PlayM4_GetLastError(pThis->GetPort());
+					if (nErr  == PLAYM4_PARA_OVER)
+					{
+						Sleep(10);
+						continue;
+					}
+					if (nErr  == PLAYM4_BUF_OVER )
+					{
+						Sleep(10);
+						continue;
+					}
+
+					bBufFull = TRUE;
+					ResetEvent(pThis->m_hEventInput);
+					continue;
+				}
+
+				while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
+				{
+					::Sleep(10);
+				}
 			}
 
-			while(PlayM4_GetSourceBufferRemain(pThis->GetPort()) > 0)
-			{
-				::Sleep(10);
-			}
+			
 		}
 	}
 
