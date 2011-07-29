@@ -169,14 +169,18 @@ HCURSOR CDVRUI_MFCDlg::OnQueryDragIcon()
 
 void CDVRUI_MFCDlg::OnBnClickedOpenfile()
 {
-	CFileDialog dlg(TRUE);
+	CFileDialog dlg(TRUE,
+		_T("mpg"),
+		NULL, 
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("DVR File(*.vs)|*.vs|File(*.mp4;*.264)|*.mp4;*.264|All Files(*.*)|*.*||"), this);
 	if (dlg.DoModal() == IDOK)
 	{
-		m_DVRPlayer.ShowMetaData(FALSE);
+		m_DVRPlayer.ShowMetaData(TRUE);
 		this->m_DVRPlayer.OpenFile(dlg.GetPathName());
-		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug_Slow.vs");
-		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Alert[20110420215445-20110420215455].vs");
-		m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug2.vs");
+		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug_Slow.vs");
+		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Alert[20110420215445-20110420215455].vs");
+		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug2.vs");
 	}
 }
 
