@@ -13,7 +13,7 @@
 
 //#define SUYUAN_NO_CHECK_DVR_ONLINE	1
 
-int g_connectTimeOut = 1;//10*1000;
+int g_connectTimeOut = 5;//10*1000;
 
 extern HWND			g_hWnd;
 VOID __stdcall TimerProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent,DWORD dwTime);

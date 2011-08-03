@@ -2296,7 +2296,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 				dwDataLen = nRet;
 			}
 
-			if (pThis->m_frameHeader.FrameType <= 3)
+			if (pThis->m_frameHeader.FrameType <= 3)//È¥µôÒôÆµÖ¡
 			{
 				int encFrameLength = nRet - pThis->m_frameHeader.MetaLength;
 			

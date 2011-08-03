@@ -319,7 +319,7 @@ int CPlayer::InputData_Frame()
 		return -nErr;
 	}
 	//取出meta数据，叠加到视频
-	if (m_frameHeader.FrameType <= 3)
+	if (m_frameHeader.FrameType <= 3)//去掉音频帧
 	{
 		m_MetaDataLock.Lock();
 		memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(U32));
