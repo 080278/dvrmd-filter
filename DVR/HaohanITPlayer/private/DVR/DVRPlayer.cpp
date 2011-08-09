@@ -2,6 +2,7 @@
 #include "atlimage.h"
 #include "Player.h"
 #include "DVRPlayer.h"
+#include "TraceLog.h"
 
 #define MAX_PLAYER	36
 
@@ -875,7 +876,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 #endif
 #ifdef _DEBUG
 		DWORD dwBegin = GetTickCount();
-#endif // _DEBUG
+#endif // _DEBUG;
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
@@ -1370,14 +1371,13 @@ void CDVRPlayer::Play()
 		}
 
 		if(NAME(PlayM4_Play)(m_lPort, m_hRenderWnd))
-		{
+		{	
 			m_enumState = CDVRPlayer::eState_Play;
 
 			//SetTimer(PLAY_TIMER, 500, NULL);
 
 			NAME(PlayM4_RefreshPlay)(m_lPort);
 		}
-
 		//m_bSound = NAME(PlayM4_PlaySound)(m_lPort);	
 	}
 }
@@ -2283,6 +2283,7 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			{
 				memset(pThis->m_buffer, 0, sizeof(CHAR)*MAX_FRAME_LENGTH);
 				nRet = pThis->m_spStreamParser->GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
+
 				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				if (nRet <= 0)
 				{
@@ -2328,7 +2329,6 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 
 				TRACE1(_T("Time: %d  Frame: %d Width: %d Height: %d\n"), pThis->GetCurrentFrameNum(), pThis->m_frameHeader.FrameTime, pThis->m_frameHeader.Width, pThis->m_frameHeader.Height);
 				TRACE1(_T("FrameLength: %d, MetaDataLength: %d, encFrameLength: %d\n"), htonl(pThis->m_frameHeader.FrameLength), pThis->m_frameHeader.MetaLength, encFrameLength);
-
 				if ( !NAME(PlayM4_InputData)(pThis->GetPort(), (BYTE*)pThis->m_buffer, encFrameLength) )
 				{
 					int nErr = PlayM4_GetLastError(pThis->GetPort());

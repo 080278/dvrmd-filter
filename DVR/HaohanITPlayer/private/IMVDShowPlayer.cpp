@@ -19,6 +19,7 @@
 #include "OPErrorTypes.h"
 #include "dvr/DVRPlayer.h"
 #include "comutil.h"
+#include "dvr/TraceLog.h"
 
 //temporary stack for dialog box before exit - 1 MB is linker default on Windows
 #define SECURITY_STACK_SIZE	1024 * 1024		
@@ -333,10 +334,10 @@ CIMVDShowPlayer::~CIMVDShowPlayer(void)
 HRESULT CIMVDShowPlayer::InitializeGraph()
 {
     IMV_TRACE(_T("CIMVDShowPlayer::InitializeGraph()\n"));
-
     TearDownGraph();
     // Create the Filter Graph Manager.
-	m_spDVRPlayer.reset(new CDVRPlayer);
+	if (m_spDVRPlayer.get() == NULL)
+		m_spDVRPlayer.reset(new CDVRPlayer);
 	m_spDVRPlayer->Init(m_hVideoWnd, m_hVideoWnd);
 
     HRESULT hr = m_pFilterGraph.CoCreateInstance(CLSID_FilterGraph);
@@ -414,12 +415,18 @@ HRESULT CIMVDShowPlayer::Open(LPCWSTR moviePath)
 	//{
 		if(moviePath == NULL || lstrlenW(moviePath) == 0)
 		{
-			hr = E_INVALIDARG;
+			hr = VARIANT_FALSE;
 			return hr;
 			//break;
 		}
 
 		// Create a new filter graph. (This also closes the old one, if any.)
+		if (m_hVideoWnd == 0) //当播放报警文件的时候，有时候CDVRMVPlayerCtrl::OnCreate函数不执行(原因不知道，比较头疼)
+		{
+			MessageBox(NULL, _T("Open file failed"), _T("Error"), MB_OK);
+			hr = VARIANT_FALSE;
+			return hr;
+		}
 		hr = InitializeGraph();
 		CHKHR;
 		//if(FAILED(hr))
@@ -516,7 +523,7 @@ HRESULT CIMVDShowPlayer::Open(LPCWSTR moviePath)
 
 	//// Open movie failed
 	//TearDownGraph();
-	return hr;
+	//return hr;
 }
 
 HRESULT CIMVDShowPlayer::CheckBufferring()

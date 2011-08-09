@@ -3,6 +3,8 @@
 #include "DVRMVPlayerCtrl.h"
 #include "OPErrorTypes.h"
 #include <assert.h>
+#include "dvr/TraceLog.h"
+
 
 // CDVRMVPlayerCtrl
 
@@ -12,6 +14,7 @@
 LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	assert(false);
+	m_bWindowOnly = TRUE;
     m_IMVPlayer.SetWindow(m_hWnd);
 
     #undef SubclassWindow
@@ -28,6 +31,7 @@ LRESULT CDVRMVPlayerCtrl::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT CDVRMVPlayerCtrl::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_bFullScreen = VARIANT_FALSE;
+	m_hWnd = NULL;
 	m_IMVPlayer.TearDownGraph();
 	m_msgSniffer.UnsubclassWindow(TRUE);
     return 0;
