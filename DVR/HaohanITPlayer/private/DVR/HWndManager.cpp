@@ -67,7 +67,10 @@ HWND CHWndManager::GetFocusHWnd(  )
 
 void   CHWndManager::SelectChannel(POINT pt)
 {
-	HWnd_OnUpdateFocus(m_SpliteHandle, pt);
+	if (m_SpliteHandle != -1)//如果m_SpliteHandle = -1 服务器回放的时候点击播放窗口IE崩溃
+	{
+		HWnd_OnUpdateFocus(m_SpliteHandle, pt);
+	}
 }
 
 //------------------------------------------------------------------------------
