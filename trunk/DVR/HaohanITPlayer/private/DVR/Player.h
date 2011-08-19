@@ -92,6 +92,8 @@ private:
 	HWND m_hNotifyWnd ;
 	HWND m_hRenderWnd;
 
+	static BOOL m_disconnection;//接受不到视频源
+
 	CHAR m_streamHeader[4*1024];
 
 	int            m_playbacklen;  //回放的文件长度

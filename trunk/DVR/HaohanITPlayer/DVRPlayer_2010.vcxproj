@@ -229,6 +229,7 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
     <ClCompile Include="private\DVR\RealStreamParser.cpp" />
     <ClCompile Include="private\DVR\StreamParser.cpp" />
     <ClCompile Include="private\DVR\Sync_Locks.cpp" />
+    <ClCompile Include="private\DVR\TraceLog.cpp" />
     <ClCompile Include="private\DVR\UploadFile.cpp" />
     <ClCompile Include="private\DVR\UploadFileMgr.cpp" />
     <ClCompile Include="private\DVR\UploadFile_PV.cpp" />
@@ -278,6 +279,7 @@ copy .\public\msxml4.dll $(TargetDir)</Command>
     <ClInclude Include="private\DVR\RealStreamParser.h" />
     <ClInclude Include="private\DVR\StreamParser.h" />
     <ClInclude Include="private\DVR\Sync_Locks.h" />
+    <ClInclude Include="private\DVR\TraceLog.h" />
     <ClInclude Include="private\DVR\UploadFile.h" />
     <ClInclude Include="private\DVR\UploadFileMgr.h" />
     <ClInclude Include="private\DVR\Utilities.h" />
