@@ -16,7 +16,7 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-
+BOOL CPlayer::m_disconnection;
 CPlayer::CPlayer()
 {
 	m_hRenderWnd = NULL;
@@ -57,7 +57,8 @@ void CPlayer::Clearup()
 }
 
 INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
-{
+{	
+	m_disconnection = false;
 	if( clientInfo == NULL )
 	{
 		return HHV_ERROR_INVALID_PARA;
@@ -286,9 +287,10 @@ int CPlayer::InputData_Frame()
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
        
 		//网络异常，接受不到数据给出警告！
-		CString csErr;
-		csErr.Format(_T("监控异常！"));
-		::MessageBox(NULL, csErr, _T("错误"), MB_OK);
+		m_disconnection = true;
+		//CString csErr;
+		//csErr.Format(_T("监控异常！"));
+		//::MessageBox(NULL, csErr, _T("错误"), MB_OK);
 		m_exit = true;
         return -1;
     }
@@ -509,6 +511,14 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 	{
 		return;
 	}
+
+	Gdiplus::Graphics graphics(hDc);
+	if(m_disconnection)
+	{
+		CDVRPlayer::FillRectAndDrawTextMeta(hDc);
+		return;
+	}
+
 	CPlayer* pPlayer = (CPlayer*)nUser;
 	if( pPlayer != NULL )
 	{
@@ -536,8 +546,7 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 			metaList.push_back(fmd);
 			readSize += fmd.memsize();
 		}
-
-		Gdiplus::Graphics graphics(hDc);
+		
 		HHV::FrameMetaDataList scaledMetaData;
 
 		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(nPort, scaledMetaData, metaList, renderWndWidth, renderWndHeight);

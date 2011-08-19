@@ -81,6 +81,7 @@ void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(int nPort, HHV::FrameMet
 	if (it != m_mapFrameMetaDataList.end())
 	{
 		dstFrame = it->second;
+		TRACE_LOG("GetScaledFrameMetaDataList->m_mapFrameMetaDataList %d\r\n", m_mapFrameMetaDataList);
 		m_mapFrameMetaDataList.erase(it);
 	}
 	m_ScaleLock.Unlock();
@@ -608,9 +609,7 @@ BOOL CDVRPlayer::InitForMonitor(bool bMonitor)
 	if (bMonitor)
 	{
 		m_spHWndMgr->InitSplit(m_hRenderWnd);
-
 		int splitMode = ToSplitMode(GetDVRSettings().m_nRenderWndNum);	//1;3;4;6;9;16;25;36
-
 		m_spHWndMgr->SetSplitMode(m_lPort, splitMode);
 	}
 	m_spPlayerMgr->Init(NULL);
@@ -703,6 +702,11 @@ void CDVRPlayer::Logout()
 	}
 }
 
+void CDVRPlayer::SetOsdTextEx(int index, int line, char* text, COLORREF osdcolor)
+{
+	m_spHWndMgr->SetOsdTextEx(index, line, text, osdcolor);
+}
+
 BOOL CDVRPlayer::StartMonitor()
 {
 	if (InitForMonitor())
@@ -712,9 +716,8 @@ BOOL CDVRPlayer::StartMonitor()
 			::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
 			return FALSE;
 		}
-
 		for (int i = 0; i < GetDVRSettings().m_nRenderWndNum; ++i)
-		{
+		{	
 			HWND hWnd = m_spHWndMgr->GetHWnd(i);
 			HHV_CLIENT_INFO	 hhvInfo;
 			strcpy( hhvInfo.connInfo.ip, CT2A(GetDVRSettings().m_csMediaServerIP));
@@ -723,9 +726,11 @@ BOOL CDVRPlayer::StartMonitor()
 			int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
 			if( ret < 0 )
 			{
-				CString csErr;
-				csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, i);
-				MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
+				COLORREF osdcolor = RGB(0, 255, 0);
+				m_spHWndMgr->SetOsdTextEx(i, 1, "无视频信号", osdcolor);
+				//CString csErr;
+				//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, i);
+				//MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
 			}
 			else
 			{
@@ -772,9 +777,12 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 		int ret = m_spPlayerMgr->StartMonitor( hWnd, &hhvInfo );
 		if( ret < 0 )
 		{
-			CString csErr;
-			csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, nChannel);
-			MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
+			COLORREF osdcolor = RGB(0, 255, 0);
+			m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "无视频信号", osdcolor);
+			return FALSE;
+			//CString csErr;
+			//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, nChannel);
+			//MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
 		}
 		else
 		{
@@ -871,6 +879,7 @@ void CDVRPlayer::StopPlayback()
 //	Draw the Meta Data
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 {
+	TRACE_LOG("OnDrawFun->nPort, hDC, nUser %d\r\n", nPort, hDC, nUser);
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x1, "OnDrawFun")
 #endif
@@ -880,6 +889,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
+		TRACE_LOG("pThis->GetDVRSettings().m_bDrawMetaData %d\r\n", pThis->GetDVRSettings().m_bDrawMetaData);
 		return;
 	}
 
@@ -901,10 +911,36 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 #endif
 }
 
+//网络断开，播放窗口给出提示
+void CDVRPlayer::FillRectAndDrawTextMeta(HDC hDC)
+{
+	HBRUSH m_Brush;
+	m_Brush = CreateSolidBrush(RGB(0,0,0));
+	RECT rect;
+	rect.left = 0;
+	rect.top = 0;
+	rect.right = CDVRSettings::GetInstance()->m_nRenderWidth;
+	rect.bottom = CDVRSettings::GetInstance()->m_nRenderHeight;
+	FillRect(hDC, &rect, m_Brush);
+	DeleteObject(m_Brush);
+
+	HHV::TextMeta txt;
+	txt.color.r = 255;
+	txt.color.g = 0;
+	txt.color.b = 0;
+	txt.size = 30;
+	txt.text = "无视屏信号";
+	txt.x = CDVRSettings::GetInstance()->m_nRenderWidth / 2;
+	txt.y = CDVRSettings::GetInstance()->m_nRenderHeight / 2;
+	Gdiplus::Graphics graphics(hDC);
+	DrawTextMeta(graphics, txt, CDVRSettings::GetInstance()->m_nRenderWidth, CDVRSettings::GetInstance()->m_nRenderHeight, CDVRSettings::GetInstance()->m_nRenderWidth, CDVRSettings::GetInstance()->m_nRenderHeight);
+}
+
 // Draw Functions
 
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
+	TRACE_LOG("DrawFrameMetaData描画metaData \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x6, "")
 #endif
@@ -924,6 +960,7 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 		++itDspObj)
 	{
 		TRACE1("Draw DisplayObjectMeta: id=%s\n", (LPTSTR)CA2T(itDspObj->id.c_str()));
+		TRACE_LOG("DrawDisplayObjectMeta描画DisplayObjectMeta \r\n");
 		DrawDisplayObjectMeta(graphics, *itDspObj, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
@@ -961,6 +998,7 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 }
 void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+	TRACE_LOG("DrawPolyLine描画PolyLine \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x5, "")
 #endif
@@ -1096,6 +1134,7 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
+	TRACE_LOG("DrawObjectType描画ObjectType \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x2, "")
 #endif
@@ -1145,6 +1184,7 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
 		{
+			TRACE_LOG("DrawRectangle描画rectangle \r\n");
 			//去掉透明度
 			HDC dc = graphics.GetHDC();
 			HPEN hPen = ::CreatePen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
@@ -1216,6 +1256,7 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 		pFMDStartPos = fmd.FromMemory(pFMDStartPos);
 		metaDataList.push_back(fmd);
 		readSize += fmd.memsize();
+		TRACE_LOG("metaDataList %d\r\n", (int)metaDataList.size());
 	}
 
 	return (int)metaDataList.size();
@@ -2317,9 +2358,11 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 					nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
 				{
 					pThis->m_MetaDataLock.Lock();
+					TRACE_LOG("InputStreamThread->m_meta %d\r\n", pThis->m_meta);
 					memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
 					if (pThis->m_frameHeader.MetaLength != 0) 
 					{
+						TRACE_LOG("InputStreamThread->m_meta+sizeof(U32) %d\r\n",  pThis->m_meta+sizeof(U32));
 						memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
 					}
 				

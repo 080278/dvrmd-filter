@@ -151,6 +151,7 @@ public:
 	BOOL Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPort);
 	BOOL Login();
 	void Logout();
+	void SetOsdTextEx(int index, int line, char* text, COLORREF osdcolor);
 	BOOL IsLogined(){return m_UserID >= 0;}
 
 	// Real time watching interfaces
@@ -285,6 +286,7 @@ private:
 		long nReserved1,long /*nReserved2*/);
 	static void CALLBACK FileRefDone(DWORD /*nReserved*/,DWORD nUser);
 	//OnDrawFun
+	static void FillRectAndDrawTextMeta(HDC hDC);
 	// Draw the meta data on the screen.
 	static void CALLBACK OnDrawFun(long nPort, HDC hDC, LONG nUser);
 	// Draw Meta Data Functions.
@@ -350,7 +352,7 @@ private:
 	DWORD		m_dwMaxFileSize;
 	DWORD		m_dwHeadSize;
 
-private:
+public:
 	std::auto_ptr<CLoginDvrMgr>	m_spDVRLoginMgr;
 	std::auto_ptr<CHWndManager>	m_spHWndMgr;
 	std::auto_ptr<CPlayerMgr>	m_spPlayerMgr;
