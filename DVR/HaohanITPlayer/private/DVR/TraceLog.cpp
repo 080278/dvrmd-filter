@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////
 FILE*	CDVRTrace::m_fileTrace = NULL	;
 BOOL	CDVRTrace::m_bInited = FALSE;
-int     CDVRTrace::LogLevel = 0;
+int     CDVRTrace::LogLevel = 100;
 
 CCritSec CDVRTrace::m_csTrace;
 
