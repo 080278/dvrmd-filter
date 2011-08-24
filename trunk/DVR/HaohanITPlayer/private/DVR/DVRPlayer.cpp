@@ -49,72 +49,83 @@ ScaleFrameMetaDataList::~ScaleFrameMetaDataList()
 	::CloseHandle(m_hEvent[eScaleEvent]);
 	::CloseHandle(m_hEvent[eExitEvent]);
 }
-//void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
-//{
-//	if (!m_bScaling)
-//	{
-//		m_TmpLock.Lock();
-//		m_TmpMetaDataList = srcFrame;
-//		m_lWndWidth = lWndWidth;
-//		m_lWndHeight = lWndHeight;
-//		SetEvent(m_hEvent[eScaleEvent]);
-//		m_TmpLock.Unlock();
-//	}
-//	m_ScaleLock.Lock();
-//	dstFrame = m_FrameMetaDataList;
-//	m_ScaleLock.Unlock();
-//}
-
-void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(int nPort, HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lDstWidth, LONG lDstHeight)
+void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lWndWidth, LONG lWndHeight)
 {
 	if (!m_bScaling)
 	{
 		m_TmpLock.Lock();
-		m_mapTmpMetaDataList[nPort] = srcFrame;
-		m_mapDstWidth[nPort] = lDstWidth;
-		m_mapDstHeight[nPort] = lDstHeight;
-		m_TmpLock.Unlock();
+		m_TmpMetaDataList = srcFrame;
+		m_lWndWidth = lWndWidth;
+		m_lWndHeight = lWndHeight;
 		SetEvent(m_hEvent[eScaleEvent]);
+		m_TmpLock.Unlock();
 	}
 	m_ScaleLock.Lock();
-	std::map<int, HHV::FrameMetaDataList>::iterator it = m_mapFrameMetaDataList.find(nPort);
-	if (it != m_mapFrameMetaDataList.end())
-	{
-		dstFrame = it->second;
-		TRACE_LOG("GetScaledFrameMetaDataList->m_mapFrameMetaDataList %d\r\n", m_mapFrameMetaDataList);
-		m_mapFrameMetaDataList.erase(it);
-	}
+	dstFrame = m_FrameMetaDataList;
 	m_ScaleLock.Unlock();
 }
 
-int	ScaleFrameMetaDataList::GetWorkFrameMetaData(HHV::FrameMetaDataList& frame, LONG& lDstWidth, LONG& lDstHeight)
-{
-	static int nCurPort = 0;
-	int nStartQueryPort = nCurPort;
-	MAP_RRAME::iterator it = m_mapTmpMetaDataList.find(nCurPort);
-	while (it == m_mapTmpMetaDataList.end() || it->second.size() == 0)
-	{
-		++nCurPort;
-		if (nCurPort >= MAX_PLAYER)
-		{
-			nCurPort = 0;
-		}
-		if (nCurPort == nStartQueryPort)
-		{
-			break;
-		}
-		it = m_mapTmpMetaDataList.find(nCurPort);
-	}
-	
-	if (it != m_mapTmpMetaDataList.end() && it->second.size() > 0)
-	{
-		frame = it->second;
-		lDstWidth = m_mapDstWidth[it->first];
-		lDstHeight = m_mapDstHeight[it->first];
-		return it->first;
-	}
-	return -1;
-}
+//void ScaleFrameMetaDataList::GetScaledFrameMetaDataList(int nPort, HHV::FrameMetaDataList& dstFrame, const HHV::FrameMetaDataList& srcFrame, LONG lDstWidth, LONG lDstHeight)
+//{
+//	TRACE_LOG("执行GetScaledFrameMetaDataLis函数 \r\n");
+//	TRACE_LOG("GetScaledFrameMetaDataLis->m_bScaling %d\r\n", m_bScaling);
+//	TRACE_LOG("GetScaledFrameMetaDataLis->srcFrame的大小 %d\r\n", (int)srcFrame.size());
+//	TRACE_LOG("GetScaledFrameMetaDataLis->nPort的通道号 %d\r\n", nPort);
+//	if (!m_bScaling)
+//	{
+//		m_TmpLock.Lock();
+//		m_mapTmpMetaDataList[nPort] = srcFrame;
+//		m_mapDstWidth[nPort] = lDstWidth;
+//		m_mapDstHeight[nPort] = lDstHeight;
+//		m_TmpLock.Unlock();
+//		SetEvent(m_hEvent[eScaleEvent]);
+//	}
+//	m_ScaleLock.Lock();
+//	TRACE_LOG("GetScaledFrameMetaDataLis->m_mapFrameMetaDataList的大小 %d\r\n", (int)m_mapFrameMetaDataList.size());
+//	std::map<int, HHV::FrameMetaDataList>::iterator it = m_mapFrameMetaDataList.find(nPort);
+//	if (it != m_mapFrameMetaDataList.end())
+//	{
+//		dstFrame = it->second;
+//		TRACE_LOG("GetScaledFrameMetaDataList->dstFrame %d\r\n", (int)dstFrame.size());
+//		m_mapFrameMetaDataList.erase(it);
+//	}
+//	m_ScaleLock.Unlock();
+//}
+
+//int	ScaleFrameMetaDataList::GetWorkFrameMetaData(HHV::FrameMetaDataList& frame, LONG& lDstWidth, LONG& lDstHeight)
+//{
+//	static int nCurPort = 0;
+//	int nStartQueryPort = nCurPort;
+//	MAP_RRAME::iterator it = m_mapTmpMetaDataList.find(nCurPort);
+//	TRACE_LOG("GetWorkFrameMetaData->m_mapTmpMetaDataList的大小 %d\r\n", (int)m_mapTmpMetaDataList.size());
+//	while (it == m_mapTmpMetaDataList.end() || it->second.size() == 0)
+//	{
+//		++nCurPort;
+//		TRACE_LOG("GetWorkFrameMetaData->++nCurPort %d\r\n", nCurPort);
+//		if (nCurPort >= MAX_PLAYER)
+//		{
+//			TRACE_LOG("GetWorkFrameMetaData->nCurPort >= MAX_PLAYER %d\r\n", nCurPort);
+//			nCurPort = 0;
+//		}
+//		if (nCurPort == nStartQueryPort)
+//		{
+//			TRACE_LOG("break\r\n", nCurPort);
+//			TRACE_LOG("GetWorkFrameMetaData->nCurPort %d\r\n", nCurPort);
+//			TRACE_LOG("GetWorkFrameMetaData->nStartQueryPort %d\r\n", nStartQueryPort);
+//			break;
+//		}
+//		it = m_mapTmpMetaDataList.find(nCurPort);
+//	}
+//	
+//	if (it != m_mapTmpMetaDataList.end() && it->second.size() > 0)
+//	{
+//		frame = it->second;
+//		lDstWidth = m_mapDstWidth[it->first];
+//		lDstHeight = m_mapDstHeight[it->first];
+//		return it->first;
+//	}
+//	return -1;
+//}
 unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 {
 	ScaleFrameMetaDataList* pThis = (ScaleFrameMetaDataList*)pParam;
@@ -129,12 +140,15 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 		case WAIT_OBJECT_0+eScaleEvent:
 			{
 				pThis->m_TmpLock.Lock();
-				HHV::FrameMetaDataList frame;// = pThis->m_TmpMetaDataList;
-				LONG lWndWidth;// = pThis->m_lWndWidth;
-				LONG lWndHeight;// = pThis->m_lWndHeight;
-				int nPort = pThis->GetWorkFrameMetaData(frame, lWndWidth, lWndHeight);
+				//HHV::FrameMetaDataList frame;// = pThis->m_TmpMetaDataList;
+				HHV::FrameMetaDataList frame = pThis->m_TmpMetaDataList;
+				//LONG lWndWidth;// = pThis->m_lWndWidth;
+				//LONG lWndHeight;// = pThis->m_lWndHeight;
+				LONG lWndWidth = pThis->m_lWndWidth;
+				LONG lWndHeight = pThis->m_lWndHeight;
+				//int nPort = pThis->GetWorkFrameMetaData(frame, lWndWidth, lWndHeight);
 				pThis->m_TmpLock.Unlock();
-				if (nPort >= 0 && frame.size() > 0)
+				if (frame.size() > 0)
 				{
 					HHV::FrameMetaData attributes;
 					pThis->m_bScaling = true;
@@ -156,17 +170,18 @@ unsigned ScaleFrameMetaDataList::ScaleCallBack(void* pParam)
 				}
 
 				pThis->m_ScaleLock.Lock();
-				if (nPort >= 0)
-				{
+				//if (nPort >= 0)
+				//{
 					if (frame.size() > 0)
 					{
-						pThis->m_mapFrameMetaDataList[nPort] = frame;
+						pThis->m_FrameMetaDataList = frame;
+						//pThis->m_mapFrameMetaDataList[nPort] = frame;
 					}
-					else
-					{
-						pThis->m_mapFrameMetaDataList.erase(nPort);
-					}
-				}
+					//else
+					//{
+						//pThis->m_mapFrameMetaDataList.erase(nPort);
+					//}
+				//}
 				pThis->m_ScaleLock.Unlock();
 				ResetEvent(pThis->m_hEvent[eScaleEvent]);
 			}
@@ -727,7 +742,7 @@ BOOL CDVRPlayer::StartMonitor()
 			if( ret < 0 )
 			{
 				COLORREF osdcolor = RGB(0, 255, 0);
-				m_spHWndMgr->SetOsdTextEx(i, 1, "无视频信号", osdcolor);
+				m_spHWndMgr->SetOsdTextEx(i, 1, "监视出错", osdcolor);
 				//CString csErr;
 				//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, i);
 				//MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
@@ -778,7 +793,7 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 		if( ret < 0 )
 		{
 			COLORREF osdcolor = RGB(0, 255, 0);
-			m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "无视频信号", osdcolor);
+			m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "监视出错", osdcolor);
 			return FALSE;
 			//CString csErr;
 			//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, nChannel);
@@ -879,7 +894,6 @@ void CDVRPlayer::StopPlayback()
 //	Draw the Meta Data
 void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 {
-	TRACE_LOG("OnDrawFun->nPort, hDC, nUser %d\r\n", nPort, hDC, nUser);
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x1, "OnDrawFun")
 #endif
@@ -889,7 +903,6 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	CDVRPlayer* pThis = (CDVRPlayer*)nUser;
 	if (!pThis || !pThis->GetDVRSettings().m_bDrawMetaData)
 	{
-		TRACE_LOG("pThis->GetDVRSettings().m_bDrawMetaData %d\r\n", pThis->GetDVRSettings().m_bDrawMetaData);
 		return;
 	}
 
@@ -897,8 +910,7 @@ void CDVRPlayer::OnDrawFun(long nPort, HDC hDC, LONG nUser)
 	if (pThis->GetFrameMetaDataList(metaDataList) > 0)
 	{
 		HHV::FrameMetaDataList scaledMetaData;
-		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(pThis->GetPort(), scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
-		
+		pThis->m_ScaleMetaData.GetScaledFrameMetaDataList(scaledMetaData, metaDataList, pThis->GetDVRSettings().m_nRenderWidth, pThis->GetDVRSettings().m_nRenderHeight);
 		Gdiplus::Graphics graphics(hDC);
 		for (HHV::FrameMetaDataList::iterator itFrame = scaledMetaData.begin(); itFrame != scaledMetaData.end(); ++itFrame)
 		{
@@ -928,10 +940,10 @@ void CDVRPlayer::FillRectAndDrawTextMeta(HDC hDC)
 	txt.color.r = 255;
 	txt.color.g = 0;
 	txt.color.b = 0;
-	txt.size = 30;
+	txt.size = 20;
 	txt.text = "无视屏信号";
-	txt.x = CDVRSettings::GetInstance()->m_nRenderWidth / 2;
-	txt.y = CDVRSettings::GetInstance()->m_nRenderHeight / 2;
+	txt.x = 10;
+	txt.y = 10;
 	Gdiplus::Graphics graphics(hDC);
 	DrawTextMeta(graphics, txt, CDVRSettings::GetInstance()->m_nRenderWidth, CDVRSettings::GetInstance()->m_nRenderHeight, CDVRSettings::GetInstance()->m_nRenderWidth, CDVRSettings::GetInstance()->m_nRenderHeight);
 }
@@ -940,7 +952,6 @@ void CDVRPlayer::FillRectAndDrawTextMeta(HDC hDC)
 
 void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::FrameMetaData& frame, const LONG& lWndWidth, const LONG& lWndHeight)
 {
-	TRACE_LOG("DrawFrameMetaData描画metaData \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x6, "")
 #endif
@@ -960,7 +971,6 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 		++itDspObj)
 	{
 		TRACE1("Draw DisplayObjectMeta: id=%s\n", (LPTSTR)CA2T(itDspObj->id.c_str()));
-		TRACE_LOG("DrawDisplayObjectMeta描画DisplayObjectMeta \r\n");
 		DrawDisplayObjectMeta(graphics, *itDspObj, lWndWidth, lWndHeight, frame.displayData.image_width, frame.displayData.image_height);
 	}
 
@@ -998,7 +1008,6 @@ void CDVRPlayer::DrawFrameMetaData(Gdiplus::Graphics& graphics, const HHV::Frame
 }
 void CDVRPlayer::DrawPolyLine(Gdiplus::Graphics& graphics, const HHV::PolyLine& line, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
-	TRACE_LOG("DrawPolyLine描画PolyLine \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x5, "")
 #endif
@@ -1134,7 +1143,6 @@ void CDVRPlayer::DrawPolygon(Gdiplus::Graphics& graphics, const HHV::PolygonM& p
 }
 void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectType& obj, const LONG& lWndWidth, const LONG& lWndHeight, const LONG& nImgWidth, const LONG& nImgHeight)
 {
-	TRACE_LOG("DrawObjectType描画ObjectType \r\n");
 #ifdef TEST_PERFORMANCE
 	FreeProfilerRecordCodeBlock(0x2, "")
 #endif
@@ -1184,7 +1192,6 @@ void CDVRPlayer::DrawObjectType(Gdiplus::Graphics& graphics, const HHV::ObjectTy
 				obj.x1 - obj.x0 - obj.style.thickness, obj.y1 - obj.y0 - obj.style.thickness);
 		}
 		{
-			TRACE_LOG("DrawRectangle描画rectangle \r\n");
 			//去掉透明度
 			HDC dc = graphics.GetHDC();
 			HPEN hPen = ::CreatePen(PS_SOLID, style.thickness, RGB(style.color.r, style.color.g, style.color.b));
@@ -1256,7 +1263,6 @@ int CDVRPlayer::GetFrameMetaDataList(HHV::FrameMetaDataList& metaDataList)
 		pFMDStartPos = fmd.FromMemory(pFMDStartPos);
 		metaDataList.push_back(fmd);
 		readSize += fmd.memsize();
-		TRACE_LOG("metaDataList %d\r\n", (int)metaDataList.size());
 	}
 
 	return (int)metaDataList.size();
@@ -2358,11 +2364,9 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 					nCountNoMetaData >= nMaxNumNoMetaDataFrame)	//To make sure, it's true there is no metadata. 
 				{
 					pThis->m_MetaDataLock.Lock();
-					TRACE_LOG("InputStreamThread->m_meta %d\r\n", pThis->m_meta);
 					memcpy( pThis->m_meta, &pThis->m_frameHeader.MetaLength, sizeof(U32));
 					if (pThis->m_frameHeader.MetaLength != 0) 
 					{
-						TRACE_LOG("InputStreamThread->m_meta+sizeof(U32) %d\r\n",  pThis->m_meta+sizeof(U32));
 						memcpy( pThis->m_meta+sizeof(U32), pThis->m_buffer + encFrameLength, pThis->m_frameHeader.MetaLength );
 					}
 				

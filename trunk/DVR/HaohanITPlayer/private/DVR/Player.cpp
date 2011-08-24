@@ -56,8 +56,96 @@ void CPlayer::Clearup()
 	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
 
+void CPlayer::ResetBuf()
+{
+	NAME(PlayM4_ResetBuffer)(m_index, BUF_VIDEO_RENDER);
+	NAME(PlayM4_ResetBuffer)(m_index, BUF_AUDIO_RENDER);
+	NAME(PlayM4_ResetBuffer)(m_index, BUF_VIDEO_SRC);
+	NAME(PlayM4_ResetBuffer)(m_index, BUF_AUDIO_SRC);
+	NAME(PlayM4_ResetSourceBuffer)(m_index);
+}
+
+int CPlayer::ReStartMonitor()
+{
+	m_comSocket.Close();
+	m_streamParser.ClearBuf();//清除缓冲
+	memset(&m_rcRenderRect, 0, sizeof(RECT));
+	if( m_comSocket.Connect(m_clientInfo.connInfo.ip, m_clientInfo.connInfo.port) < 0 )
+    {
+        m_comSocket.Close();
+        return HHV_ERROR_CONNECT;
+    }
+	int	streamHeaderSize = 4*1024;
+	memset( m_streamHeader, 0x00, sizeof(m_streamHeader) );
+
+    int ret = MonitorStartCmdMT(m_comSocket.m_hSocket, &m_clientInfo, m_streamHeader, streamHeaderSize);
+    if( ret < 0 )
+    {
+        m_comSocket.Close();
+        return ret;
+    }
+
+	PlayM4_Stop(m_index);
+	PlayM4_CloseStream( m_index);
+	ResetBuf();
+
+	//mode- 流模式（1-实时流/2-文件流）
+	int nErr = 0;
+	m_playType = STREAME_REALTIME;
+	BOOL  bret =  PlayM4_SetStreamOpenMode(m_index, m_playType);
+    bret =  PlayM4_OpenStream( m_index, (BYTE*)m_streamHeader, streamHeaderSize, 600*1024);
+	if (!bret)
+	{
+		m_comSocket.Close();
+		nErr =  PlayM4_GetLastError(m_index);
+
+		return -nErr;
+	}
+
+	m_disconnection = false;
+	if( ! PlayM4_RigisterDrawFun( m_index, MP4SDKDrawFun, (DWORD)this) )
+	{
+		m_comSocket.Close();
+		nErr =  PlayM4_GetLastError(m_index);
+		//TRACE_SDK_ERROR("执行 CHKSeries::RegisterDrawFun 中  PlayM4_RigisterDrawFun 函数 Fail nErr = %d strErr = %s\r\n\r\n", nErr, strErr.c_str() );
+		return -nErr;
+	}
+
+	bret =  PlayM4_Play(m_index, m_hWnd);
+	if (!bret)
+	{
+		nErr =  PlayM4_GetLastError(m_index);
+		//string strErr = GetPlayMp4LastErrorStr( nErr );
+		//TRACE_SDK_ERROR("执行 CHKSeries::OpenStream 中  PlayM4_Play 函数 Fail nErr = %d strErr = %s\r\n\r\n", nErr, strErr.c_str() );
+		return -nErr;
+	}
+
+	m_hRenderWnd = m_hWnd;
+	ResizeMonitorWindow();
+
+    //memcpy(&m_clientInfo, clientInfo, sizeof(UNISDK_CLIENT_INFO));
+    //开启线程, 接收视频流
+    m_exit = false;
+    UINT threadid(0);
+    m_Thread = (HANDLE)_beginthreadex( NULL, 4*1024*1024, DecoderRoutine, this, 0, &threadid ); 
+    if(m_Thread <= 0)
+    {
+        TRACE(_T("(MTVideo)!!!!!!开辟接受数据线程失败！m_Thread:%d errno:%d _doserrno:%d \r\n"),
+            m_Thread, errno, _doserrno);
+        SetEvent( m_hExitEvent );
+    }
+	
+    CloseHandle( m_Thread );
+  //
+  //  TRACE(_T("(MTVideo)监视成功结束 m_PlayHandle = %d dvrIP = %s channel = %d\r\n"),
+		//m_PlayHandle, m_clientInfo.connInfo.ip, clientInfo->channel);
+    return m_index;
+}
+
 INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 {	
+	m_hWnd = hWnd;
+	memcpy(&m_clientInfo, clientInfo, sizeof(HHV_CLIENT_INFO));
 	m_disconnection = false;
 	if( clientInfo == NULL )
 	{
@@ -214,8 +302,11 @@ UINT __stdcall CPlayer::DecoderRoutine( void * dat)
 			break;
     }
     
-    pPlayer->m_comSocket.Close();
-    SetEvent( pPlayer->m_hExitEvent );
+	if(pPlayer->m_exit)
+	{
+		pPlayer->m_comSocket.Close();
+		SetEvent( pPlayer->m_hExitEvent );
+	}
     TRACE(_T("线程 '监视' (0x%x)%d 已退出\r\n"), GetCurrentThreadId(), GetCurrentThreadId());
     return 0;
 }
@@ -285,15 +376,18 @@ int CPlayer::InputData_Frame()
         //TRACE(_T("！！！！检测到网络出错，准备发送消息 majortype = %d, subtype = %d, m_index_MTManager = %d\r\n\r\n",
 		//	m_UniSDKCltInfo.connInfo.dvrType, m_UniSDKCltInfo.connInfo.subType, m_index_MTManager);
         //::PostMessage(m_hNotifyWnd, WM_NET_ERROR, m_index_MTManager, m_UniSDKCltInfo.connInfo.dvrType << 16 | m_UniSDKCltInfo.connInfo.subType );
-       
 		//网络异常，接受不到数据给出警告！
 		m_disconnection = true;
-		//CString csErr;
-		//csErr.Format(_T("监控异常！"));
-		//::MessageBox(NULL, csErr, _T("错误"), MB_OK);
-		m_exit = true;
-        return -1;
+
+		while(ReStartMonitor()<0);//重新尝试连接并启动监视
+		{
+			Sleep(1000);
+		}
+		return -1;
+		//	m_exit = true;
+		//	return -1;
     }
+
     if(m_exit)
     {
         //TRACE(_T("CMTVideo::InputData_Frame 退出2 dvrIP = %s Channel = %d m_PlayHandle = %d m_index_MTManager = %d\r\n",
@@ -549,7 +643,7 @@ void CALLBACK CPlayer::MP4SDKDrawFun(long nPort,HDC hDc,LONG nUser)
 		
 		HHV::FrameMetaDataList scaledMetaData;
 
-		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(nPort, scaledMetaData, metaList, renderWndWidth, renderWndHeight);
+		pPlayer->m_spScaleMetaData->GetScaledFrameMetaDataList(scaledMetaData, metaList, renderWndWidth, renderWndHeight);
 		
 		for (HHV::FrameMetaDataList::const_iterator it = scaledMetaData.begin(); it != scaledMetaData.end(); ++it)
 		{

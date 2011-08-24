@@ -51,9 +51,12 @@ public:
 	
 	VOID Init(HWND hNotifyWnd, int index_MTManager);
 	VOID Clearup();
+
+	void ResetBuf();
 	
 	INT StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo);
 	VOID StopMonitor( );
+	int ReStartMonitor();//网络断开后，自动重新连接
 
 	int  StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,char* ssIP, int ssPort);
 	void StopPlayBackByTime(int realHandle);
@@ -91,6 +94,10 @@ private:
 
 	HWND m_hNotifyWnd ;
 	HWND m_hRenderWnd;
+
+	BOOL m_reStartMonitor;
+
+	HWND m_hWnd;
 
 	static BOOL m_disconnection;//接受不到视频源
 
