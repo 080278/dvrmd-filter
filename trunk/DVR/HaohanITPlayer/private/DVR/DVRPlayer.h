@@ -182,6 +182,8 @@ public:
 	DWORD GetCurrentFrameNum();		
 	BOOL  SetVolume(WORD wVolume);
 
+	BOOL  SetFilePointer(float pointer);
+
 	// goto start / slow / fast / goto end
 	void  GotoStart();
 	void  Slow();

@@ -9,6 +9,7 @@
 #define IDM_THROW0                      32787
 #define IDM_THROW1                      32788
 #define IDM_THROW2                      32789
+//#define PLAY_TIMER (2000)
 //
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -514,8 +515,8 @@ bool CDVRPlayer::Init(HWND hRenderWnd, HWND hParentWnd, int lPort)
 	m_nPlaybackIndex = -1;
 	//m_bDrawMetaData = TRUE;
 
-	if (m_lPort == -1)
-		NAME(PlayM4_GetPort)(&m_lPort);
+	/*if (m_lPort == -1)
+		NAME(PlayM4_GetPort)(&m_lPort);*/
 
 	m_spDVRLoginMgr.reset(new CLoginDvrMgr);
 	m_spDVRLoginMgr->Startup();
@@ -551,26 +552,26 @@ BOOL CDVRPlayer::InitForPlayFile()
 	memset(m_meta, 0, sizeof(m_meta));
 	memset(m_buffer, 0, sizeof(m_buffer));
 	memset(&m_frameHeader, 0, sizeof(m_frameHeader));
-	NAME(PlayM4_InitDDrawDevice)();
-	DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
-	if(nVal > 1)
-	{
-		nVal = min<DWORD>(nVal, MAX_DISPLAY_DEVICE);
-		for(DWORD nCount = 0; nCount < nVal; nCount++) 
-		{
-			ZeroMemory(chDriverDesp, 50);
-			NAME(PlayM4_GetDDrawDeviceInfo)(nCount, chDriverDesp, 50, chDriverName, 50, &hMonitor);
-			////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0 + nCount + 1, chDriverDesp);
-		}
-	}
-	else
-	{
-		ZeroMemory(chDriverDesp, 50);
-		NAME(PlayM4_GetDDrawDeviceInfo)(0, chDriverDesp, 50, chDriverName, 50, &hMonitor);
-		////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0, chDriverDesp);
-	}
+	//NAME(PlayM4_InitDDrawDevice)();
+	//DWORD nVal=NAME(PlayM4_GetDDrawDeviceTotalNums)();
+	//if(nVal > 1)
+	//{
+	//	nVal = min<DWORD>(nVal, MAX_DISPLAY_DEVICE);
+	//	for(DWORD nCount = 0; nCount < nVal; nCount++) 
+	//	{
+	//		ZeroMemory(chDriverDesp, 50);
+	//		NAME(PlayM4_GetDDrawDeviceInfo)(nCount, chDriverDesp, 50, chDriverName, 50, &hMonitor);
+	//		////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0 + nCount + 1, chDriverDesp);
+	//	}
+	//}
+	//else
+	//{
+	//	ZeroMemory(chDriverDesp, 50);
+	//	NAME(PlayM4_GetDDrawDeviceInfo)(0, chDriverDesp, 50, chDriverName, 50, &hMonitor);
+	//	////m_pMainMenu->GetSubMenu(1)->InsertMenu(IDM_TEMP_DEVICE, MF_BYCOMMAND, IDM_DEVICE0, chDriverDesp);
+	//}
 
-	TestCapability(0);
+	//TestCapability(0);
 #endif
 
 	// set the capture picture call back function;
@@ -583,9 +584,9 @@ BOOL CDVRPlayer::InitForPlayFile()
 		NAME(PlayM4_GetPort)(&m_lPort);
 	}
 
-	NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
+	//NAME(PlayM4_SetDDrawDevice)(m_lPort, 0);
 	// Test adapter Capability;
-	NAME(PlayM4_SetVolume)(m_lPort, 0);
+	//NAME(PlayM4_SetVolume)(m_lPort, 0);
 
 	return TRUE;
 }
@@ -598,8 +599,8 @@ void CDVRPlayer::DestoryPlayFile()
 	NAME(PlayM4_ReleaseDDrawDevice)();
 	NAME(PlayM4_FreePort)(m_lPort);
 
-	//m_lPort = -1;
-	m_lPort = 0;
+	m_lPort = -1;
+	//m_lPort = 0;
 	m_enumState = CDVRPlayer::eState_Close;
 }
 BOOL CDVRPlayer::InitForMonitor(bool bMonitor)
@@ -703,9 +704,9 @@ BOOL CDVRPlayer::Login(LPCTSTR szUsername, LPCTSTR szPwd, LPCTSTR szIP, int nPor
 
 		return TRUE;
 	}
-	CString csErr;
+	/*CString csErr;
 	csErr.Format(_T("登录信息: 用户名:%s  IP地址:%s  端口:%d"), szUsername, szIP, nPort);
-	::MessageBox(m_hParentWnd, csErr, _T("登录信息错误"), MB_OK);
+	::MessageBox(m_hParentWnd, csErr, _T("登录信息错误"), MB_OK);*/
 	return FALSE;
 }
 void CDVRPlayer::Logout()
@@ -728,7 +729,7 @@ BOOL CDVRPlayer::StartMonitor()
 	{
 		if (!IsLogined())
 		{
-			::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
+			//::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
 			return FALSE;
 		}
 		for (int i = 0; i < GetDVRSettings().m_nRenderWndNum; ++i)
@@ -742,7 +743,17 @@ BOOL CDVRPlayer::StartMonitor()
 			if( ret < 0 )
 			{
 				COLORREF osdcolor = RGB(0, 255, 0);
-				m_spHWndMgr->SetOsdTextEx(i, 1, "监视出错", osdcolor);
+				if(ret = -40 )
+				{	
+					m_spHWndMgr->SetOsdTextEx(i, 1, "HHit 建立连接失败", osdcolor);
+				}
+				else if(ret = -50)
+				{
+					m_spHWndMgr->SetOsdTextEx(i, 1, "HHit 接受数据失败", osdcolor);
+				}
+				else {
+					m_spHWndMgr->SetOsdTextEx(i, 1, "HHit 无视频源", osdcolor);
+				}	
 				//CString csErr;
 				//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, i);
 				//MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
@@ -793,8 +804,17 @@ BOOL CDVRPlayer::SetWndChannel(int nWndIndex, int nChannel)
 		if( ret < 0 )
 		{
 			COLORREF osdcolor = RGB(0, 255, 0);
-			m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "监视出错", osdcolor);
-			return FALSE;
+			if(ret = -40 )
+			{
+				m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "HHit 建立连接失败", osdcolor);
+			}
+			else if(ret = -50)
+			{
+				m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "HHit 接受数据失败", osdcolor);
+			}
+			else {
+				m_spHWndMgr->SetOsdTextEx(nWndIndex, 1, "HHit 无视频源", osdcolor);
+			}
 			//CString csErr;
 			//csErr.Format(_T("监视出错.IP:%s Port:%d 通道:%d, "), GetDVRSettings().m_csMediaServerIP, GetDVRSettings().m_lPort, nChannel);
 			//MessageBox(m_hParentWnd, csErr, _T("错误"), MB_OK);
@@ -941,7 +961,7 @@ void CDVRPlayer::FillRectAndDrawTextMeta(HDC hDC)
 	txt.color.g = 0;
 	txt.color.b = 0;
 	txt.size = 20;
-	txt.text = "无视屏信号";
+	txt.text = "无视频信号";
 	txt.x = 10;
 	txt.y = 10;
 	Gdiplus::Graphics graphics(hDC);
@@ -1419,9 +1439,8 @@ void CDVRPlayer::Play()
 
 		if(NAME(PlayM4_Play)(m_lPort, m_hRenderWnd))
 		{	
-			m_enumState = CDVRPlayer::eState_Play;
-
-			//SetTimer(PLAY_TIMER, 500, NULL);
+			m_enumState = CDVRPlayer::eState_Play; 
+			//SetTimer(m_hParentWnd, PLAY_TIMER, 500, NULL);
 
 			NAME(PlayM4_RefreshPlay)(m_lPort);
 		}
@@ -1488,6 +1507,11 @@ BOOL CDVRPlayer::SetPosition(DWORD dwTime)
 	return NAME(PlayM4_SetPlayedTimeEx)(m_lPort, dwTime);
 }
 
+BOOL CDVRPlayer::SetFilePointer(float pointer)
+{
+	return m_spStreamParser->SetFilePointer(pointer);
+}
+
 DWORD CDVRPlayer::GetCurrentPosition()
 {
 	if (m_bStreamType)
@@ -1549,7 +1573,6 @@ void CDVRPlayer::Fast()
 	// TODO: Add your control notification handler code here
 
 	// Throw B-Frame ,improve the performance;
-	
 	if(NAME(PlayM4_Fast)(m_lPort))
 	{
 		m_nSpeed ++;
@@ -1563,7 +1586,6 @@ void CDVRPlayer::Fast()
 void CDVRPlayer::Slow() 
 {
 	// TODO: Add your control notification handler code here
-	
 	if(NAME(PlayM4_Slow)(m_lPort))
 	{
 		m_nSpeed --;
@@ -1576,7 +1598,16 @@ void CDVRPlayer::Slow()
 
 void CDVRPlayer::AdjustSpeed(int nSpeed)
 {
-	int nCyc = 0;
+	m_enumState = CDVRPlayer::eState_Step;
+	if(nSpeed > m_nSpeed)
+	{
+		Fast();	
+	}
+	else if(nSpeed < m_nSpeed)
+	{
+		Slow();
+	}
+	/*int nCyc = 0;
 	while(m_nSpeed != nSpeed)
 	{
 		if(nSpeed > m_nSpeed)
@@ -1593,7 +1624,7 @@ void CDVRPlayer::AdjustSpeed(int nSpeed)
 		{
 			break;
 		}
-	}
+	}*/
 }
 
 // stepback / stepfore / cap picture
@@ -1880,10 +1911,10 @@ void CDVRPlayer::ThrowB(UINT nID)
 {
 	NAME(PlayM4_ThrowBFrameNum)(m_lPort, nID - IDM_THROW0);
 
-	for(int i = IDM_THROW0; i <= IDM_THROW2; i++ )
+	/*for(int i = IDM_THROW0; i <= IDM_THROW2; i++ )
 	{
-		//m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
-	}
+		m_pMainMenu->CheckMenuItem(i, MF_UNCHECKED);
+	}*/
 	//m_pMainMenu->CheckMenuItem(nID, MF_CHECKED);
 }
 
@@ -2091,7 +2122,7 @@ void CDVRPlayer::OpenStream()
 		pBuf = NULL;
 		throw 0;
 	}
-	NAME(PlayM4_SyncToAudio)(m_lPort, FALSE);
+	//NAME(PlayM4_SyncToAudio)(m_lPort, FALSE);
 #endif
 
 	delete []pBuf;
@@ -2330,7 +2361,6 @@ DWORD WINAPI CDVRPlayer::InputStreamThread( LPVOID lpParameter)
 			{
 				memset(pThis->m_buffer, 0, sizeof(CHAR)*MAX_FRAME_LENGTH);
 				nRet = pThis->m_spStreamParser->GetOneFrame((BYTE*)pThis->m_buffer, &pThis->m_frameHeader);
-
 				//if(!(ReadFile(pThis->m_hStreamFile, pBuf, dwSize, &nRealRead, NULL) && (nRealRead == dwSize)))
 				if (nRet <= 0)
 				{
