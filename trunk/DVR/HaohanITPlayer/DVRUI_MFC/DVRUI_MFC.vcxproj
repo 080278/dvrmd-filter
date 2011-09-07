@@ -96,6 +96,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="ReadMe.txt" />
     <None Include="res\DVRUI_MFC.ico" />
     <None Include="res\DVRUI_MFC.rc2" />
