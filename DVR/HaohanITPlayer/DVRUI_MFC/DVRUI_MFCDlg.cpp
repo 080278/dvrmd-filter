@@ -6,6 +6,7 @@
 #include "DVRUI_MFC.h"
 #include "DVRUI_MFCDlg.h"
 #include "afxdialogex.h"
+#include "CDVRMVSettings.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -50,6 +51,7 @@ END_MESSAGE_MAP()
 
 CDVRUI_MFCDlg::CDVRUI_MFCDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CDVRUI_MFCDlg::IDD, pParent)
+	, ServerPort(20000)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_nPaneCtrlHeight = 30;
@@ -59,6 +61,7 @@ void CDVRUI_MFCDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_DVRMVPLAYERCTRL1, m_DVRPlayer);
+	DDX_Text(pDX, IDC_EDIT_SERVERPORT, ServerPort);
 }
 
 BEGIN_MESSAGE_MAP(CDVRUI_MFCDlg, CDialog)
@@ -69,7 +72,20 @@ BEGIN_MESSAGE_MAP(CDVRUI_MFCDlg, CDialog)
 	ON_WM_DESTROY()
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_PLAY_NEXT, &CDVRUI_MFCDlg::OnBnClickedPlayNext)
-	ON_BN_CLICKED(IDC_GETPLAYTIME, &CDVRUI_MFCDlg::OnBnClickedGetplaytime)
+	ON_BN_CLICKED(IDC_BUTTON_LOGIN, &CDVRUI_MFCDlg::OnBnClickedButtonLogin)
+	ON_BN_CLICKED(IDC_BUTTON_START_MONITOR, &CDVRUI_MFCDlg::OnBnClickedButtonStartMonitor)
+	ON_BN_CLICKED(IDC_BUTTON_STOP_MONITOR, &CDVRUI_MFCDlg::OnBnClickedButtonStopMonitor)
+	ON_BN_CLICKED(IDC_BUTTON_CHANNEL, &CDVRUI_MFCDlg::OnBnClickedButtonChannel)
+	ON_BN_CLICKED(IDC_BUTTON_SERVER_PLAY, &CDVRUI_MFCDlg::OnBnClickedButtonStartPlayback)
+	ON_BN_CLICKED(IDC_BUTTON_SERVER_STOP, &CDVRUI_MFCDlg::OnBnClickedButtonStopPlayback)
+	ON_BN_CLICKED(IDC_BUTTON_VS_PLAY_PAUSE, &CDVRUI_MFCDlg::OnBnClickedButtonVsPlayPause)
+	ON_BN_CLICKED(IDC_BUTTON_VS_STOP, &CDVRUI_MFCDlg::OnBnClickedButtonVsStop)
+	ON_BN_CLICKED(IDC_BUTTON_VS_REVERSE, &CDVRUI_MFCDlg::OnBnClickedButtonVsReverse)
+	ON_BN_CLICKED(IDC_BUTTON_VS_FORWARD, &CDVRUI_MFCDlg::OnBnClickedButtonVsForward)
+	ON_WM_CTLCOLOR()
+//	ON_WM_VSCROLL()
+ON_WM_HSCROLL()
+ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -78,6 +94,11 @@ END_MESSAGE_MAP()
 BOOL CDVRUI_MFCDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	m_Settings.Load();
+	InitServerInfoBox();
+	SetFileState(false);
+	clickCount = 0;
 
 	// 将“关于...”菜单项添加到系统菜单中。
 
@@ -178,9 +199,11 @@ void CDVRUI_MFCDlg::OnBnClickedOpenfile()
 	{
 		m_DVRPlayer.ShowMetaData(TRUE);
 		this->m_DVRPlayer.OpenFile(dlg.GetPathName());
-		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug_Slow.vs");
-		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Alert[20110420215445-20110420215455].vs");
-		//m_DVRPlayer.AddFileToPlayList(L"D:\\Assets\\Bug2.vs");
+		pSlidCtrl=(CSliderCtrl*)GetDlgItem(IDC_SLIDER_PLAY_CONTROL);
+		m_Duration = m_DVRPlayer.get_duration();//获得文件总长度
+		SetTimer(PLAY_FILE_TIMER, 500, NULL);
+		SetFileState(true);
+		m_Pause = true;
 	}
 }
 
@@ -188,7 +211,7 @@ void CDVRUI_MFCDlg::OnBnClickedOpenfile()
 void CDVRUI_MFCDlg::OnDestroy()
 {
 	CDialog::OnDestroy();
-
+	KillTimer(PLAY_FILE_TIMER);
 }
 
 
@@ -234,10 +257,268 @@ void CDVRUI_MFCDlg::OnBnClickedPlayNext()
 }
 
 
-void CDVRUI_MFCDlg::OnBnClickedGetplaytime()
+void CDVRUI_MFCDlg::OnBnClickedButtonLogin()
 {
-	CString csMsg;
-	csMsg.Format(_T("%s/%s : %.1f : %.1f"), m_DVRPlayer.get_currentPositionString(), m_DVRPlayer.get_durationString(), m_DVRPlayer.get_currentPosition(), m_DVRPlayer.get_duration());
+	CString csLoginInfo;
+	CString csIP, csPort, csUName, csPwd;
+	GetDlgItem(IDC_IPADDRESS_SERVERIP)->GetWindowText(csIP);
+	GetDlgItem(IDC_EDIT_SERVERPORT)->GetWindowText(csPort);
+	GetDlgItem(IDC_EDIT_USERNAME)->GetWindowText(csUName);
+	GetDlgItem(IDC_EDIT_PASSWORD)->GetWindowText(csPwd);
+	if (!csIP.IsEmpty() && !csPort.IsEmpty() && !csUName.IsEmpty() && !csPwd.IsEmpty())
+	{
+		BOOL b = m_DVRPlayer.Login(csUName, csPwd, csIP, _ttoi(csPort));
+		if(b)
+		{
+			csLoginInfo = _T("登录服务器成功！");
+			m_Settings.m_csMediaServerIP = csIP;
+			m_Settings.m_lPort = csPort;
+			m_Settings.m_csUsername = csUName;
+			m_Settings.m_csPassword = csPwd;
+			m_Settings.Save();
+		}
+		else
+			csLoginInfo = _T("登录服务器失败！");
+		GetDlgItem(IDC_STATIC_LOINGINFO)->SetWindowText(csLoginInfo);
+	}
+}
 
+
+void CDVRUI_MFCDlg::OnBnClickedButtonStartMonitor()
+{
+	CString csWndNum;
+	CWnd* pWnd = GetDlgItem(IDC_COMBO_SPILTMODEL);
+	pWnd->GetWindowText(csWndNum);
+	if (csWndNum.IsEmpty())
+		m_Settings.m_nRenderWndNum = 1;
+	else
+		m_Settings.m_nRenderWndNum = _ttoi(csWndNum);
+	m_DVRPlayer.StartMonitor(m_Settings.m_nRenderWndNum);
+	SetChannelState();
+	SetFileState(false);
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonStopMonitor()
+{
+	m_DVRPlayer.StopMonitor();
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonChannel()
+{
+	CComboBox* pWndComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_WIND_NUMBER);
+	CComboBox* pChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANNEL);
+	if (pWndComboBox && 
+		pWndComboBox->GetCurSel() != CB_ERR	&& 
+		pChannelComboBox &&
+		pChannelComboBox->GetCurSel() != CB_ERR)
+	{
+		CString csWndIndex, csChannelIndex;
+		pWndComboBox->GetWindowText(csWndIndex);
+		pChannelComboBox->GetWindowText(csChannelIndex);
+		m_DVRPlayer.SetWndChannel(_ttoi(csWndIndex), _ttoi(csChannelIndex));
+	}
+	SetFileState(false);
+}
+
+
+void CDVRUI_MFCDlg::SetChannelState()
+{
+	CComboBox* pWndComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_WIND_NUMBER);
+	
+	pWndComboBox->ResetContent();
+
+	for (int i = 0; i < m_Settings.m_nRenderWndNum; ++i)
+	{
+		CString csNum;
+		csNum.Format(_T("%d"), i);
+		pWndComboBox->AddString(csNum);
+	}
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonStartPlayback()
+{
+	time_t start_long_time;
+	time_t stop_long_time; 
+
+	CDateTimeCtrl* pStartDate = (CDateTimeCtrl*)GetDlgItem(IDC_START_DATE);
+	CDateTimeCtrl* pStartTime = (CDateTimeCtrl*)GetDlgItem(IDC_START_TIME);
+	CDateTimeCtrl* pEndDate = (CDateTimeCtrl*)GetDlgItem(IDC_END_DATE);
+	CDateTimeCtrl* pEndTime = (CDateTimeCtrl*)GetDlgItem(IDC_END_TIME);
+
+	CComboBox* pChangeChannelComboBox = (CComboBox*)GetDlgItem(IDC_COMBO_CHANGE_CHANNEL);
+
+	CTime start_time, stop_time;
+	CTime start_date, stop_date;
+
+	pStartDate->GetTime(start_date);
+
+	pStartTime->GetTime(start_time);
+
+	CTime startT(start_date.GetYear(), start_date.GetMonth(), start_date.GetDay(), start_time.GetHour(), start_time.GetMinute(), start_time.GetSecond()); 
+
+	start_long_time = startT.GetTime();
+
+	pEndDate->GetTime(stop_date);
+
+	pEndTime->GetTime(stop_time);
+
+	CTime stopT(stop_date.GetYear(), stop_date.GetMonth(), stop_date.GetDay(), stop_time.GetHour(), stop_time.GetMinute(), stop_time.GetSecond()); 
+
+	stop_long_time = stopT.GetTime();
+
+	CString csChannel;
+	if (pChangeChannelComboBox && 
+		pChangeChannelComboBox->GetCurSel() != CB_ERR)
+	{
+		pChangeChannelComboBox->GetWindowText(csChannel);;
+	}
+	if(csChannel.IsEmpty())
+		csChannel = "0";
+	m_DVRPlayer.StartPlayback(start_long_time, stop_long_time, _ttoi(csChannel));
+	KillTimer(PLAY_FILE_TIMER);
+	CString csMsg;
+	csMsg.Format(_T(""));
 	GetDlgItem(IDC_PLAYTIME)->SetWindowText(csMsg);
+	SetFileState(false);
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonStopPlayback()
+{
+	m_DVRPlayer.StopPlayback();
+}
+
+
+void CDVRUI_MFCDlg::InitServerInfoBox()
+{
+	GetDlgItem(IDC_IPADDRESS_SERVERIP)->SetWindowText(m_Settings.m_csMediaServerIP);
+	GetDlgItem(IDC_EDIT_SERVERPORT)->SetWindowText(m_Settings.m_lPort);
+	GetDlgItem(IDC_EDIT_USERNAME)->SetWindowText(m_Settings.m_csUsername);
+	GetDlgItem(IDC_EDIT_PASSWORD)->SetWindowText(m_Settings.m_csPassword);
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonVsPlayPause()
+{
+	if(m_Pause)
+	{
+		m_DVRPlayer.pause();
+		GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->SetWindowTextW(_T("播放"));
+		m_Pause = false;
+		GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(false);
+		GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(false);
+		GetDlgItem(IDC_SLIDER_PLAY_CONTROL)->EnableWindow(false);
+	}
+	else
+	{
+		m_DVRPlayer.play();
+		GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->SetWindowTextW(_T("暂停"));
+		m_Pause = true;
+		GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(true);
+		GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(true);
+		GetDlgItem(IDC_SLIDER_PLAY_CONTROL)->EnableWindow(true);
+	}
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonVsStop()
+{
+	m_DVRPlayer.stop();
+	GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->SetWindowTextW(_T("播放"));
+	m_Pause = false;
+	GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(false);
+	GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(false);
+	GetDlgItem(IDC_SLIDER_PLAY_CONTROL)->EnableWindow(false);
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonVsReverse()
+{
+	clickCount--;
+	m_DVRPlayer.fastReverse();
+	GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->SetWindowTextW(_T("播放"));
+	m_Pause = false;
+	if(clickCount >= 4)
+	{
+		GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(false);
+	}
+	else
+		GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(true);
+}
+
+
+void CDVRUI_MFCDlg::OnBnClickedButtonVsForward()
+{
+	clickCount++;
+	m_DVRPlayer.fastForward();
+	GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->SetWindowTextW(_T("播放"));
+	m_Pause = false;
+	if(clickCount >= 4)
+	{
+		GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(false);
+	}
+	else
+		GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(true);
+}
+
+void CDVRUI_MFCDlg::SetFileState(bool b)
+{
+	GetDlgItem(IDC_BUTTON_VS_PLAY_PAUSE)->EnableWindow(b);
+	GetDlgItem(IDC_BUTTON_VS_STOP)->EnableWindow(b);
+	GetDlgItem(IDC_BUTTON_VS_REVERSE)->EnableWindow(b);
+	GetDlgItem(IDC_BUTTON_VS_FORWARD)->EnableWindow(b);	
+	GetDlgItem(IDC_SLIDER_PLAY_CONTROL)->EnableWindow(b);
+	GetDlgItem(IDC_COMBO_WIND_NUMBER)->EnableWindow(!b);
+	GetDlgItem(IDC_COMBO_CHANNEL)->EnableWindow(!b);
+	GetDlgItem(IDC_BUTTON_CHANNEL)->EnableWindow(!b);
+}
+
+HBRUSH CDVRUI_MFCDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+	
+	if(GetDlgItem(IDC_STATIC_LOINGINFO)->m_hWnd == pWnd->m_hWnd)
+	{
+		pDC->SetTextColor(RGB(255,0,0)); 
+	}
+	return hbr;
+}
+
+void CDVRUI_MFCDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	CSliderCtrl   *pSlidCtrl=(CSliderCtrl*)GetDlgItem(IDC_SLIDER_PLAY_CONTROL);  
+   
+	int m_nCur=pSlidCtrl->GetPos();//取得当前位置值
+
+	float pos = m_nCur / 100.00f;
+
+	m_DVRPlayer.SetPosition(pos);
+	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+
+void CDVRUI_MFCDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	switch(nIDEvent)
+    {
+      case PLAY_FILE_TIMER:
+      {   
+          CString csMsg;
+		  csMsg.Format(_T("%s/%s"), m_DVRPlayer.get_currentPositionString(), m_DVRPlayer.get_durationString());
+		  GetDlgItem(IDC_PLAYTIME)->SetWindowText(csMsg);
+
+		  int currentPosition = m_DVRPlayer.get_currentPosition();
+		  int pos = currentPosition / m_Duration * 100;
+		  pSlidCtrl->SetPos(pos);
+          break;
+      }
+      default:
+		  KillTimer(nIDEvent);
+          break;
+    } 
+
+	CDialog::OnTimer(nIDEvent);
 }

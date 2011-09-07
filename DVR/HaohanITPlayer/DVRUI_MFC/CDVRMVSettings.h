@@ -41,5 +41,20 @@ public:
 		InvokeHelper(0x66, DISPATCH_PROPERTYPUT, VT_EMPTY, NULL, parms, newValue);
 	}
 
+//连接DVR信息
+
+public:
+	bool Save(LPCTSTR szXmlPath = NULL);
+	bool Load(LPCTSTR szXmlPath = NULL);
+	BOOL ExtractFilePath(TCHAR* chPath);
+
+public:
+	//Media Server Settings
+	CString		m_csMediaServerIP;			//Media Server IP: e.g. 192.168.123.59
+	CString			m_lPort;			//Media Server Port: e.g. 2000
+	CString		m_csUsername;	//Login Server: Username
+	CString		m_csPassword;	// Password
+
+	int			m_nRenderWndNum;	//Default: 1. 1 , 4, 8, 16
 
 };

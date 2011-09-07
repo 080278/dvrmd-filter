@@ -14,6 +14,7 @@
 // CDVRUI_MFCApp:
 // 有关此类的实现，请参阅 DVRUI_MFC.cpp
 //
+
 class CMyCommandLineInfo : public CCommandLineInfo
 {
 public:

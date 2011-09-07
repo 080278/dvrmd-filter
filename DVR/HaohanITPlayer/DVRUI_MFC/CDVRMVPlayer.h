@@ -205,10 +205,12 @@ public:
 		static BYTE parms[] = VTS_BSTR ;
 		InvokeHelper(0xb, DISPATCH_METHOD, VT_EMPTY, NULL, parms, bstrMediaFile);
 	}
-	void Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, long lPort)
+	BOOL Login(LPCTSTR bstrUsername, LPCTSTR bstrPassword, LPCTSTR bstrIP, long lPort)
 	{
+		BOOL result;
 		static BYTE parms[] = VTS_BSTR VTS_BSTR VTS_BSTR VTS_I4 ;
-		InvokeHelper(0xc, DISPATCH_METHOD, VT_EMPTY, NULL, parms, bstrUsername, bstrPassword, bstrIP, lPort);
+		InvokeHelper(0xc, DISPATCH_METHOD,  VT_BOOL, (void*)&result, parms, bstrUsername, bstrPassword, bstrIP, lPort);
+		return result;
 	}
 	void Logout()
 	{
@@ -284,6 +286,18 @@ public:
 	{
 		InvokeHelper(0x1b, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
 	}
-
-
+	void StartPlayback(LONGLONG lStartTime, LONGLONG lEndTime, LONG lChannel)
+	{
+		static BYTE parms[] = VTS_I8 VTS_I8 VTS_I4 ;
+		InvokeHelper(0x1c, DISPATCH_METHOD, VT_EMPTY, NULL, parms, lStartTime, lEndTime, lChannel);
+	}
+	void StopPlayback()
+	{
+		InvokeHelper(0x1d, DISPATCH_METHOD, VT_EMPTY, NULL, NULL);
+	}
+	void SetPosition(float position)
+	{
+		static BYTE parms[] = VTS_R4 ; 
+		InvokeHelper(0x22, DISPATCH_METHOD, VT_EMPTY, NULL, parms, position);
+	}
 };

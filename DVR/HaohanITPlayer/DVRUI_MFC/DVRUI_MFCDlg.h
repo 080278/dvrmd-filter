@@ -4,6 +4,7 @@
 
 #pragma once
 #include "CDVRMVPlayer.h"
+#include "CDVRMVSettings.h"
 
 
 // CDVRUI_MFCDlg 对话框
@@ -37,11 +38,36 @@ public:
 
 private:
 	int m_nPaneCtrlHeight;
+	bool m_Pause;
+	CSliderCtrl   *pSlidCtrl;
+	float m_Duration;
+	int clickCount;
+
+private:
+	CDVRMVSettings m_Settings;
+
+protected:
+	void SetChannelState();
+	void InitServerInfoBox();//初始化登录界面
+	void SetFileState(bool b);
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	DECLARE_EVENTSINK_MAP()
 	void DoubleClickDvrmvplayerctrl1(short nButton, short nShiftState, long fX, long fY);
 	void KeyDownDvrmvplayerctrl1(short nKeyCode, short nShiftState);
 	afx_msg void OnBnClickedPlayNext();
-	afx_msg void OnBnClickedGetplaytime();
+	afx_msg void OnBnClickedButtonLogin();
+	afx_msg void OnBnClickedButtonStartMonitor();
+	afx_msg void OnBnClickedButtonStopMonitor();
+	afx_msg void OnBnClickedButtonChannel();
+	afx_msg void OnBnClickedButtonStartPlayback();
+	afx_msg void OnBnClickedButtonStopPlayback();
+	afx_msg void OnBnClickedButtonVsPlayPause();
+	afx_msg void OnBnClickedButtonVsStop();
+	afx_msg void OnBnClickedButtonVsReverse();
+	afx_msg void OnBnClickedButtonVsForward();
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	int ServerPort;
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
