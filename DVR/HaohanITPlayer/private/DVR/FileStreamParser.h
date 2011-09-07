@@ -12,6 +12,8 @@ public:
 	virtual BOOL OpenFile(LPCTSTR szFile);
 	virtual void CloseFile();
 
+	virtual BOOL SetFilePointer(float pointer);//设置文件指针(拖拽进度条)
+
 	virtual DWORD GetFileSize();
 
 	U32 GetLastFrameTime()
@@ -31,6 +33,8 @@ protected:
 
 	U32		m_nFirstFrameTime;
 	U32		m_nLastFrameTime;
+
+	DWORD	dwFileSize;
 };
 
 class CHttpStreamParser : public CFileStreamParser

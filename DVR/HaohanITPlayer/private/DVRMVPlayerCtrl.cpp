@@ -214,8 +214,8 @@ STDMETHODIMP CDVRMVPlayerCtrl::play(void)
 			m_bNeedReInitMVSession = FALSE;
 		}
 
-		if(IsWindow())
-			SetTimer(ID_ELAPSED_TIMER, 500, NULL);
+		/*if(IsWindow())
+			SetTimer(ID_ELAPSED_TIMER, 500, NULL);*/
 	}
 
 	return m_IMVPlayer.Play(); 
@@ -834,4 +834,9 @@ STDMETHODIMP CDVRMVPlayerCtrl::GetDurationString(BSTR* pbstrDuration)
 STDMETHODIMP CDVRMVPlayerCtrl::GetCurrentPositionString(BSTR* pbstrCurrentPosition)
 {
 	return get_currentPositionString(pbstrCurrentPosition);
+}
+
+STDMETHODIMP CDVRMVPlayerCtrl::SetPosition(float position)
+{
+	return m_IMVPlayer.SetFilePointer(position);
 }

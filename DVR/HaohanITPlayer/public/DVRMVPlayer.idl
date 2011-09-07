@@ -244,6 +244,8 @@ interface IDVRMVPlayer : IDispatch{
 		HRESULT GetDurationString([out, retval] BSTR* pbstrDuration);
 	[id(DISPID_DVRPLAYER_GET_CURRENT_POSITION_STRING), helpstring("Get Current Position String")] 
 		HRESULT GetCurrentPositionString([out, retval] BSTR* pbstrCurrentPosition);
+	[id(DISPID_DVRPLAYER_SET_POSITION), helpstring("Set File Pointer")] 
+		HRESULT SetPosition([in] float position);
 };
 
 [

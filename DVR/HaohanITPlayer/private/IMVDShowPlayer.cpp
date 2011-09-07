@@ -574,7 +574,7 @@ HRESULT CIMVDShowPlayer::CheckBufferring()
 			OutputDebugStringA("CheckBufferring: Begin buffering......");
 			#endif
 
-			m_spDVRPlayer->Pause();
+			m_spDVRPlayer->Play();
 			//m_pMediaControl->Pause();
 			m_state = PlayerState_Buffering;
 		}
@@ -662,6 +662,13 @@ HRESULT CIMVDShowPlayer::SetRate(double dSpeed, bool bStop/* =false */)
 
     if (dSpeed != m_dRate)
     {
+		if((dSpeed-1.0) > 0)
+		{
+			m_state = PlayerState_ScanForward;
+		}
+		else
+			m_state = PlayerState_ScanReverse;
+
 		m_spDVRPlayer->AdjustSpeed(dSpeed-1.0);
         //CComQIPtr<IParserTrickPlay> pScan(m_pHDDemuxer);
         //CheckPointer(pScan,E_UNEXPECTED);
@@ -846,6 +853,16 @@ HRESULT CIMVDShowPlayer::SetCurrentPosition(LONGLONG toPosition)
 		m_spDVRPlayer->Play();
 	}
 	return S_OK;
+}
+
+HRESULT CIMVDShowPlayer::SetFilePointer(float toPosition)
+{
+	if(m_spDVRPlayer->SetFilePointer(toPosition))
+	{
+		return S_OK;
+	}
+	else
+		return S_FALSE;
 }
 
 HRESULT CIMVDShowPlayer::HandleGraphEvent(IGraphEventCallback* pGraphEventCallback)

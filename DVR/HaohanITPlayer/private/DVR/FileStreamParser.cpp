@@ -67,15 +67,16 @@ BOOL CFileStreamParser::OpenFile(LPCTSTR szFile)
 			}
 		}
 		m_nFirstFrameTime = htonl(fh.FrameTime);
-		DWORD dwFileSize = GetFileSize();
+		dwFileSize = GetFileSize();
 		DWORD dwMovePos = dwFileSize-100;
 		DWORD dwCurPos = 0;
 		if (dwMovePos > 0 && INVALID_SET_FILE_POINTER != (dwCurPos = ::SetFilePointer(m_hFileStream, dwMovePos, 0, FILE_BEGIN)))
 		{
 			nRet = GetOneFrame(streamData.get(), &fh);
-			while((nRet <= 0 && (dwMovePos -= 100)) > 0 ||
-				(nRet > 0 && fh.FrameRate != 25))
+			while((nRet <= 0 && (dwMovePos - 100)) > 0 ||
+				(nRet > 0 && (fh.FrameRate != 25 || fh.FrameType == 10)))
 			{
+				dwMovePos -= 100;
 				if (INVALID_SET_FILE_POINTER == (dwCurPos = ::SetFilePointer(m_hFileStream, dwMovePos, 0, FILE_BEGIN)))
 					break;
 				nRet = GetOneFrame(streamData.get(), &fh);
@@ -90,6 +91,23 @@ BOOL CFileStreamParser::OpenFile(LPCTSTR szFile)
 	}
 	return FALSE;
 }
+
+BOOL CFileStreamParser::SetFilePointer(float pointer)
+{
+	if (m_hFileStream != INVALID_HANDLE_VALUE)
+	{
+		DWORD dwPointerFileSize = dwFileSize * pointer;
+
+		DWORD dwCurPos = ::SetFilePointer(m_hFileStream, dwPointerFileSize, 0, FILE_BEGIN);
+
+		if (INVALID_SET_FILE_POINTER != dwCurPos)
+		{
+			return TRUE;			
+		}
+	}	
+	return FALSE;
+}
+
 void CFileStreamParser::CloseFile()
 {
 	if (m_hFileStream != INVALID_HANDLE_VALUE)

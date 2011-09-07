@@ -49,7 +49,8 @@ public:
 	CPlayer();
 	virtual ~CPlayer();
 	
-	VOID Init(HWND hNotifyWnd, int index_MTManager);
+	//VOID Init(HWND hNotifyWnd, int index_MTManager);
+	VOID Init(HWND hNotifyWnd);
 	VOID Clearup();
 
 	void ResetBuf();
@@ -61,7 +62,10 @@ public:
 	int  StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,char* ssIP, int ssPort);
 	void StopPlayBackByTime(int realHandle);
 
+	static BOOL m_disconnection;//接受不到视频源
+
 	void ResizeMonitorWindow();
+
 private:
 	INT MonitorStartCmdMT(SOCKET sk, HHV_CLIENT_INFO* clientInfo, 
 		char* streamHeader, int& size);
@@ -84,7 +88,9 @@ private:
 
 	INT  m_PlayHandle;
 
-	INT  m_index;
+	//INT  m_index; 
+
+	LONG  m_index;//后来dxl加的，作为海康的播放通道号
 
 	HANDLE m_Thread ;
 
@@ -95,11 +101,7 @@ private:
 	HWND m_hNotifyWnd ;
 	HWND m_hRenderWnd;
 
-	BOOL m_reStartMonitor;
-
 	HWND m_hWnd;
-
-	static BOOL m_disconnection;//接受不到视频源
 
 	CHAR m_streamHeader[4*1024];
 

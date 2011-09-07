@@ -12,6 +12,7 @@
 #include "./PlayMp4H_fFunDef.h"
 #include "Metadata_Types.h"
 #include "DVRPlayer.h"
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -37,14 +38,14 @@ CPlayer::~CPlayer()
     m_hExitEvent = NULL;
 }
 
-void CPlayer::Init(HWND hNotifyWnd, int index_MTManager)
+void CPlayer::Init(HWND hNotifyWnd)
 {
 	m_hRenderWnd = NULL;
     m_exit       = TRUE;
     memset(m_buffer, 0x00, sizeof(m_buffer));
     ResetEvent(m_hExitEvent);
     m_hNotifyWnd  = hNotifyWnd;
-    m_index = index_MTManager;
+    //m_index = index_MTManager;
     m_streamParser.ClearBuf();
 	memset(&m_rcRenderRect, 0, sizeof(RECT));
 }
@@ -179,8 +180,11 @@ INT CPlayer::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
     //mode- 流模式（1-实时流/2-文件流）
 	int nErr = 0;
 	m_playType = STREAME_REALTIME;
+	NAME(PlayM4_GetPort)(&m_index);
 	BOOL  bret =  PlayM4_SetStreamOpenMode(m_index, m_playType);
+	nErr =  PlayM4_GetLastError(m_index);
     bret =  PlayM4_OpenStream( m_index, (BYTE*)m_streamHeader, streamHeaderSize, 600*1024);
+	nErr =  PlayM4_GetLastError(m_index);
 	if (!bret)
 	{
 		m_comSocket.Close();
@@ -301,7 +305,8 @@ UINT __stdcall CPlayer::DecoderRoutine( void * dat)
 		if( ret < 0 )
 			break;
     }
-    
+		/*pPlayer->m_comSocket.Close();
+		SetEvent( pPlayer->m_hExitEvent );*/
 	if(pPlayer->m_exit)
 	{
 		pPlayer->m_comSocket.Close();
@@ -379,13 +384,17 @@ int CPlayer::InputData_Frame()
 		//网络异常，接受不到数据给出警告！
 		m_disconnection = true;
 
-		while(ReStartMonitor()<0);//重新尝试连接并启动监视
+		while(ReStartMonitor()<0)//重新尝试连接并启动监视
 		{
+			if(m_exit)
+			{
+				return -1;
+			}
 			Sleep(1000);
 		}
 		return -1;
-		//	m_exit = true;
-		//	return -1;
+			//m_exit = true;
+			//return -1;
     }
 
     if(m_exit)
@@ -498,11 +507,18 @@ int CPlayer::InputData_Frame_PlayBack()
             Sleep(1);
     }
 	
-    //取出meta数据，叠加到视频
-	m_MetaDataLock.Lock();
-	memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(m_frameHeader.MetaLength));
-    memcpy( m_meta+sizeof(m_frameHeader.MetaLength), m_buffer + encFrameLength, m_frameHeader.MetaLength ); 
-	m_MetaDataLock.Unlock();
+	if (m_frameHeader.FrameType <= 3)//去掉音频帧
+	{
+		//取出meta数据，叠加到视频
+		m_MetaDataLock.Lock();
+		memcpy( m_meta, &m_frameHeader.MetaLength, sizeof(m_frameHeader.MetaLength));
+		memcpy( m_meta+sizeof(m_frameHeader.MetaLength), m_buffer + encFrameLength, m_frameHeader.MetaLength ); 
+		m_MetaDataLock.Unlock();
+		while(PlayM4_GetSourceBufferRemain(m_index) > 0)//服务器回放和本地播放一样，数据读取比较快，metaData全读取完了
+		{
+			::Sleep(10);
+		}
+	}
     return 0;
 }
 
@@ -681,6 +697,7 @@ int CPlayer::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
     //mode- 流模式（1-实时流/2-文件流）
 	int nErr = 0;
 	m_playType = STREAME_FILE;
+	NAME(PlayM4_GetPort)(&m_index);
 	BOOL  bret =  PlayM4_SetStreamOpenMode(m_index, m_playType);
     bret =  PlayM4_OpenStream( m_index, (BYTE*)m_streamHeader, streamHeaderSize, 600*1024);
 	if (!bret)

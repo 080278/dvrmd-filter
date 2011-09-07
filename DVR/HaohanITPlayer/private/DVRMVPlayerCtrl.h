@@ -535,6 +535,7 @@ public:
 	STDMETHOD(GetCurrentPosition)(DOUBLE* pdCurrentPosition);
 	STDMETHOD(GetDurationString)(BSTR* pbstrDuration);
 	STDMETHOD(GetCurrentPositionString)(BSTR* pbstrCurrentPosition);
+	STDMETHOD(SetPosition)(float position);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(DVRMVPlayerCtrl), CDVRMVPlayerCtrl)

@@ -80,10 +80,9 @@ INT CPlayerMgr::StartMonitor(HWND hWnd, HHV_CLIENT_INFO* clientInfo)
 		m_csLock.Unlock();
 		return HHV_ERROR_POORMEMORY;
 	}
-	player->Init( NULL, index );
+	player->Init(NULL);
 	m_player[index] = player;
 	m_csLock.Unlock();
-	
 	int ret = player->StartMonitor( hWnd, clientInfo);
 	if( ret < 0)
 	{
@@ -155,7 +154,7 @@ int CPlayerMgr::StartPlayBackByTime(HWND hWnd, SYSTEM_VIDEO_FILE* recdFile,
 		m_csLock.Unlock();
 		return HHV_ERROR_POORMEMORY;
 	}
-	player->Init( NULL, index );
+	player->Init(NULL);
 	m_player[index] = player;
 	m_csLock.Unlock();
 	

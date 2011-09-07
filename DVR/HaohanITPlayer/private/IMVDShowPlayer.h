@@ -60,7 +60,8 @@ public:
 	HRESULT GetVolume(LONG* plVol);
 	HRESULT CheckBufferring();
 	HRESULT HandleDeviceChanged();
-	
+	HRESULT SetFilePointer(float toPosition);
+
 	inline HRESULT ReInitSession()
 	{
 		CloseSession();
@@ -116,6 +117,24 @@ public:
 	{
 		if(m_state == PlayerState_Uninitialized || 
 			m_state == PlayerState_Stopped)
+			return FALSE;
+		else
+			return TRUE;
+	}
+
+	inline BOOL CanScanForward()
+	{
+		if(m_state == PlayerState_Uninitialized || 
+			m_state == PlayerState_ScanForward)
+			return FALSE;
+		else
+			return TRUE;
+	}
+
+	inline BOOL CanScanReverse()
+	{
+		if(m_state == PlayerState_Uninitialized || 
+			m_state == PlayerState_ScanReverse)
 			return FALSE;
 		else
 			return TRUE;
