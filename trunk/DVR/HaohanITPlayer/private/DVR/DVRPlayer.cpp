@@ -729,6 +729,9 @@ BOOL CDVRPlayer::StartMonitor()
 	{
 		if (!IsLogined())
 		{
+			HWND hWnd = m_spHWndMgr->GetHWnd(0);
+			COLORREF osdcolor = RGB(0, 255, 0);
+			m_spHWndMgr->SetOsdTextEx(0, 1, "HHit 登录服务器失败", osdcolor);
 			//::MessageBox(m_hParentWnd, _T("请先登录服务器！"), _T("错误"), MB_OK);
 			return FALSE;
 		}
